@@ -19,6 +19,7 @@ impl AbsPath {
 
 impl RelPath {
     fn new(path: PathBuf) -> Self {
+        assert!(path.is_relative());
         Self { path }
     }
 }
