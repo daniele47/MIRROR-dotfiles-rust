@@ -23,11 +23,18 @@ impl AbsPath {
     /// Creates new AbsPath from an absolute path.
     pub fn new(path: PathBuf) -> Result<Self> {
         assert!(path.is_absolute());
-        let norm_path = path.canonicalize()?;
-        if norm_path != path {
+        let res = Self { path: path };
+        res.validate()?;
+        Ok(res)
+    }
+
+    /// Validate path is still valid.
+    pub fn validate(&self) -> Result<()> {
+        let norm_path = self.path.canonicalize()?;
+        if norm_path != self.path {
             return Err(Error::NonCanonicalPath);
         }
-        Ok(Self { path: norm_path })
+        Ok(())
     }
 
     /// Get FileType.
