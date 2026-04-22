@@ -10,9 +10,22 @@ pub struct RelPath {
     path: PathBuf,
 }
 
+impl AbsPath {
+    fn new(path: PathBuf) -> Self {
+        assert!(path.is_absolute());
+        Self { path }
+    }
+}
+
+impl RelPath {
+    fn new(path: PathBuf) -> Self {
+        Self { path }
+    }
+}
+
 impl From<PathBuf> for AbsPath {
     fn from(value: PathBuf) -> Self {
-        Self { path: value }
+        Self::new(value)
     }
 }
 
@@ -24,7 +37,7 @@ impl From<AbsPath> for PathBuf {
 
 impl From<PathBuf> for RelPath {
     fn from(value: PathBuf) -> Self {
-        Self { path: value }
+        Self::new(value)
     }
 }
 
