@@ -2,6 +2,7 @@
 
 use std::path::PathBuf;
 
+#[derive(Debug)]
 pub enum Error {
     IoError(std::io::Error),
     NonCanonicalPath(PathBuf),
