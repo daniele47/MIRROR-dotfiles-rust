@@ -1,11 +1,9 @@
 //! This module has the Error type used throught the entire crate.
 
-use std::path::PathBuf;
-
 #[derive(Debug)]
 pub enum Error {
     IoError(std::io::Error),
-    NonCanonicalPath(PathBuf),
+    NonCanonicalPath,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;

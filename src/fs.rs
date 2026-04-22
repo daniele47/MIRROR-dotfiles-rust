@@ -25,7 +25,7 @@ impl AbsPath {
         assert!(path.is_absolute());
         let norm_path = path.canonicalize()?;
         if norm_path != path {
-            return Err(Error::NonCanonicalPath(path));
+            return Err(Error::NonCanonicalPath);
         }
         Ok(Self { path: norm_path })
     }
