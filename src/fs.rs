@@ -70,6 +70,17 @@ impl AbsPath {
         Ok(())
     }
 
+    pub fn delete_dirs(&self) -> Result<()> {
+        if !self.exists() {
+            return Ok(());
+        }
+
+        // keep deleting empty dirs
+        let mut curr = self.clone();
+        todo!();
+        Ok(())
+    }
+
     /// Purge path, whatever file type it is.
     pub fn purge_path(&self) -> Result<()> {
         if !self.exists() {
@@ -87,7 +98,7 @@ impl AbsPath {
 
         // clear empty parent dirs
         self.create_dir()?;
-        // TODO: remove all empty dirs recursively
+        self.delete_dirs()?;
 
         Ok(())
     }
