@@ -52,6 +52,8 @@ impl AbsPath {
     }
 
     /// Get FileType.
+    ///
+    /// Can also be used to check if path exists, simply by checking if result is not an error.
     pub fn file_type(&self) -> Result<FileType> {
         // note: .symlink_metadata() doesn't follow symlinks, whilst
         // .metadata() would, and thus not report symlinks as such
