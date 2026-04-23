@@ -10,6 +10,8 @@ Copy-based dotfiles tracking cli, written in rust
 - [ ] proper error system
 - [ ] proper docs and help message
 
+- [ ] in fs module, add list_files and all_files functions
+
 ## ideas
 
 ```
