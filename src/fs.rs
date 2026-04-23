@@ -11,8 +11,8 @@
 //! let tmp_file1 = tmp_dir.join(&RelPath::from("file1.txt"));
 //! let tmp_file2 = tmp_dir.join(&RelPath::from("file2.txt"));
 //! tmp_dir.create_dir().unwrap();
-//! tmp_file1.create_file().unwrap();
-//! tmp_file2.create_file().unwrap();
+//! tmp_file1.create_file(false).unwrap();
+//! tmp_file2.create_file(false).unwrap();
 //!
 //! // assert that path is already canonicalized
 //! assert_eq!(tmp_file1, tmp_file1.canonicalize().unwrap());
@@ -127,16 +127,13 @@ impl AbsPath {
 
     /// Create file, with all missing parents.
     ///
-    /// Notes:
-    /// - There could be some directory left created on failure!
-    /// - This is unable to delete not empty dirs, for safety reasons, thus it will fail if path
-    ///   has a not empty directory!
-    pub fn create_file(&self) -> Result<()> {
+    /// Notes: there could be some directory left created on failure!
+    pub fn create_file(&self, allow_recursive_deletion: bool) -> Result<()> {
         if self.exists() {
             if self.metadata()?.is_file() {
                 return Ok(());
             }
-            self.purge_path(false)?;
+            self.purge_path(allow_recursive_deletion)?;
         }
         // note: this parent call is not fully safe, as path could not be normalized beforehand
         // not much i can do differently though ¯\_(ツ)_/¯
@@ -199,8 +196,8 @@ impl AbsPath {
     }
 
     /// Copy file into destination.
-    pub fn copy_file(&self, dst: &AbsPath) -> Result<()> {
-        dst.create_file()?;
+    pub fn copy_file(&self, dst: &AbsPath, allow_recursive_deletion: bool) -> Result<()> {
+        dst.create_file(allow_recursive_deletion)?;
         fs::copy(&self.path, &dst.path)?;
         Ok(())
     }
@@ -308,15 +305,15 @@ mod tests {
         let file6 = subdir2.join(&RelPath::from("file6.txt"));
         let empty_dir = tmp_dir.join(&RelPath::from("empty_dir"));
 
-        file1.create_file().unwrap();
-        file2.create_file().unwrap();
+        file1.create_file(false).unwrap();
+        file2.create_file(false).unwrap();
         subdir1.create_dir().unwrap();
-        file3.create_file().unwrap();
-        file4.create_file().unwrap();
+        file3.create_file(false).unwrap();
+        file4.create_file(false).unwrap();
         subsubdir1.create_dir().unwrap();
-        file5.create_file().unwrap();
+        file5.create_file(false).unwrap();
         subdir2.create_dir().unwrap();
-        file6.create_file().unwrap();
+        file6.create_file(false).unwrap();
         empty_dir.create_dir().unwrap();
 
         tmp_dir
@@ -361,19 +358,19 @@ mod tests {
         // Create file in existing directory
         let file = root.join(&RelPath::from("test.txt"));
         assert!(!file.exists());
-        file.create_file().unwrap();
+        file.create_file(false).unwrap();
         assert!(file.exists());
         assert!(file.metadata().unwrap().is_file());
 
         // Create file with nested directories
         let nested_file = root.joins(&["nested", "dir", "file.txt"]);
         assert!(!nested_file.exists());
-        nested_file.create_file().unwrap();
+        nested_file.create_file(false).unwrap();
         assert!(nested_file.exists());
         assert!(nested_file.metadata().unwrap().is_file());
 
         // Creating existing file should be idempotent
-        nested_file.create_file().unwrap();
+        nested_file.create_file(false).unwrap();
         assert!(nested_file.exists());
 
         root.purge_path(true).unwrap();
