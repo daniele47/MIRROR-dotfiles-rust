@@ -49,7 +49,9 @@ impl AbsPath {
 
     /// Get FileType.
     pub fn file_type(&self) -> Result<FileType> {
-        Ok(self.path.metadata()?.file_type())
+        // note: .symlink_metadata() doesn't follow symlinks, whilst
+        // .metadata() would, and thus not report symlinks as such
+        Ok(self.path.symlink_metadata()?.file_type())
     }
 }
 
