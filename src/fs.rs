@@ -34,8 +34,13 @@ impl AbsPath {
 
     /// Creates a new pseudo-random AbsPath in a temporary location.
     ///
-    /// Note: this doesn't guarantee the path doesn't exist, to be safe, this function should
-    /// be used in a loop and a new path should be generated until one doesn't exist.
+    /// This function should be used mostly for tests!
+    ///
+    /// Notes:
+    /// - this function should be mostly be used for tests, as files in `/tmp` dir in linux
+    ///   are often stored directly in ram via tmpfs mount, thus it's not ideal for big files!
+    /// - this doesn't guarantee the path doesn't exist, to be safe, this function should
+    ///   be used in a loop and a new path should be generated until one doesn't exist.
     ///
     /// Implementation details: pseudo-randomicity comes from 3 simple factors:
     /// - prefix passed as a string (more of an identifier, than proper randomness)
