@@ -140,6 +140,14 @@ impl AbsPath {
         fs::copy(&self.path, &dst.path)?;
         Ok(())
     }
+
+    /// List all files in a directory.
+    pub fn list_files(&self) -> Result<Vec<AbsPath>> {
+        Ok(fs::read_dir(&self.path)?
+            .filter_map(|entry| entry.ok())
+            .map(|entry| AbsPath::new(entry.path()))
+            .collect())
+    }
 }
 
 impl RelPath {

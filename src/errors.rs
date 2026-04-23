@@ -5,10 +5,8 @@ use std::path::StripPrefixError;
 /// Error type for the entire crate.
 #[derive(Debug)]
 pub enum Error {
-    // external errors
+    // fs errors
     IoError(std::io::Error),
-
-    // internal errors
     InvalidPathPrefix,
 }
 
