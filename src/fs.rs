@@ -41,6 +41,8 @@ impl AbsPath {
     ///   are often stored directly in ram via tmpfs mount, thus it's not ideal for big files!
     /// - this doesn't guarantee the path doesn't exist, to be safe, this function should
     ///   be used in a loop and a new path should be generated until one doesn't exist.
+    ///   But for simple testing porpouses, this function should be good enough, just make sure
+    ///   to cleanup the temporary files and directories!
     ///
     /// Implementation details: pseudo-randomicity comes from 3 simple factors:
     /// - prefix passed as a string (more of an identifier, than proper randomness)
@@ -84,10 +86,10 @@ impl AbsPath {
 
     /// Create directory with all missing parents.
     ///
-    /// Note: there could be some directory left created on failure!
+    /// Notes: there could be some directory left created on failure!
     pub fn create_dir(&self) -> Result<()> {
         if self.exists() && !self.file_type()?.is_dir() {
-            self.purge_path()?;
+            self.purge_path(false)?;
         }
         Ok(fs::create_dir_all(&self.path)?)
     }
@@ -103,7 +105,7 @@ impl AbsPath {
             if self.file_type()?.is_file() {
                 return Ok(());
             }
-            self.purge_path()?;
+            self.purge_path(false)?;
         }
         // note: this parent call is not fully safe, as path could not be normalized beforehand
         // not much i can do differently though ¯\_(ツ)_/¯
@@ -137,8 +139,9 @@ impl AbsPath {
 
     /// Purge path, whatever file type it is.
     ///
-    /// Note: this is unable to delete not empty dirs, for safety reasons!!!
-    pub fn purge_path(&self) -> Result<()> {
+    /// DANGER: Use `allowRecursiveDeletion` with caution, as it can easily purge entire
+    /// directories!!! Make sure to use with extreme caution always!
+    pub fn purge_path(&self, allow_recursive_deletion: bool) -> Result<()> {
         if !self.exists() {
             return Ok(());
         }
@@ -146,7 +149,11 @@ impl AbsPath {
         // delete whatever is in the path
         let path = self.path.canonicalize()?;
         if path.symlink_metadata()?.is_dir() {
-            fs::remove_dir(&self.path)?;
+            if allow_recursive_deletion {
+                fs::remove_dir_all(&self.path)?;
+            } else {
+                fs::remove_dir(&self.path)?;
+            }
         } else {
             fs::remove_file(&self.path)?;
         }
