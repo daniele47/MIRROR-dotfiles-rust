@@ -32,19 +32,23 @@ impl AbsPath {
     }
 
     /// Validate path is valid.
-    pub fn validate(self) -> Result<Self> {
+    pub fn validate(&self) -> Result<()> {
         assert!(self.path.is_absolute());
         let norm_path = self.path.canonicalize()?;
         if norm_path != self.path {
             return Err(Error::NonCanonicalPath);
         }
-        Ok(self)
+        Ok(())
     }
 
     /// Get relative path.
     pub fn to_relative(&self, prefix: &AbsPath) -> Result<RelPath> {
-        let rel = self.path.strip_prefix(&prefix.path)?;
-        Ok(RelPath::new(rel.to_path_buf()))
+        Ok(self.path.strip_prefix(&prefix.path)?.to_path_buf().into())
+    }
+
+    /// Append to path.
+    pub fn join(&self, suffix: &RelPath) -> AbsPath {
+        self.path.join(&suffix.path).into()
     }
 
     /// Get FileType.
@@ -64,8 +68,7 @@ impl RelPath {
 
     /// Add a prefix to turn relative path into absolute path.
     pub fn to_absolute(&self, base: &AbsPath) -> AbsPath {
-        let abs = base.path.join(&self.path);
-        AbsPath::new(abs)
+        base.path.join(&self.path).into()
     }
 }
 
