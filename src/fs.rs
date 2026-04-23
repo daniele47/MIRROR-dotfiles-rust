@@ -234,7 +234,10 @@ impl AbsPath {
             let dir_files = item.list_files()?;
             for dir_file in &dir_files {
                 let canon = dir_file.canonicalize()?;
-                if dir_file.metadata()?.is_dir() && !norm_files.contains(&canon) {
+                if norm_files.contains(&canon) {
+                    continue;
+                }
+                if dir_file.metadata()?.is_dir() {
                     stack.push(dir_file.clone());
                 }
                 norm_files.insert(canon);
