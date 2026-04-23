@@ -1,8 +1,29 @@
 //! This module implements various filesystem wrappers, to guarantee safer fs operations.
 //!
 //! ```rust
-//! todo!("add a simple example showcasing this module functionalities!!!");
-//! todo!("add tests for this module");
+//! use dotfiles_rust::fs::{AbsPath, RelPath};
+//!
+//! // create temporary directory and file
+//! let mut tmp_dir = AbsPath::new_tmp("dotfiles_rust_example");
+//! while tmp_dir.exists() {
+//!     tmp_dir = AbsPath::new_tmp("dotfiles_rust_example");
+//! }
+//! let tmp_file1 = tmp_dir.join(&RelPath::from("file1.txt"));
+//! let tmp_file2 = tmp_dir.join(&RelPath::from("file2.txt"));
+//! tmp_dir.create_dir().unwrap();
+//! tmp_file1.create_file().unwrap();
+//! tmp_file2.create_file().unwrap();
+//!
+//! // canonicalize path (with how i built the file, it is already canonicalized!)
+//! assert_eq!(tmp_file1, tmp_file1.canonicalize().unwrap());
+//!
+//! // list files in directory, and make sure they are the expected ones
+//! let mut listed_files = tmp_dir.list_files().unwrap();
+//! listed_files.sort();
+//! assert_eq!(vec![tmp_file1, tmp_file2], listed_files);
+//!
+//! // delete temporary directory
+//! tmp_dir.purge_path(true).unwrap();
 //! ```
 
 use std::{
@@ -176,8 +197,9 @@ impl AbsPath {
 
     /// List all files in a directory.
     ///
-    /// Note: this will get ALL files, even directories, symlinks, all rust can get.
-    /// Manual filtering is required when using this function!
+    /// Notes:
+    /// - this will get ALL files, even directories, symlinks, all rust can get.
+    /// - no order for the files is guaranteed
     pub fn list_files(&self) -> Result<Vec<AbsPath>> {
         Ok(fs::read_dir(&self.path)?
             .filter_map(|entry| entry.ok())
