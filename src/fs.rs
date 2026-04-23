@@ -57,11 +57,15 @@ impl AbsPath {
     }
 
     /// Create directory with all missing parents.
+    ///
+    /// Note: there could be some directory left created on failure!
     pub fn create_dir(&self) -> Result<()> {
         Ok(fs::create_dir_all(&self.path)?)
     }
 
     /// Create file, with all missing parents.
+    ///
+    /// Note: there could be some directory left created on failure!
     pub fn create_file(&self) -> Result<()> {
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
@@ -70,14 +74,24 @@ impl AbsPath {
         Ok(())
     }
 
+    /// Delete empty directory and its anchestors until it finds the first not empty dir!
     pub fn delete_dirs(&self) -> Result<()> {
         if !self.exists() {
             return Ok(());
         }
 
         // keep deleting empty dirs
-        let mut curr = self.clone();
-        todo!();
+        let mut curr = self.canonicalize()?;
+        loop {
+            if fs::remove_dir(&curr.path).is_err() {
+                break;
+            }
+            let parent = curr.path.parent();
+            if parent.is_none() {
+                break;
+            }
+            curr = parent.unwrap().to_path_buf().into();
+        }
         Ok(())
     }
 
