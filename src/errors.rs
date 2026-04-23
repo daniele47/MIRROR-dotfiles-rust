@@ -9,7 +9,6 @@ pub enum Error {
     IoError(std::io::Error),
 
     // internal errors
-    NonCanonicalPath,
     InvalidPathPrefix,
 }
 

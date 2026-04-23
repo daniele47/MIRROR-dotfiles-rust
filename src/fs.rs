@@ -1,8 +1,5 @@
 //! This module implements various filesystem wrappers, to guarantee safer fs operations.
 //!
-//! All operations are thought out to avoid symlinks and symlinked paths, as those will
-//! easily end up causing weird edge cases I don't want to have to deal with!
-//!
 //! ```rust
 //! todo!("add a simple example showcasing this module functionalities!!!");
 //! todo!("add tests for this module");
@@ -10,12 +7,9 @@
 
 use std::{fs::FileType, path::PathBuf};
 
-use crate::errors::{Error, Result};
+use crate::errors::Result;
 
 /// Struct storing an absolute path.
-///
-/// Note: it doesn't make guarantees the path exists, nor that it is not in a symlinked location.
-/// Thus those needs to be validated using `validate` method or manually somehow.
 #[derive(Debug)]
 pub struct AbsPath {
     path: PathBuf,
@@ -34,14 +28,9 @@ impl AbsPath {
         Self { path: path }
     }
 
-    /// Validate path is valid.
-    pub fn validate(&self) -> Result<()> {
-        assert!(self.path.is_absolute());
-        let norm_path = self.path.canonicalize()?;
-        if norm_path != self.path {
-            return Err(Error::NonCanonicalPath);
-        }
-        Ok(())
+    /// Get canonicalized path.
+    pub fn canonicalize(&self) -> Result<Self> {
+        Ok(self.path.canonicalize()?.into())
     }
 
     /// Get relative path.
@@ -58,9 +47,7 @@ impl AbsPath {
     ///
     /// Can also be used to check if path exists, simply by checking if the result is not an error.
     pub fn file_type(&self) -> Result<FileType> {
-        // note: .symlink_metadata() doesn't follow symlinks, whilst
-        // .metadata() would, and thus not report symlinks as such
-        Ok(self.path.symlink_metadata()?.file_type())
+        Ok(self.path.metadata()?.file_type())
     }
 }
 
