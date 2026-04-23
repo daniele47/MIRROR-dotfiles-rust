@@ -127,7 +127,9 @@ impl AbsPath {
 
     /// Create file, with all missing parents.
     ///
-    /// Notes: there could be some directory left created on failure!
+    /// Notes:
+    /// - there could be some directory left created on failure!
+    /// - `allow_recursive_deletion` allows deleting not empty dirs if in path
     pub fn create_file(&self, allow_recursive_deletion: bool) -> Result<()> {
         if self.exists() {
             if self.metadata()?.is_file() {
@@ -167,7 +169,7 @@ impl AbsPath {
 
     /// Purge path, whatever file type it is.
     ///
-    /// DANGER: Use `allowRecursiveDeletion` with caution, as it can easily purge entire
+    /// DANGER: Use `allow_recursive_deletion` with caution, as it can easily purge entire
     /// directories!!! Make sure to use with extreme caution always!
     pub fn purge_path(&self, allow_recursive_deletion: bool) -> Result<()> {
         if !self.exists() {
@@ -196,6 +198,8 @@ impl AbsPath {
     }
 
     /// Copy file into destination.
+    ///
+    /// Note: `allow_recursive_deletion` purges even not empty dirs if in dst path
     pub fn copy_file(&self, dst: &AbsPath, allow_recursive_deletion: bool) -> Result<()> {
         dst.create_file(allow_recursive_deletion)?;
         fs::copy(&self.path, &dst.path)?;
@@ -217,8 +221,8 @@ impl AbsPath {
     /// Note: this will get ALL files, even directories, symlinks, all rust can get.
     /// Manual filtering is required when using this function!
     ///
-    /// Implementation details: this function uses DFS, using an vector as a stack of directories
-    /// found but yet to be explored, and an hashset of all paths explored until now, canonicalized.
+    /// Implementation details: this function uses DFS, using a vector as a stack of directories
+    /// found but yet to be explored, and a hashset of all paths explored until now, canonicalized.
     /// The hash set allows to easily check if a new directory was already explored, and if so,
     /// avoid exploring it again. This easily resolves all symlink loops that could be created.
     pub fn all_files(&self) -> Result<BTreeSet<AbsPath>> {
