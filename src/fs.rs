@@ -1,4 +1,4 @@
-//! This module implements various filesystem wrappers, to garantee safer fs operations.
+//! This module implements various filesystem wrappers, to guarantee safer fs operations.
 //!
 //! ```rust
 //! todo!("add a simple example showcasing this module functionalities!!!");
