@@ -4,13 +4,8 @@ Copy-based dotfiles tracking cli, written in rust
 
 ## todo
 
-- [ ] modules and profile (modules aka neovim, tmux, kde configs, ...; profile aka kde-linux, fedora-kde, minimal-cli, ...)
-    - [ ] modules must be allowed to track same files. for example neovim and neovim-raspberrypi both will track .config/nvim, but will have different files
-    - [ ] profiles are just a list of modules to apply in order
-- [ ] proper error system
-- [ ] proper docs and help message
-
-- [ ] in fs module, add list_files and all_files functions
+- [x] in fs module, add list_files and all_files functions
+- [ ] add proper and comprehensive tests for fs module
 
 ## ideas
 

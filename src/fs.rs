@@ -27,6 +27,7 @@
 //! ```
 
 use std::{
+    collections::HashSet,
     env,
     fs::{self, File, FileType},
     path::PathBuf,
@@ -217,7 +218,21 @@ impl AbsPath {
     /// The hash set allows to easily check if a new directory was already explored, and if so,
     /// avoid exploring it again. This easily resolves all symlink loops that could be created.
     pub fn all_files(&self) -> Result<Vec<AbsPath>> {
-        todo!()
+        let mut files = HashSet::new();
+        let mut stack = Vec::new();
+        stack.push(self.clone());
+
+        while let Some(item) = stack.pop() {
+            let dir_files = item.list_files()?;
+            for dir_file in &dir_files {
+                if dir_file.file_type()?.is_dir() && !files.contains(dir_file) {
+                    stack.push(dir_file.clone());
+                }
+            }
+            files.extend(dir_files);
+        }
+
+        Ok(files.into_iter().collect())
     }
 }
 
