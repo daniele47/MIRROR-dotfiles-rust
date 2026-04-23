@@ -22,7 +22,7 @@
 //! ```
 
 use std::{
-    collections::HashSet,
+    collections::{BTreeSet, HashSet},
     env,
     fs::{self, File, FileType},
     path::PathBuf,
@@ -200,10 +200,8 @@ impl AbsPath {
 
     /// List all files in a directory.
     ///
-    /// Notes:
-    /// - this will get ALL files, even directories, symlinks, all rust can get.
-    /// - no order for the files is guaranteed
-    pub fn list_files(&self) -> Result<HashSet<AbsPath>> {
+    /// Notes: this will get ALL files, even directories, symlinks, all rust can get.
+    pub fn list_files(&self) -> Result<BTreeSet<AbsPath>> {
         Ok(fs::read_dir(&self.path)?
             .filter_map(|entry| entry.ok())
             .map(|entry| AbsPath::new(entry.path()))
@@ -219,8 +217,8 @@ impl AbsPath {
     /// found but yet to be explored, and an hashset of all paths explored until now, canonicalized.
     /// The hash set allows to easily check if a new directory was already explored, and if so,
     /// avoid exploring it again. This easily resolves all symlink loops that could be created.
-    pub fn all_files(&self) -> Result<HashSet<AbsPath>> {
-        let mut files = HashSet::new();
+    pub fn all_files(&self) -> Result<BTreeSet<AbsPath>> {
+        let mut files = BTreeSet::new();
         let mut norm_files = HashSet::new();
         let mut stack = Vec::new();
         stack.push(self.clone());
