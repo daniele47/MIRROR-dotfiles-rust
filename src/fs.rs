@@ -24,11 +24,11 @@
 use std::{
     collections::{BTreeSet, HashSet},
     env,
-    fs::{self, File, FileType},
+    fs::{self, File, Metadata},
     path::PathBuf,
 };
 
-use crate::errors::Result;
+use crate::errors::{Error, Result};
 
 /// Struct storing an absolute path.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -98,9 +98,16 @@ impl AbsPath {
             .fold(self.clone(), |path, s| path.join(&RelPath::from(*s)))
     }
 
-    /// Get FileType.
-    pub fn file_type(&self) -> Result<FileType> {
-        Ok(self.path.metadata()?.file_type())
+    /// Get File Metadata.
+    ///
+    /// Note: it follows symlinks! Use `symlink_metadata` to not follow symlinks.
+    pub fn metadata(&self) -> Result<Metadata> {
+        self.path.metadata().map_err(Error::from)
+    }
+
+    /// Get Symlink metadata.
+    pub fn symlink_metadata(&self) -> Result<Metadata> {
+        self.path.symlink_metadata().map_err(Error::from)
     }
 
     /// Check if path exists.
@@ -112,7 +119,7 @@ impl AbsPath {
     ///
     /// Notes: there could be some directory left created on failure!
     pub fn create_dir(&self) -> Result<()> {
-        if self.exists() && !self.file_type()?.is_dir() {
+        if self.exists() && !self.metadata()?.is_dir() {
             self.purge_path(false)?;
         }
         Ok(fs::create_dir_all(&self.path)?)
@@ -126,7 +133,7 @@ impl AbsPath {
     ///   has a not empty directory!
     pub fn create_file(&self) -> Result<()> {
         if self.exists() {
-            if self.file_type()?.is_file() {
+            if self.metadata()?.is_file() {
                 return Ok(());
             }
             self.purge_path(false)?;
@@ -227,7 +234,7 @@ impl AbsPath {
             let dir_files = item.list_files()?;
             for dir_file in &dir_files {
                 let canon = dir_file.canonicalize()?;
-                if dir_file.file_type()?.is_dir() && !norm_files.contains(&canon) {
+                if dir_file.metadata()?.is_dir() && !norm_files.contains(&canon) {
                     stack.push(dir_file.clone());
                 }
                 norm_files.insert(canon);
@@ -337,7 +344,7 @@ mod tests {
         assert!(!nested.exists());
         nested.create_dir().unwrap();
         assert!(nested.exists());
-        assert!(nested.file_type().unwrap().is_dir());
+        assert!(nested.metadata().unwrap().is_dir());
 
         root.purge_path(true).unwrap();
     }
@@ -353,14 +360,14 @@ mod tests {
         assert!(!file.exists());
         file.create_file().unwrap();
         assert!(file.exists());
-        assert!(file.file_type().unwrap().is_file());
+        assert!(file.metadata().unwrap().is_file());
 
         // Create file with nested directories
         let nested_file = root.joins(&["nested", "dir", "file.txt"]);
         assert!(!nested_file.exists());
         nested_file.create_file().unwrap();
         assert!(nested_file.exists());
-        assert!(nested_file.file_type().unwrap().is_file());
+        assert!(nested_file.metadata().unwrap().is_file());
 
         // Creating existing file should be idempotent
         nested_file.create_file().unwrap();
