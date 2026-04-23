@@ -14,7 +14,7 @@
 //! tmp_file1.create_file().unwrap();
 //! tmp_file2.create_file().unwrap();
 //!
-//! // canonicalize path (with how i built the file, it is already canonicalized!)
+//! // assert that path is already canonicalized
 //! assert_eq!(tmp_file1, tmp_file1.canonicalize().unwrap());
 //!
 //! // delete temporary directory
@@ -54,11 +54,11 @@ impl AbsPath {
     /// This function should be used mostly for tests!
     ///
     /// Notes:
-    /// - this function should be mostly be used for tests, as files in `/tmp` dir in linux
+    /// - this function should mostly be used for tests, as files in `/tmp` dir in linux
     ///   are often stored directly in ram via tmpfs mount, thus it's not ideal for big files!
     /// - this doesn't guarantee the path doesn't exist, to be safe, this function should
     ///   be used in a loop and a new path should be generated until one doesn't exist.
-    ///   But for simple testing porpouses, this function should be good enough, just make sure
+    ///   But for simple testing purposes, this function should be good enough, just make sure
     ///   to cleanup the temporary files and directories!
     ///
     /// Implementation details: pseudo-randomicity comes from 3 simple factors:
@@ -147,7 +147,7 @@ impl AbsPath {
         Ok(())
     }
 
-    /// Delete empty directory and its anchestors until it finds the first not empty dir!
+    /// Delete empty directory and its ancestors until it finds the first not empty dir!
     pub fn delete_dirs(&self) -> Result<()> {
         if !self.exists() {
             return Ok(());
@@ -453,7 +453,7 @@ mod tests {
         let root = setup_test_directory();
         let file = root.join(&RelPath::from("file1.txt"));
 
-        // Try puring simple file
+        // Try purging simple file
         assert!(file.exists());
         file.purge_path(false).unwrap();
         assert!(!file.exists());
