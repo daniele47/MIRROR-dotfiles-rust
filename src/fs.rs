@@ -394,6 +394,9 @@ mod tests {
         assert!(!file_names.contains("file3.txt"));
         assert!(!file_names.contains("file5.txt"));
 
+        // Assert count of paths found
+        assert_eq!(files.len(), 5);
+
         root.purge_path(true).unwrap();
     }
 
