@@ -6,6 +6,7 @@
 //! ```
 
 use std::{
+    env,
     fs::{self, File, FileType},
     path::PathBuf,
 };
@@ -29,6 +30,26 @@ impl AbsPath {
     pub fn new(path: PathBuf) -> Self {
         assert!(path.is_absolute());
         Self { path }
+    }
+
+    /// Creates a new pseudo-random AbsPath in a temporary location.
+    ///
+    /// Note: this doesn't guarantee the path doesn't exist, to be safe, this function should
+    /// be used in a loop and a new path should be generated until one doesn't exist.
+    ///
+    /// Implementation details: pseudo-randomicity comes from 3 simple factors:
+    /// - prefix passed as a string (more of an identifier, than proper randomness)
+    /// - current time in nano seconds (pretty much impossible to repeat twice)
+    /// - current process pid (for some extra randomness, which does not hurt)
+    pub fn new_tmp(prefix: &str) -> Self {
+        let tmp_dir = env::temp_dir();
+        let pid = std::process::id();
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .unwrap_or_default();
+        let tmp_name_str = format!("{}_{}_{}.tmp", prefix, now.as_nanos(), pid);
+        let tmp_name = PathBuf::from(&tmp_name_str);
+        AbsPath::from(tmp_dir.join(tmp_name))
     }
 
     /// Get canonicalized path.
@@ -156,6 +177,11 @@ impl AbsPath {
     ///
     /// Note: this will get ALL files, even directories, symlinks, all rust can get.
     /// Manual filtering is required when using this function!
+    ///
+    /// Implementation details: this function uses DFS, using an vector as a stack of directories
+    /// found but yet to be explored, and an hashset of all paths explored until now.
+    /// The hash set allows to easily check if a new directory was already explored, and if so,
+    /// avoid exploring it again. This easily resolves all symlink loops that could be created.
     pub fn all_files(&self) -> Result<Vec<AbsPath>> {
         todo!()
     }
