@@ -13,13 +13,13 @@ use std::{
 use crate::errors::Result;
 
 /// Struct storing an absolute path.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct AbsPath {
     path: PathBuf,
 }
 
 /// Struct storing a relative path.
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct RelPath {
     path: PathBuf,
 }
@@ -142,11 +142,22 @@ impl AbsPath {
     }
 
     /// List all files in a directory.
+    ///
+    /// Note: this will get ALL files, even directories, symlinks, all rust can get.
+    /// Manual filtering is required when using this function!
     pub fn list_files(&self) -> Result<Vec<AbsPath>> {
         Ok(fs::read_dir(&self.path)?
             .filter_map(|entry| entry.ok())
             .map(|entry| AbsPath::new(entry.path()))
             .collect())
+    }
+
+    /// List all files recursively inside a directory.
+    ///
+    /// Note: this will get ALL files, even directories, symlinks, all rust can get.
+    /// Manual filtering is required when using this function!
+    pub fn all_files(&self) -> Result<Vec<AbsPath>> {
+        todo!()
     }
 }
 
