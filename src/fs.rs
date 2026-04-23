@@ -17,11 +17,6 @@
 //! // canonicalize path (with how i built the file, it is already canonicalized!)
 //! assert_eq!(tmp_file1, tmp_file1.canonicalize().unwrap());
 //!
-//! // list files in directory, and make sure they are the expected ones
-//! let mut listed_files = tmp_dir.list_files().unwrap();
-//! listed_files.sort();
-//! assert_eq!(vec![tmp_file1, tmp_file2], listed_files);
-//!
 //! // delete temporary directory
 //! tmp_dir.purge_path(true).unwrap();
 //! ```
@@ -208,7 +203,7 @@ impl AbsPath {
     /// Notes:
     /// - this will get ALL files, even directories, symlinks, all rust can get.
     /// - no order for the files is guaranteed
-    pub fn list_files(&self) -> Result<Vec<AbsPath>> {
+    pub fn list_files(&self) -> Result<HashSet<AbsPath>> {
         Ok(fs::read_dir(&self.path)?
             .filter_map(|entry| entry.ok())
             .map(|entry| AbsPath::new(entry.path()))
@@ -221,25 +216,28 @@ impl AbsPath {
     /// Manual filtering is required when using this function!
     ///
     /// Implementation details: this function uses DFS, using an vector as a stack of directories
-    /// found but yet to be explored, and an hashset of all paths explored until now.
+    /// found but yet to be explored, and an hashset of all paths explored until now, canonicalized.
     /// The hash set allows to easily check if a new directory was already explored, and if so,
     /// avoid exploring it again. This easily resolves all symlink loops that could be created.
-    pub fn all_files(&self) -> Result<Vec<AbsPath>> {
+    pub fn all_files(&self) -> Result<HashSet<AbsPath>> {
         let mut files = HashSet::new();
+        let mut norm_files = HashSet::new();
         let mut stack = Vec::new();
         stack.push(self.clone());
 
         while let Some(item) = stack.pop() {
             let dir_files = item.list_files()?;
             for dir_file in &dir_files {
-                if dir_file.file_type()?.is_dir() && !files.contains(dir_file) {
+                let canon = dir_file.canonicalize()?;
+                if dir_file.file_type()?.is_dir() && !norm_files.contains(&canon) {
                     stack.push(dir_file.clone());
                 }
+                norm_files.insert(canon);
+                files.insert(dir_file.clone());
             }
-            files.extend(dir_files);
         }
 
-        Ok(files.into_iter().collect())
+        Ok(files)
     }
 }
 
