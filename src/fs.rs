@@ -6,7 +6,7 @@
 //! ```
 
 use std::{
-    fs::{File, FileType, create_dir_all},
+    fs::{self, File, FileType},
     path::PathBuf,
 };
 
@@ -58,15 +58,37 @@ impl AbsPath {
 
     /// Create directory with all missing parents.
     pub fn create_dir(&self) -> Result<()> {
-        Ok(create_dir_all(&self.path)?)
+        Ok(fs::create_dir_all(&self.path)?)
     }
 
     /// Create file, with all missing parents.
     pub fn create_file(&self) -> Result<()> {
         if let Some(parent) = self.path.parent() {
-            create_dir_all(parent)?;
+            fs::create_dir_all(parent)?;
         }
         File::create(&self.path)?;
+        Ok(())
+    }
+
+    /// Purge path, whatever file type it is.
+    pub fn purge_path(&self) -> Result<()> {
+        if !self.exists() {
+            return Ok(());
+        }
+
+        // delete whatever is in the path
+        let path = self.path.canonicalize()?;
+        let metadata = path.symlink_metadata()?;
+        if metadata.is_dir() {
+            fs::remove_dir_all(&self.path)?;
+        } else {
+            fs::remove_file(&self.path)?;
+        }
+
+        // clear empty parent dirs
+        self.create_dir()?;
+        // TODO: remove all empty dirs recursively
+
         Ok(())
     }
 }
