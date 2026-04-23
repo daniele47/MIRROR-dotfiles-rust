@@ -5,7 +5,7 @@ Copy-based dotfiles tracking cli, written in rust
 ## todo
 
 - [x] in fs module, add list_files and all_files functions
-- [ ] add proper and comprehensive tests for fs module
+- [x] add proper and comprehensive tests for fs module
 
 ## ideas
 

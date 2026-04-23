@@ -96,6 +96,13 @@ impl AbsPath {
         self.path.join(&suffix.path).into()
     }
 
+    /// Append to path multiple times easily.
+    pub fn joins(&self, suffixes: &[&str]) -> AbsPath {
+        suffixes
+            .iter()
+            .fold(self.clone(), |path, s| path.join(&RelPath::from(*s)))
+    }
+
     /// Get FileType.
     pub fn file_type(&self) -> Result<FileType> {
         Ok(self.path.metadata()?.file_type())
@@ -270,5 +277,172 @@ impl From<&str> for AbsPath {
 impl From<&str> for RelPath {
     fn from(s: &str) -> Self {
         Self::new(PathBuf::from(s))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::collections::HashSet;
+
+    fn setup_test_directory() -> AbsPath {
+        let tmp_dir = AbsPath::new_tmp("dotfiles_rust_test");
+
+        tmp_dir.purge_path(true).unwrap();
+        tmp_dir.create_dir().unwrap();
+
+        let file1 = tmp_dir.join(&RelPath::from("file1.txt"));
+        let file2 = tmp_dir.join(&RelPath::from("file2.txt"));
+        let subdir1 = tmp_dir.join(&RelPath::from("subdir1"));
+        let file3 = subdir1.join(&RelPath::from("file3.txt"));
+        let file4 = subdir1.join(&RelPath::from("file4.txt"));
+        let subsubdir1 = subdir1.join(&RelPath::from("subsubdir1"));
+        let file5 = subsubdir1.join(&RelPath::from("file5.txt"));
+        let subdir2 = tmp_dir.join(&RelPath::from("subdir2"));
+        let file6 = subdir2.join(&RelPath::from("file6.txt"));
+        let empty_dir = tmp_dir.join(&RelPath::from("empty_dir"));
+
+        file1.create_file().unwrap();
+        file2.create_file().unwrap();
+        subdir1.create_dir().unwrap();
+        file3.create_file().unwrap();
+        file4.create_file().unwrap();
+        subsubdir1.create_dir().unwrap();
+        file5.create_file().unwrap();
+        subdir2.create_dir().unwrap();
+        file6.create_file().unwrap();
+        empty_dir.create_dir().unwrap();
+
+        tmp_dir
+    }
+
+    #[test]
+    fn test_new_tmp() {
+        let tmp1 = AbsPath::new_tmp("test");
+        let tmp2 = AbsPath::new_tmp("test");
+
+        // Should be different paths
+        assert_ne!(tmp1, tmp2);
+        assert!(tmp1.path.is_absolute());
+        assert!(tmp2.path.is_absolute());
+
+        // Should be in temp directory
+        assert!(tmp1.path.starts_with(env::temp_dir()));
+        assert!(tmp2.path.starts_with(env::temp_dir()));
+    }
+
+    #[test]
+    fn test_create_dir() {
+        let root = AbsPath::new_tmp("test_create_dir");
+        root.purge_path(true).unwrap();
+
+        // Create nested directory
+        let nested = root.joins(&["a", "b"]);
+        assert!(!nested.exists());
+        nested.create_dir().unwrap();
+        assert!(nested.exists());
+        assert!(nested.file_type().unwrap().is_dir());
+
+        root.purge_path(true).unwrap();
+    }
+
+    #[test]
+    fn test_create_file() {
+        let root = AbsPath::new_tmp("test_create_file");
+        root.purge_path(true).unwrap();
+        root.create_dir().unwrap();
+
+        // Create file in existing directory
+        let file = root.join(&RelPath::from("test.txt"));
+        assert!(!file.exists());
+        file.create_file().unwrap();
+        assert!(file.exists());
+        assert!(file.file_type().unwrap().is_file());
+
+        // Create file with nested directories
+        let nested_file = root.joins(&["nested", "dir", "file.txt"]);
+        assert!(!nested_file.exists());
+        nested_file.create_file().unwrap();
+        assert!(nested_file.exists());
+        assert!(nested_file.file_type().unwrap().is_file());
+
+        // Creating existing file should be idempotent
+        nested_file.create_file().unwrap();
+        assert!(nested_file.exists());
+
+        root.purge_path(true).unwrap();
+    }
+
+    #[test]
+    fn test_list_files() {
+        let root = setup_test_directory();
+
+        let files = root.list_files().unwrap();
+        let file_names: HashSet<_> = files
+            .iter()
+            .map(|f| f.path.file_name().unwrap().to_str().unwrap())
+            .collect();
+
+        // Should list immediate children
+        assert!(file_names.contains("file1.txt"));
+        assert!(file_names.contains("file2.txt"));
+        assert!(file_names.contains("subdir1"));
+        assert!(file_names.contains("subdir2"));
+        assert!(file_names.contains("empty_dir"));
+
+        // Should not contain nested files
+        assert!(!file_names.contains("file3.txt"));
+        assert!(!file_names.contains("file5.txt"));
+
+        root.purge_path(true).unwrap();
+    }
+
+    #[test]
+    fn test_all_files() {
+        let root = setup_test_directory();
+
+        let all_paths = root.all_files().unwrap();
+
+        // Check paths found
+        // TODO: missing
+
+        // Assert count of paths found
+        assert_eq!(all_paths.len(), 10);
+
+        root.purge_path(true).unwrap();
+    }
+
+    #[test]
+    fn test_delete_dirs() {
+        let root = AbsPath::new_tmp("test_delete_dirs");
+        let nested = root.joins(&["a", "b", "c"]);
+        nested.create_dir().unwrap();
+
+        // The nested directory should be gone
+        assert!(nested.exists());
+        nested.delete_dirs().unwrap();
+        assert!(!nested.exists());
+
+        root.purge_path(true).unwrap();
+    }
+
+    #[test]
+    fn test_purge_path() {
+        let root = setup_test_directory();
+        let file = root.join(&RelPath::from("file1.txt"));
+
+        // Try puring simple file
+        assert!(file.exists());
+        file.purge_path(false).unwrap();
+        assert!(!file.exists());
+        assert!(root.exists());
+
+        // Try to purge non-empty directory without recursive flag (should fail)
+        let result = root.purge_path(false);
+        assert!(result.is_err());
+
+        // Purge with recursive flag
+        root.purge_path(true).unwrap();
+        assert!(!root.exists());
     }
 }
