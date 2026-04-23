@@ -5,7 +5,10 @@
 //! todo!("add tests for this module");
 //! ```
 
-use std::{fs::FileType, path::PathBuf};
+use std::{
+    fs::{File, FileType, create_dir_all},
+    path::PathBuf,
+};
 
 use crate::errors::Result;
 
@@ -44,10 +47,27 @@ impl AbsPath {
     }
 
     /// Get FileType.
-    ///
-    /// Can also be used to check if path exists, simply by checking if the result is not an error.
     pub fn file_type(&self) -> Result<FileType> {
         Ok(self.path.metadata()?.file_type())
+    }
+
+    /// Check if path exists.
+    pub fn exists(&self) -> bool {
+        self.path.exists()
+    }
+
+    /// Create directory with all missing parents.
+    pub fn create_dir(&self) -> Result<()> {
+        Ok(create_dir_all(&self.path)?)
+    }
+
+    /// Create file, with all missing parents.
+    pub fn create_file(&self) -> Result<()> {
+        if let Some(parent) = self.path.parent() {
+            create_dir_all(parent)?;
+        }
+        File::create(&self.path)?;
+        Ok(())
     }
 }
 
