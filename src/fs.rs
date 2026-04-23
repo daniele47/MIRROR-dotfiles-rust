@@ -28,7 +28,7 @@ impl AbsPath {
     /// Creates new AbsPath from an absolute path.
     pub fn new(path: PathBuf) -> Self {
         assert!(path.is_absolute());
-        Self { path: path }
+        Self { path }
     }
 
     /// Get canonicalized path.
@@ -60,13 +60,22 @@ impl AbsPath {
     ///
     /// Note: there could be some directory left created on failure!
     pub fn create_dir(&self) -> Result<()> {
+        if self.exists() && !self.file_type()?.is_dir() {
+            self.purge_path(false)?;
+        }
         Ok(fs::create_dir_all(&self.path)?)
     }
 
     /// Create file, with all missing parents.
     ///
-    /// Note: there could be some directory left created on failure!
-    pub fn create_file(&self) -> Result<()> {
+    /// Notes:
+    /// - There could be some directory left created on failure!
+    /// - If `allow_recursive_delete` is true, this will delete directory recursively, if
+    ///   path is a directory. THIS IS DANGEROUS, BE CAREFUL!!!
+    pub fn create_file(&self, allow_recursive_delete: bool) -> Result<()> {
+        if self.exists() && !self.file_type()?.is_file() {
+            self.purge_path(allow_recursive_delete)?;
+        }
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent)?;
         }
@@ -96,7 +105,10 @@ impl AbsPath {
     }
 
     /// Purge path, whatever file type it is.
-    pub fn purge_path(&self) -> Result<()> {
+    ///
+    /// Note: if `allow_recursive_delete` is true, THIS FUNCTION BECOMES DANGEROUS, as it
+    /// can now delete directories recursively!!!
+    pub fn purge_path(&self, allow_recursive_delete: bool) -> Result<()> {
         if !self.exists() {
             return Ok(());
         }
@@ -105,14 +117,20 @@ impl AbsPath {
         let path = self.path.canonicalize()?;
         let metadata = path.symlink_metadata()?;
         if metadata.is_dir() {
-            fs::remove_dir_all(&self.path)?;
+            if allow_recursive_delete {
+                fs::remove_dir_all(&self.path)?;
+            } else {
+                fs::remove_dir(&self.path)?;
+            }
         } else {
             fs::remove_file(&self.path)?;
         }
 
         // clear empty parent dirs
-        self.create_dir()?;
-        self.delete_dirs()?;
+        if let Some(parent) = self.path.parent() {
+            let abs_parent = AbsPath::new(parent.to_path_buf());
+            abs_parent.delete_dirs()?;
+        }
 
         Ok(())
     }
