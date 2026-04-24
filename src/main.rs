@@ -2,7 +2,7 @@
 use std::collections::HashMap;
 
 use dotfiles_rust::core::{
-    errors::{Error, Result},
+    errors::Result,
     profile::{Profile, ProfileLoader, ProfileType},
 };
 
@@ -18,7 +18,7 @@ impl TestLoader {
         };
 
         // Create test profiles
-        let profiles = vec![
+        let _profiles = vec![
             Profile::new(
                 "root".to_string(),
                 vec!["composite1".to_string(), "module1".to_string()],
@@ -38,7 +38,7 @@ impl TestLoader {
             Profile::new("module2".to_string(), vec![], ProfileType::Module),
             Profile::new("module3".to_string(), vec![], ProfileType::Module),
         ];
-        let profiles = vec![
+        let _profiles = vec![
             Profile::new(
                 "root".to_string(),
                 vec!["composite1".to_string(), "module1".to_string()],
