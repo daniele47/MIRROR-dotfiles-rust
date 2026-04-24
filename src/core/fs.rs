@@ -77,13 +77,6 @@ impl AbsPath {
         self.path.join(&suffix.path).into()
     }
 
-    /// Append to path multiple times easily.
-    pub fn joins(&self, suffixes: &[&str]) -> AbsPath {
-        suffixes
-            .iter()
-            .fold(self.clone(), |path, s| path.join(&RelPath::from(*s)))
-    }
-
     /// Get File Metadata.
     ///
     /// Note: it follows symlinks! Use `symlink_metadata` to not follow symlinks.
@@ -338,7 +331,7 @@ mod tests {
         root.purge_path(true).unwrap();
 
         // Create nested directory
-        let nested = root.joins(&["a", "b"]);
+        let nested = root.join(&RelPath::from("a")).join(&RelPath::from("b"));
         assert!(!nested.exists());
         nested.create_dir().unwrap();
         assert!(nested.exists());
@@ -361,15 +354,18 @@ mod tests {
         assert!(file.metadata().unwrap().is_file());
 
         // Create file with nested directories
-        let nested_file = root.joins(&["nested", "dir", "file.txt"]);
-        assert!(!nested_file.exists());
-        nested_file.create_file(false).unwrap();
-        assert!(nested_file.exists());
-        assert!(nested_file.metadata().unwrap().is_file());
+        let nested = root
+            .join(&RelPath::from("nested"))
+            .join(&RelPath::from("dir"))
+            .join(&RelPath::from("file.txt"));
+        assert!(!nested.exists());
+        nested.create_file(false).unwrap();
+        assert!(nested.exists());
+        assert!(nested.metadata().unwrap().is_file());
 
         // Creating existing file should be idempotent
-        nested_file.create_file(false).unwrap();
-        assert!(nested_file.exists());
+        nested.create_file(false).unwrap();
+        assert!(nested.exists());
 
         root.purge_path(true).unwrap();
     }
@@ -432,7 +428,10 @@ mod tests {
     #[test]
     fn test_delete_dirs() {
         let root = AbsPath::new_tmp("test_delete_dirs");
-        let nested = root.joins(&["a", "b", "c"]);
+        let nested = root
+            .join(&RelPath::from("a"))
+            .join(&RelPath::from("b"))
+            .join(&RelPath::from("c"));
         nested.create_dir().unwrap();
 
         // The nested directory should be gone

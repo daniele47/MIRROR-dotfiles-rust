@@ -1,6 +1,6 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
-use crate::core::fs::RelPath;
+use crate::core::fs::{AbsPath, RelPath};
 
 /// Policy to use for module entries.
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
@@ -66,5 +66,10 @@ impl Module {
     /// Get all entries.
     pub fn entries(&self) -> &[ModuleEntry] {
         &self.entries
+    }
+
+    /// Expand Module to include all and only normal files.
+    pub fn all_files(&self, base: &AbsPath) -> Self {
+        todo!()
     }
 }
