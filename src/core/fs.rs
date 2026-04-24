@@ -1,25 +1,4 @@
 //! This module implements various filesystem wrappers, to guarantee safer fs operations.
-//!
-//! ```rust
-//! use dotfiles_rust::fs::{AbsPath, RelPath};
-//!
-//! // create temporary directory and file
-//! let mut tmp_dir = AbsPath::new_tmp("dotfiles_rust_example");
-//! while tmp_dir.exists() {
-//!     tmp_dir = AbsPath::new_tmp("dotfiles_rust_example");
-//! }
-//! let tmp_file1 = tmp_dir.join(&RelPath::from("file1.txt"));
-//! let tmp_file2 = tmp_dir.join(&RelPath::from("file2.txt"));
-//! tmp_dir.create_dir().unwrap();
-//! tmp_file1.create_file(false).unwrap();
-//! tmp_file2.create_file(false).unwrap();
-//!
-//! // assert that path is already canonicalized
-//! assert_eq!(tmp_file1, tmp_file1.canonicalize().unwrap());
-//!
-//! // delete temporary directory
-//! tmp_dir.purge_path(true).unwrap();
-//! ```
 
 use std::{
     collections::{BTreeSet, HashSet},
@@ -28,7 +7,7 @@ use std::{
     path::PathBuf,
 };
 
-use crate::errors::{Error, Result};
+use crate::core::errors::{Error, Result};
 
 /// Struct storing an absolute path.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]

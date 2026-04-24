@@ -1,2 +1,2 @@
-pub mod errors;
-pub mod fs;
+pub mod core;
+pub mod cli;
