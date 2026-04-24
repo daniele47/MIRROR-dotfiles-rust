@@ -65,16 +65,17 @@ only have neovim and tmux, for example
 
 ## todo
 
-- [x] in fs module, add list_files and all_files functions
+- [x] in fs module, add `list_files` and `all_files` functions
 - [x] add proper and comprehensive tests for fs module
-- [x] make list_files and all_files return BTreeSet which is always sorted!
+- [x] make `list_files` and `all_files` return BTreeSet which is always sorted!
 - [x] make error more context aware
-- [x] finish implementing resolve method in profile.rs
+- [x] finish implementing `resolve` method in profile.rs
 - [x] resolve seems to work, BUT error result is broken (return entire cycle)
-- [x] implement tests for resolve method in profile.rs
-- [ ] implement modules and profiles parsers
-- [ ] implement resolve and extend functions in module.rs
-- [ ] for resolve and extend functions in module.rs implement tests
+- [x] implement tests for `resolve` method in profile.rs
+- [ ] implement modules and profiles `parsers`
+- [ ] implement `resolve` and `extend` functions in module.rs
+- [ ] for `resolve` and `extend` functions in module.rs implement tests
+- [ ] add function in `fs` module to do buffered reads (`BufReader` seems to implement a `.lines()` method!!!)
 
 ### long term todos
 
