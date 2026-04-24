@@ -63,15 +63,6 @@ For example: if `neovim`, `tmux`, `plasma-desktop` are possible modules,
 `minimal-cli` or `kde-linux` are possible profiles and minimal-cli would
 only have neovim and tmux, for example
 
-Note: modules and profiles will be for semplicity be referred to as profiles, since modules are techinically
-a special profile with a single module in it (aka itself)
-
-Ideas:
-    - shebang like first line in config files, to differenciate between profiles and modules
-    - profiles could themselves include other profiles too! (decide how to handle recursion eventually!)
-    - use proper subcommands instead of flags: save / restore / ... (flags only for config things, like specifying the profile to use)
-    - --help for flags/commands, --docs for ENTIRE cli manual, explaining everything
-
 ## todo
 
 - [x] in fs module, add list_files and all_files functions
@@ -87,6 +78,12 @@ Ideas:
 
 ### long term todos
 
+#### cli ideas
+
 - [ ] add `cleanup` action which acts like untracked FOR ALL MODULES + all possible cleanups,
       such as allow deleting backup dirs without a respective config file, check there are NO
       symlinks in the dotfiles repo, ...
+- [ ] add `help` action to get direct help on possible args and flags to the cli
+- [ ] add `doc` action to print an entire manual with all things to know about the script
+
+- [ ] do i need `version` action? i doubt i should. No backward compatibility, KISS!
