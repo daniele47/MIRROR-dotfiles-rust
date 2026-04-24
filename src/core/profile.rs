@@ -86,21 +86,23 @@ impl Profile {
                 if found.contains_key(child) {
                     let mut faulty_child = child;
                     while let Some(parent) = found.get(faulty_child) {
+                        if parent == &self.name {
+                            break;
+                        }
                         faulty_child = parent;
                     }
-                    return Err(Error::ProfileCycle(item.clone(), faulty_child.clone()));
+                    return Err(Error::ProfileCycle(self.name.clone(), faulty_child.clone()));
                 }
                 let child_profile = loader.load(&child)?;
                 match child_profile.ptype {
                     ProfileType::Composite => {
                         queue.push_back(child.clone());
-                        found.insert(child.clone(), item.clone());
                     }
                     ProfileType::Module => {
-                        found.insert(child.clone(), item.clone());
                         entries.push(child.clone());
                     }
                 }
+                assert!(found.insert(child.clone(), item.clone()).is_none());
             }
         }
 
