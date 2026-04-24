@@ -19,6 +19,8 @@ TARGETS=(
 )
 
 for target in "${TARGETS[@]}"; do
+    echo -e "\e[1;37mTESTING FOR '$target'...\e[m"
+    cross test --target "$target" -q
     echo -e "\e[1;37mCOMPILING FOR '$target'...\e[m"
     cross build --target "$target" --release
     echo -e "\e[1;37mCOPYING COMPILED FILE INTO 'build' directory...\e[m"
