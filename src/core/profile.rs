@@ -176,8 +176,9 @@ mod tests {
             ProfileType::Composite,
         );
         let mut loader = TestProfileLoader::new(vec![]);
-        let actual = profile.resolve(&mut loader);
 
+        // Check resolve works as intended
+        let actual = profile.resolve(&mut loader).unwrap();
         let expected = Profile::new(
             "root".to_string(),
             vec![
@@ -188,8 +189,11 @@ mod tests {
             ],
             ProfileType::Composite,
         );
+        assert_eq!(expected, actual);
 
-        assert_eq!(expected, actual.unwrap());
+        // Test is_resolved function
+        assert!(expected.is_resolved(&mut loader));
+        assert!(actual.is_resolved(&mut loader));
     }
 
     #[test]
@@ -204,8 +208,9 @@ mod tests {
             vec!["composite1".to_string()],
             ProfileType::Composite,
         )]);
-        let actual = profile.resolve(&mut loader);
 
+        // Make sure resolve fails when a loop exists
+        let actual = profile.resolve(&mut loader);
         let err = actual.unwrap_err();
         match err {
             Error::ProfileCycle(root, child) => {
