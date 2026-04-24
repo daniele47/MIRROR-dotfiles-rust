@@ -1,6 +1,9 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
-use crate::core::fs::{AbsPath, RelPath};
+use crate::core::{
+    errors::Result,
+    fs::{AbsPath, RelPath},
+};
 
 /// Policy to use for module entries.
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
@@ -68,19 +71,24 @@ impl Module {
         &self.entries
     }
 
+    // TODO: add DOCS!!!
+    pub fn cleanup() -> Result<Self> {
+        todo!()
+    }
+
+    /// Merge 2 Modules into one, via union, and when there conflicts, the entry with most
+    /// policy priority wins.
+    pub fn merge(&self, other: &Self) -> Result<Self> {
+        todo!()
+    }
+
     /// Cleanup and resolves all entries to actual normal files.
     ///
     /// In particular it removes duplicated entries, it leaves only those with most policy
     /// priority, it gets all files from directories and so on.
     ///
     /// Note: base specifies the prefix to use for all entries
-    pub fn resolve(&self, base: &AbsPath) -> Self {
-        todo!()
-    }
-
-    /// Merge 2 Modules into one, via union, and when there conflicts, the entry with most
-    /// policy priority wins.
-    pub fn merge(&self, other: &AbsPath) -> Self {
+    pub fn find_all_files(&self, base: &AbsPath) -> Result<Self> {
         todo!()
     }
 }
