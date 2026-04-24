@@ -1,9 +1,11 @@
 #!/bin/bash
 
+set -e
+
 export PATH+=":${CARGO_HOME:-$HOME/.cargo}/bin"
 
 if ! command -v cross &>/dev/null; then
-    echo "you need to install cross via $(cargo install cross)"
+    cargo install cross || echo "could not install cross!"
     exit 1
 fi
 
