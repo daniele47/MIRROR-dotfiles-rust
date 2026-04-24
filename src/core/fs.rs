@@ -112,7 +112,7 @@ impl AbsPath {
         if self.exists() && !self.metadata()?.is_dir() {
             self.purge_path(false)?;
         }
-        Ok(fs::create_dir_all(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))?)
+        fs::create_dir_all(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))
     }
 
     /// Create file, with all missing parents.

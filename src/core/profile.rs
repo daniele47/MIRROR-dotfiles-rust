@@ -93,7 +93,7 @@ impl Profile {
                     }
                     return Err(Error::ProfileCycle(self.name.clone(), faulty_child.clone()));
                 }
-                let child_profile = loader.load(&child)?;
+                let child_profile = loader.load(child)?;
                 match child_profile.ptype {
                     ProfileType::Composite => {
                         queue.push_back(child.clone());
@@ -120,11 +120,11 @@ mod tests {
     }
 
     impl TestProfileLoader {
-        fn new() -> Self {
+        fn new(extra_profiles: Vec<Profile>) -> Self {
             let mut loader = Self {
                 profiles: HashMap::new(),
             };
-            let profiles = vec![
+            let mut profiles = vec![
                 Profile::new(
                     "root".to_string(),
                     vec!["composite1".to_string(), "module1".to_string()],
@@ -144,6 +144,7 @@ mod tests {
                 Profile::new("module2".to_string(), vec![], ProfileType::Module),
                 Profile::new("module3".to_string(), vec![], ProfileType::Module),
             ];
+            profiles.extend(extra_profiles);
             for p in profiles {
                 loader.profiles.insert(p.name().to_string(), p);
             }
@@ -164,7 +165,7 @@ mod tests {
             vec!["composite1".to_string(), "module1".to_string()],
             ProfileType::Composite,
         );
-        let mut loader = TestProfileLoader::new();
+        let mut loader = TestProfileLoader::new(vec![]);
         let actual = profile.resolve(&mut loader);
 
         let expected = Profile::new(
