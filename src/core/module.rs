@@ -3,7 +3,7 @@
 use crate::core::fs::RelPath;
 
 /// Policy to use for module entries.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Eq)]
 pub enum ModulePolicy {
     /// Check always both if file doesn't exist and if file differs.
     #[default]
