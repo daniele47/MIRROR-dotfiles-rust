@@ -84,3 +84,9 @@ Ideas:
 - [ ] implement modules and profiles parsers
 - [ ] implement resolve and extend functions in module.rs
 - [ ] for resolve and extend functions in module.rs implement tests
+
+### long term todos
+
+- [ ] add `cleanup` action which acts like untracked FOR ALL MODULES + all possible cleanups,
+      such as allow deleting backup dirs without a respective config file, check there are NO
+      symlinks in the dotfiles repo, ...
