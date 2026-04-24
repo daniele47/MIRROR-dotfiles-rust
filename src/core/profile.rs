@@ -109,3 +109,76 @@ impl Profile {
         Ok(Self::new(self.name.clone(), entries, self.ptype))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[derive(Debug)]
+    struct TestProfileLoader {
+        profiles: HashMap<String, Profile>,
+    }
+
+    impl TestProfileLoader {
+        fn new() -> Self {
+            let mut loader = Self {
+                profiles: HashMap::new(),
+            };
+            let profiles = vec![
+                Profile::new(
+                    "root".to_string(),
+                    vec!["composite1".to_string(), "module1".to_string()],
+                    ProfileType::Composite,
+                ),
+                Profile::new(
+                    "composite1".to_string(),
+                    vec!["composite2".to_string(), "module2".to_string()],
+                    ProfileType::Composite,
+                ),
+                Profile::new(
+                    "composite2".to_string(),
+                    vec!["module3".to_string()],
+                    ProfileType::Composite,
+                ),
+                Profile::new("module1".to_string(), vec![], ProfileType::Module),
+                Profile::new("module2".to_string(), vec![], ProfileType::Module),
+                Profile::new("module3".to_string(), vec![], ProfileType::Module),
+            ];
+            for p in profiles {
+                loader.profiles.insert(p.name().to_string(), p);
+            }
+            loader
+        }
+    }
+
+    impl ProfileLoader for TestProfileLoader {
+        fn load(&mut self, name: &str) -> Result<Profile> {
+            Ok(self.profiles.get(name).cloned().unwrap())
+        }
+    }
+
+    #[test]
+    fn test_resolve_success() {
+        let mut profile = Profile::new(
+            "root".to_string(),
+            vec!["composite1".to_string(), "module1".to_string()],
+            ProfileType::Composite,
+        );
+        let mut loader = TestProfileLoader::new();
+        let actual = profile.resolve(&mut loader);
+
+        let expected = Profile::new(
+            "root".to_string(),
+            vec!["module1".to_string(), "module2".to_string()],
+            ProfileType::Composite,
+        );
+
+        assert!(actual.is_ok());
+        assert_eq!(expected, actual.unwrap());
+    }
+
+    #[test]
+    fn test_resolve_failure() {
+        todo!()
+    }
+}
