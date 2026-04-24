@@ -26,5 +26,8 @@ for target in "${TARGETS[@]}"; do
     echo -e "\e[1;37mCOPYING COMPILED FILE INTO 'build' directory...\e[m"
     mkdir -p "$BUILD_DIR"
     cp "$SCRIPT_DIR/.target/$target/release/dotfiles-rust" "$BUILD_DIR/dotfiles-rust-$target"
-    echo "----------------------------------------"
+    for i in $(seq 1 $(tput cols)); do
+        printf '-'
+    done
+    echo
 done
