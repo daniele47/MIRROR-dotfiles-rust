@@ -1,17 +1,11 @@
-use dotfiles_rust::core::{
-    errors::{Error, Result},
-    fs::AbsPath,
-};
+use dotfiles_rust::core::{errors::Result, fs::AbsPath};
 
 fn main() -> Result<()> {
-    let abs = AbsPath::new_tmp("read_lines_example");
+    let abs = AbsPath::from("/etc/passwd");
     abs.create_file(true).unwrap();
     for line in abs.read_lines().unwrap() {
-        let _ = line
-            .map_err(|e| Error::IoError(e, abs.clone().into()))
-            .unwrap();
-        // ops on line here
+        let line = line?;
+        println!("{line}");
     }
-    abs.purge_path(true).unwrap();
     Ok(())
 }
