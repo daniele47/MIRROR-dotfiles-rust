@@ -108,9 +108,12 @@ impl AbsPath {
     ///
     /// Notes: there could be some directory left created on failure!
     pub fn create_dir(&self) -> Result<()> {
+        // delete what already exists in path, if it is not a directory
         if self.exists() && !self.metadata()?.is_dir() {
             self.purge_path(false)?;
         }
+
+        // create directory
         fs::create_dir_all(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))
     }
 
@@ -120,28 +123,33 @@ impl AbsPath {
     /// - there could be some directory left created on failure!
     /// - `allow_recursive_deletion` allows deleting not empty dirs if in path
     pub fn create_file(&self, allow_recursive_deletion: bool) -> Result<()> {
+        // delete whatever exists in the path, if it is not a file
         if self.exists() {
             if self.metadata()?.is_file() {
                 return Ok(());
             }
             self.purge_path(allow_recursive_deletion)?;
         }
+
         // note: this parent call is not fully safe, as path could not be normalized beforehand
         // not much i can do differently though ¯\_(ツ)_/¯
         if let Some(parent) = self.path.parent() {
             fs::create_dir_all(parent).map_err(|e| Error::IoError(e, self.path.clone()))?;
         }
+
+        // create file
         File::create(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))?;
         Ok(())
     }
 
     /// Delete empty directory and its ancestors until it finds the first not empty dir!
     pub fn delete_dirs(&self) -> Result<()> {
+        // early exit if path is already not a directory
         if !self.exists() {
             return Ok(());
         }
 
-        // keep deleting empty dirs
+        // keep deleting empty dirs until a not empty directory is found
         let mut curr = self.canonicalize()?;
         loop {
             if fs::remove_dir(&curr.path).is_err() {
@@ -153,6 +161,7 @@ impl AbsPath {
                 None => break,
             }
         }
+
         Ok(())
     }
 
@@ -221,6 +230,8 @@ impl AbsPath {
         let mut stack = Vec::new();
         stack.push(self.clone());
 
+        // Depth first search of all files, using a hashset of already found canonicalized paths, to
+        // avoid endless recursion if there are symlinks creating endless loops
         while let Some(item) = stack.pop() {
             let dir_files = item.list_files()?;
             for dir_file in &dir_files {

@@ -107,6 +107,7 @@ impl Module {
             if raw_abs_path.exists() {
                 let metadata = raw_abs_path.metadata()?;
                 let mut files = vec![];
+
                 // if path is directory, collect all files within the directory
                 if metadata.is_dir() {
                     let all_files = raw_abs_path.all_files()?;

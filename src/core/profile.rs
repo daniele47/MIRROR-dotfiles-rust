@@ -80,9 +80,11 @@ impl Profile {
         let mut queue = VecDeque::<String>::new();
         queue.push_back(self.name.clone());
 
+        // TODO: write comment ONCE you modify this to use DFS
         while let Some(item) = queue.pop_front() {
             let item_profile = loader.load(&item)?;
             for child in &item_profile.entries {
+                // loop detected, proceeds to calculate extra infos about the loop itself
                 if found.contains_key(child) {
                     let mut faulty_child = child;
                     while let Some(parent) = found.get(faulty_child) {
@@ -93,6 +95,8 @@ impl Profile {
                     }
                     return Err(Error::ProfileCycle(self.name.clone(), faulty_child.clone()));
                 }
+
+                // add child to various variables
                 let child_profile = loader.load(child)?;
                 match child_profile.ptype {
                     ProfileType::Composite => {
@@ -106,6 +110,7 @@ impl Profile {
             }
         }
 
+        // assert resolved profile is indeed resolved
         let res = Self::new(self.name.clone(), entries, self.ptype);
         assert!(res.is_resolved(loader));
         Ok(res)
