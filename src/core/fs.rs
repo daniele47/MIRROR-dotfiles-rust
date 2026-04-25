@@ -73,6 +73,11 @@ impl AbsPath {
             .ok()
     }
 
+    /// Get path as a lossy string
+    pub fn to_str_lossy(&self) -> String {
+        self.path.to_string_lossy().to_string()
+    }
+
     /// Append to path.
     pub fn join(&self, suffix: &RelPath) -> AbsPath {
         self.path.join(&suffix.path).into()
@@ -257,6 +262,11 @@ impl RelPath {
     /// Add a prefix to turn relative path into absolute path.
     pub fn to_absolute(&self, base: &AbsPath) -> AbsPath {
         base.path.join(&self.path).into()
+    }
+
+    /// Get path as a lossy string
+    pub fn to_str_lossy(&self) -> String {
+        self.path.to_string_lossy().to_string()
     }
 
     /// Append to path.

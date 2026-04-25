@@ -1,5 +1,7 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
+use std::collections::HashSet;
+
 use crate::core::{
     errors::Result,
     fs::{AbsPath, RelPath},
@@ -69,13 +71,7 @@ impl Module {
         &self.entries
     }
 
-    /// Cleanup and resolves all entries to actual normal files.
-    ///
-    /// In particular it removes duplicated entries, it leaves only those with most policy
-    /// priority, it gets all files from directories and so on.
-    ///
-    /// Note: base specifies the prefix to use for all entries
-    pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
+    fn resolve_with_seen(&self, base: &AbsPath, seen: &mut HashSet<AbsPath>) -> Result<Self> {
         let mut entries = vec![];
         for raw_entry in &self.entries {
             let raw_abs_path = raw_entry.path.to_absolute(base);
@@ -97,6 +93,21 @@ impl Module {
             }
         }
         Ok(Self::new(entries))
+    }
+
+    /// Cleanup and resolves all entries to actual normal files.
+    ///
+    /// In particular it removes duplicated entries, it leaves only those with most policy
+    /// priority, it gets all files from directories and so on.
+    ///
+    /// Note: base specifies the prefix to use for all entries
+    pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
+        self.resolve_with_seen(base, &mut Default::default())
+    }
+
+    /// Sort by path
+    pub fn sort(&mut self) {
+        self.entries.sort_by_cached_key(|e| e.path.to_str_lossy());
     }
 }
 
@@ -154,7 +165,7 @@ mod tests {
 
         // Verify a single entry for semplicity
         for entry in resolved.entries() {
-            let path_str = String::try_from(entry.path().clone())?;
+            let path_str = entry.path().to_str_lossy();
 
             match path_str.as_str() {
                 "file1.txt" => {
