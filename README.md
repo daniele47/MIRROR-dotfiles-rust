@@ -65,11 +65,11 @@ only have neovim and tmux, for example
 
 ## universal rules
 
-1. No `unwraps` in the code, use explicit `assertions` to validate invariants
+1. No `unwraps` in the code, use explicit `assertions to validate invariants`
 2. Do `tests` only for important and complex functions that are hard to get right
 3. Make sure tests `always cleanup resources` even on panic
-4. Make sure there are no weird debug print ever left in code, except if meant as part of the cli
-5. Add more comments to complex functions, just to give general ideas on what is going on
+4. Make sure there are `no weird debug print` ever left in code, except if meant as part of the cli
+5. Add `more comments` to complex functions, just to give general ideas on what is going on
 
 ## ideas
 
@@ -96,7 +96,6 @@ only have neovim and tmux, for example
 - [ ] `resolve_and_merge` function or smt, to allow resolving multiple Modules, and to merge results into a single module
 - [ ] `resolve_and_merge` add test
 - [x] make sure to remove all print from all tests and code! just brutally grep to find them all!
-- [ ] enforce rule (1) everywhere
 - [ ] enforce rule (5) everywhere
 - [ ] profile resolver might actually need to be a DFS instead of BFS!
 - [ ] make errors actually be a struct variant (aka {io: ..., path: ...} instead of (ioError,AbsPath)

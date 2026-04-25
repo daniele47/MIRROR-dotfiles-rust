@@ -148,10 +148,10 @@ impl AbsPath {
                 break;
             }
             let parent = curr.path.parent();
-            if parent.is_none() {
-                break;
+            match parent {
+                Some(p) => curr = p.to_path_buf().into(),
+                None => break,
             }
-            curr = parent.unwrap().to_path_buf().into();
         }
         Ok(())
     }
@@ -357,11 +357,11 @@ mod tests {
         Guard(tmpdir.clone())
     }
 
-    fn setup_test_directory() -> AbsPath {
+    fn setup_test_directory() -> Result<AbsPath> {
         let tmp_dir = AbsPath::new_tmp("dotfiles_rust_test");
 
-        tmp_dir.purge_path(true).unwrap();
-        tmp_dir.create_dir().unwrap();
+        tmp_dir.purge_path(true)?;
+        tmp_dir.create_dir()?;
 
         let file1 = tmp_dir.joins(&["file1.txt"]);
         let file2 = tmp_dir.joins(&["file2.txt"]);
@@ -374,18 +374,18 @@ mod tests {
         let file6 = subdir2.joins(&["file6.txt"]);
         let empty_dir = tmp_dir.joins(&["empty_dir"]);
 
-        subdir1.create_dir().unwrap();
-        subsubdir1.create_dir().unwrap();
-        subdir2.create_dir().unwrap();
-        empty_dir.create_dir().unwrap();
-        file6.create_file(false).unwrap();
-        file1.create_file(false).unwrap();
-        file2.create_file(false).unwrap();
-        file3.create_file(false).unwrap();
-        file4.create_file(false).unwrap();
-        file5.create_file(false).unwrap();
+        subdir1.create_dir()?;
+        subsubdir1.create_dir()?;
+        subdir2.create_dir()?;
+        empty_dir.create_dir()?;
+        file6.create_file(false)?;
+        file1.create_file(false)?;
+        file2.create_file(false)?;
+        file3.create_file(false)?;
+        file4.create_file(false)?;
+        file5.create_file(false)?;
 
-        tmp_dir
+        Ok(tmp_dir)
     }
 
     #[test]
@@ -404,54 +404,58 @@ mod tests {
     }
 
     #[test]
-    fn test_create_dir() {
+    fn test_create_dir() -> Result<()> {
         let root = AbsPath::new_tmp("test_create_dir");
-        root.purge_path(true).unwrap();
+        root.purge_path(true)?;
         let _guard = purge_path_even_on_panic(&root);
 
         // Create nested directory
         let nested = root.joins(&["a", "b"]);
         assert!(!nested.exists());
-        nested.create_dir().unwrap();
+        nested.create_dir()?;
         assert!(nested.exists());
-        assert!(nested.metadata().unwrap().is_dir());
+        assert!(nested.metadata()?.is_dir());
+
+        Ok(())
     }
 
     #[test]
-    fn test_create_file() {
+    fn test_create_file() -> Result<()> {
         let root = AbsPath::new_tmp("test_create_file");
-        root.purge_path(true).unwrap();
-        root.create_dir().unwrap();
+        root.purge_path(true)?;
+        root.create_dir()?;
         let _guard = purge_path_even_on_panic(&root);
 
         // Create file in existing directory
         let file = root.joins(&["test.txt"]);
         assert!(!file.exists());
-        file.create_file(false).unwrap();
+        file.create_file(false)?;
         assert!(file.exists());
-        assert!(file.metadata().unwrap().is_file());
+        assert!(file.metadata()?.is_file());
 
         // Create file with nested directories
         let nested = root.joins(&["nested", "dir", "file.txt"]);
         assert!(!nested.exists());
-        nested.create_file(false).unwrap();
+        nested.create_file(false)?;
         assert!(nested.exists());
-        assert!(nested.metadata().unwrap().is_file());
+        assert!(nested.metadata()?.is_file());
 
         // Creating existing file should be idempotent
-        nested.create_file(false).unwrap();
+        nested.create_file(false)?;
         assert!(nested.exists());
+
+        Ok(())
     }
 
     #[test]
-    fn test_list_files() {
-        let root = setup_test_directory();
+    fn test_list_files() -> Result<()> {
+        let root = setup_test_directory()?;
         let _guard = purge_path_even_on_panic(&root);
 
-        let files = root.list_files().unwrap();
+        let files = root.list_files()?;
         let file_names: HashSet<_> = files
             .iter()
-            .map(|f| f.path.file_name().unwrap().to_str().unwrap())
+            .filter_map(|f| f.path.file_name().and_then(|name| name.to_str()))
             .collect();
 
         // Should list immediate children
@@ -467,17 +471,19 @@ mod tests {
 
         // Assert count of paths found
         assert_eq!(files.len(), 5);
+
+        Ok(())
     }
 
     #[test]
-    fn test_all_files() {
-        let root = setup_test_directory();
+    fn test_all_files() -> Result<()> {
+        let root = setup_test_directory()?;
         let _guard = purge_path_even_on_panic(&root);
 
-        let all_paths = root.all_files().unwrap();
+        let all_paths = root.all_files()?;
         let path_names: HashSet<_> = all_paths
             .iter()
-            .map(|p| p.path.file_name().unwrap().to_str().unwrap())
+            .filter_map(|f| f.path.file_name().and_then(|name| name.to_str()))
             .collect();
 
         // Should contain all files and directories (top level and nested)
@@ -494,35 +500,41 @@ mod tests {
 
         // Assert count of paths found
         assert_eq!(all_paths.len(), 10);
+
+        Ok(())
     }
 
     #[test]
-    fn test_delete_dirs() {
+    fn test_delete_dirs() -> Result<()> {
         let root = AbsPath::new_tmp("test_delete_dirs");
         let nested = root.joins(&["a", "b", "c"]);
-        nested.create_dir().unwrap();
+        nested.create_dir()?;
         let _guard = purge_path_even_on_panic(&root);
 
         // The nested directory should be gone
         assert!(nested.exists());
-        nested.delete_dirs().unwrap();
+        nested.delete_dirs()?;
         assert!(!nested.exists());
+
+        Ok(())
     }
 
     #[test]
-    fn test_purge_path() {
-        let root = setup_test_directory();
+    fn test_purge_path() -> Result<()> {
+        let root = setup_test_directory()?;
         let file = root.joins(&["file1.txt"]);
         let _guard = purge_path_even_on_panic(&root);
 
         // Try purging simple file
         assert!(file.exists());
-        file.purge_path(false).unwrap();
+        file.purge_path(false)?;
         assert!(!file.exists());
         assert!(root.exists());
 
         // Try to purge non-empty directory without recursive flag (should fail)
         let result = root.purge_path(false);
         assert!(result.is_err());
+
+        Ok(())
     }
 }

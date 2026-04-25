@@ -105,7 +105,7 @@ impl Module {
         for raw_entry in &self.entries {
             let raw_abs_path = raw_entry.path.to_absolute(base);
             if raw_abs_path.exists() {
-                let metadata = raw_abs_path.metadata().unwrap();
+                let metadata = raw_abs_path.metadata()?;
                 let mut files = vec![];
                 // if path is directory, collect all files within the directory
                 if metadata.is_dir() {
@@ -211,7 +211,6 @@ mod tests {
 
         // Cleanup
         tmp.purge_path(true)?;
-
         Ok(())
     }
 }

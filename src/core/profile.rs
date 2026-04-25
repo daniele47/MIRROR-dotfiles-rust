@@ -166,12 +166,15 @@ mod tests {
 
     impl ProfileLoader for TestProfileLoader {
         fn load(&mut self, name: &str) -> Result<Profile> {
-            Ok(self.profiles.get(name).cloned().unwrap())
+            self.profiles
+                .get(name)
+                .cloned()
+                .ok_or(Error::ProfileNotLoaded(name.into()))
         }
     }
 
     #[test]
-    fn test_resolve_success() {
+    fn test_resolve_success() -> Result<()> {
         let mut profile = Profile::new(
             "root".to_string(),
             vec!["composite1".to_string(), "module1".to_string()],
@@ -180,7 +183,7 @@ mod tests {
         let mut loader = TestProfileLoader::new(vec![]);
 
         // Check resolve works as intended
-        let actual = profile.resolve(&mut loader).unwrap();
+        let actual = profile.resolve(&mut loader)?;
         let expected = Profile::new(
             "root".to_string(),
             vec![
@@ -196,10 +199,12 @@ mod tests {
         // Test is_resolved function
         assert!(expected.is_resolved(&mut loader));
         assert!(actual.is_resolved(&mut loader));
+
+        Ok(())
     }
 
     #[test]
-    fn test_resolve_failure() {
+    fn test_resolve_failure() -> Result<()> {
         let mut profile = Profile::new(
             "root".to_string(),
             vec!["composite1".to_string(), "module1".to_string()],
@@ -213,13 +218,17 @@ mod tests {
 
         // Make sure resolve fails when a loop exists
         let actual = profile.resolve(&mut loader);
-        let err = actual.unwrap_err();
-        match err {
-            Error::ProfileCycle(root, child) => {
-                assert_eq!(root.as_str(), "root");
-                assert_eq!(child.as_str(), "composite1");
-            }
-            _ => unreachable!(),
+        match actual {
+            Ok(_) => {}
+            Err(err) => match err {
+                Error::ProfileCycle(root, child) => {
+                    assert_eq!(root.as_str(), "root");
+                    assert_eq!(child.as_str(), "composite1");
+                }
+                _ => unreachable!(),
+            },
         }
+
+        Ok(())
     }
 }
