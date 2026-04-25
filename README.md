@@ -80,24 +80,25 @@ only have neovim and tmux, for example
 
 ## todo
 
-- [x] in fs module, add `list_files` and `all_files` functions
-- [x] add proper and comprehensive tests for fs module
-- [x] make `list_files` and `all_files` return BTreeSet which is always sorted!
-- [x] make error more context aware
-- [x] finish implementing `resolve` method in profile.rs
-- [x] resolve seems to work, BUT error result is broken (return entire cycle)
-- [x] implement tests for `resolve` method in profile.rs
+- [x] ~in fs module, add `list_files` and `all_files` functions~
+- [x] ~add proper and comprehensive tests for fs module~
+- [x] ~make `list_files` and `all_files` return BTreeSet which is always sorted!~
+- [x] ~make error more context aware~
+- [x] ~finish implementing `resolve` method in profile.rs~
+- [x] ~resolve seems to work, BUT error result is broken (return entire cycle)~
+- [x] ~implement tests for `resolve` method in profile.rs~
 - [ ] implement modules and profiles `parsers`
-- [x] implement `resolve` and `extend` functions in module.rs
-- [x] for `resolve` and `extend` functions in module.rs implement tests
-- [x] add function in `fs` module to do buffered reads (`BufReader` seems to implement a `.lines()` method!!!)
-- [x] required way to convert `AbsPath` and `RelPath` to String (best idea: use TryFrom and an error variant!)
-- [x] `resolve` func needs to be careful of duplicates by equivalent names (.config/nvim vs .config/nvim/)
+- [x] ~implement `resolve` and `extend` functions in module.rs~
+- [x] ~for `resolve` and `extend` functions in module.rs implement tests~
+- [x] ~add function in `fs` module to do buffered reads (`BufReader` seems to implement a `.lines()` method!!!)~
+- [x] ~required way to convert `AbsPath` and `RelPath` to String (best idea: use TryFrom and an error variant!)~
+- [x] ~`resolve` func needs to be careful of duplicates by equivalent names (.config/nvim vs .config/nvim/)~
 - [ ] `resolve_and_merge` function or smt, to allow resolving multiple Modules, and to merge results into a single module
 - [ ] `resolve_and_merge` add test
-- [x] make sure to remove all print from all tests and code! just brutally grep to find them all!
+- [x] ~make sure to remove all print from all tests and code! just brutally grep to find them all!~
 - [ ] enforce rule (5) everywhere
 - [ ] profile resolver might actually need to be a DFS instead of BFS!
+- [ ] make cycle detection more powerful and detect 1 full cycle, for way better error msg!
 - [ ] make errors actually be a struct variant (aka {io: ..., path: ...} instead of (ioError,AbsPath)
 
 ### long term todos
