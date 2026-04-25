@@ -68,6 +68,14 @@ only have neovim and tmux, for example
 1. No `unwraps` in the code, use explicit `assertions` to validate invariants
 2. Do `tests` only for important and complex functions that are hard to get right
 3. Make sure tests `always cleanup resources` even on panic
+4. Make sure there are no weird debug print ever left in code, except if meant as part of the cli
+
+## ideas
+
+- logs for every operation?
+    - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
+    - Or they might just be for dangerous operations, aka probably only for all fs operations
+    - I could even log crashes potentially?
 
 ## todo
 
@@ -86,7 +94,7 @@ only have neovim and tmux, for example
 - [ ] `resolve` func needs to be careful of duplicates by equivalent names (.config/nvim vs .config/nvim/)
 - [ ] `resolve_and_merge` function or smt, to allow resolving multiple Modules, and to merge results into a single module
 - [ ] `resolve_and_merge` add test
-- [ ] make sure to remove all print from all tests and code! just brutally grep to find them all!
+- [x] make sure to remove all print from all tests and code! just brutally grep to find them all!
 
 ### long term todos
 
