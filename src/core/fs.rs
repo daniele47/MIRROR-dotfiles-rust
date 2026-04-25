@@ -4,7 +4,7 @@ use std::{
     collections::{BTreeSet, HashSet},
     env,
     fs::{self, File, Metadata},
-    io::{BufRead, BufReader, Lines},
+    io::{BufRead, BufReader},
     path::PathBuf,
 };
 
