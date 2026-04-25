@@ -59,9 +59,15 @@ kde-plasma
     - also: spaces should be trimmed, since hopefully no app 
       is insane to use name with starting/ending whitespace
 
-For example: if `neovim`, `tmux`, `plasma-desktop` are possible modules, 
-`minimal-cli` or `kde-linux` are possible profiles and minimal-cli would
-only have neovim and tmux, for example
+- For example: if `neovim`, `tmux`, `plasma-desktop` are possible modules, `minimal-cli` or `kde-linux` are possible 
+  profiles and minimal-cli would only have neovim and tmux, for example
+
+- logs for every operation?
+    - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
+    - Or they might just be for dangerous operations, aka probably only for all fs operations
+    - I could even log crashes potentially?
+
+- in build directory, add a readme file to document entirely all the steps to release a new version
 
 ## universal rules
 
@@ -70,14 +76,6 @@ only have neovim and tmux, for example
 3. Make sure tests `always cleanup resources` even on panic
 4. Make sure there are `no weird debug print` ever left in code, except if meant as part of the cli
 5. Add `more comments` to complex functions, just to give general ideas on what is going on
-
-## ideas
-
-- logs for every operation?
-    - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
-    - Or they might just be for dangerous operations, aka probably only for all fs operations
-    - I could even log crashes potentially?
-- in build directory, add a readme file to document entirely all the steps to release a new version
 
 ## todo
 
