@@ -1,6 +1,6 @@
 //! This module implements structs and methods to handle dotfiles profiles.
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet};
 
 use crate::core::errors::{Error, Result};
 
@@ -76,40 +76,32 @@ impl Profile {
     /// This function serves that role, in trasforming a raw profile into a resolved one.
     pub fn resolve(&mut self, loader: &mut impl ProfileLoader) -> Result<Self> {
         let mut entries = Vec::<String>::new();
-        let mut found = HashMap::<String, String>::new(); // elem -> parent
-        let mut queue = VecDeque::<String>::new();
-        queue.push_back(self.name.clone());
+        let mut found = HashSet::<String>::new(); // elem -> parent
+        let mut stack = Vec::<String>::new();
+        stack.push(self.name.clone());
 
-        // TODO: write comment ONCE you modify this to use DFS
-        while let Some(item) = queue.pop_front() {
+        // Depth first search to resolve the profile dependencies, which also finds loops
+        while let Some(item) = stack.pop() {
             let item_profile = loader.load(&item)?;
-            for child in &item_profile.entries {
-                // loop detected, proceeds to calculate extra infos about the loop itself
-                if found.contains_key(child) {
-                    let mut faulty_child = child;
-                    while let Some(parent) = found.get(faulty_child) {
-                        if parent == &self.name {
-                            break;
-                        }
-                        faulty_child = parent;
-                    }
-                    return Err(Error::ProfileCycle {
-                        name: self.name.clone(),
-                        child: faulty_child.clone(),
-                    });
-                }
 
-                // add child to various variables
-                let child_profile = loader.load(child)?;
-                match child_profile.ptype {
-                    ProfileType::Composite => {
-                        queue.push_back(child.clone());
-                    }
-                    ProfileType::Module => {
-                        entries.push(child.clone());
-                    }
-                }
-                assert!(found.insert(child.clone(), item.clone()).is_none());
+            // add item to entries, if it is a module
+            if item_profile.ptype == ProfileType::Module {
+                entries.push(item.clone());
+                continue;
+            }
+
+            // loop detected, return error
+            if !found.insert(item.clone()) {
+                // TODO: finish proper cycle detection!!!
+                return Err(Error::ProfileCycle {
+                    name: self.name.clone(),
+                    child: "".into(),
+                });
+            }
+
+            // add children to stack in reverse to preserve order
+            for child in item_profile.entries.iter().rev() {
+                stack.push(child.clone());
             }
         }
 
@@ -198,10 +190,10 @@ mod tests {
         let expected = Profile::new(
             "root".to_string(),
             vec![
-                "module1".to_string(),
-                "module2".to_string(),
-                "module3".to_string(),
                 "module4".to_string(),
+                "module2".to_string(),
+                "module1".to_string(),
+                "module3".to_string(),
             ],
             ProfileType::Composite,
         );
