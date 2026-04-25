@@ -1,6 +1,6 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, hash_map::Entry};
 
 use crate::core::{
     errors::Result,
@@ -71,36 +71,67 @@ impl Module {
         &self.entries
     }
 
-    fn resolve_with_seen(&self, base: &AbsPath, seen: &mut HashSet<AbsPath>) -> Result<Self> {
+    fn cleanup_paths(&self, paths: &[(AbsPath, ModulePolicy)], base: &AbsPath) -> Result<Self> {
+        let mut values = HashMap::<String, (AbsPath, ModulePolicy)>::new();
         let mut entries = vec![];
+
+        // make sure files are unique BASED on canonicalized path
+        for path in paths {
+            let path_str = String::try_from(path.0.canonicalize()?.clone())?;
+            match values.entry(path_str) {
+                Entry::Occupied(mut entry) => {
+                    let old = entry.get();
+                    if path.1.priority() < old.1.priority() {
+                        entry.insert((path.0.clone(), path.1));
+                    }
+                }
+                Entry::Vacant(entry) => {
+                    entry.insert((path.0.clone(), path.1));
+                }
+            }
+        }
+
+        // collect into proper result type
+        for (_, (path, policy)) in values {
+            let entry = ModuleEntry::new(path.to_relative(base)?, policy);
+            entries.push(entry);
+        }
+
+        Ok(Self::new(entries))
+    }
+
+    fn resolve_module(&self, base: &AbsPath) -> Result<Self> {
+        let mut paths = vec![];
         for raw_entry in &self.entries {
             let raw_abs_path = raw_entry.path.to_absolute(base);
             if raw_abs_path.exists() {
                 let metadata = raw_abs_path.metadata().unwrap();
                 let mut files = vec![];
+                // if path is directory, collect all files within the directory
                 if metadata.is_dir() {
-                    files.extend(raw_abs_path.all_files()?);
-                } else if metadata.is_file() {
-                    files.push(raw_abs_path);
+                    let all_files = raw_abs_path.all_files()?;
+                    for f in all_files {
+                        if f.metadata()?.is_file() {
+                            files.push((f, raw_entry.policy));
+                        }
+                    }
                 }
-                entries.extend(
-                    files
-                        .iter()
-                        .filter(|f| f.metadata().unwrap().is_file())
-                        .map(|f| f.to_relative(base).unwrap())
-                        .map(|f| ModuleEntry::new(f, raw_entry.policy)),
-                );
+                // if path is a file, collect the file itself only
+                else if metadata.is_file() {
+                    files.push((raw_abs_path, *raw_entry.policy()));
+                }
+                paths.extend(files);
             }
         }
-        Ok(Self::new(entries))
+        self.cleanup_paths(&paths, base)
     }
 
     /// Resolves raw module into a list of all actual files, relative to `base` as the base directory.
     pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
-        self.resolve_with_seen(base, &mut Default::default())
+        self.resolve_module(base)
     }
 
-    /// Sort by path
+    /// Sort by path.
     pub fn sort(&mut self) {
         self.entries.sort_by_cached_key(|e| e.path.to_str_lossy());
     }
@@ -162,9 +193,6 @@ mod tests {
 
         // Resolve
         let resolved = module.resolve(&tmp)?;
-        for entry in resolved.entries() {
-            println!("{entry:?}");
-        }
 
         // Verify count
         assert_eq!(resolved.entries().len(), 4);
