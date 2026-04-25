@@ -1,7 +1,5 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
-use std::collections::{HashMap, hash_map::Entry};
-
 use crate::core::{
     errors::Result,
     fs::{AbsPath, RelPath},
@@ -71,37 +69,6 @@ impl Module {
         &self.entries
     }
 
-    // Remove duplicates taking only the one with highest policy priority.
-    fn cleanup(&self) -> Result<Self> {
-        let mut paths: HashMap<String, ModulePolicy> = Default::default();
-        for entry in &self.entries {
-            let path_str = String::try_from(entry.path.clone())?;
-            match paths.entry(path_str) {
-                Entry::Vacant(vacant) => {
-                    vacant.insert(entry.policy);
-                }
-                Entry::Occupied(mut occupied) => {
-                    if entry.policy.priority() < occupied.get().priority() {
-                        occupied.insert(entry.policy);
-                    }
-                }
-            }
-        }
-        let entries: Vec<_> = paths
-            .iter()
-            .map(|f| ModuleEntry::new(RelPath::from(f.0.as_str()), *f.1))
-            .collect();
-        Ok(Module::new(entries))
-    }
-
-    /// Merge two modules into one, and properly cleans duplicates.
-    pub fn merge(&self, other: &Self) -> Result<Self> {
-        let mut entries = vec![];
-        entries.extend(self.entries.clone());
-        entries.extend(other.entries.clone());
-        Self::new(entries).cleanup()
-    }
-
     /// Cleanup and resolves all entries to actual normal files.
     ///
     /// In particular it removes duplicated entries, it leaves only those with most policy
@@ -129,7 +96,7 @@ impl Module {
                 );
             }
         }
-        Self::new(entries).cleanup()
+        Ok(Self::new(entries))
     }
 }
 
