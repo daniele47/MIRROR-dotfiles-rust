@@ -145,13 +145,13 @@ mod tests {
         tmp.create_dir()?;
 
         // Create test structure
-        let dir1 = tmp.join(&RelPath::from("dir1"));
-        let dir2 = tmp.join(&RelPath::from("dir2"));
-        let file1 = tmp.join(&RelPath::from("file1.txt"));
-        let file2 = dir1.join(&RelPath::from("file2.txt"));
-        let file3 = dir1.join(&RelPath::from("file3.txt"));
-        let subdir = dir1.join(&RelPath::from("subdir"));
-        let file4 = subdir.join(&RelPath::from("file4.txt"));
+        let dir1 = tmp.joins(&["dir1"]);
+        let dir2 = tmp.joins(&["dir2"]);
+        let file1 = tmp.joins(&["file1.txt"]);
+        let file2 = dir1.joins(&["file2.txt"]);
+        let file3 = dir1.joins(&["file3.txt"]);
+        let subdir = dir1.joins(&["subdir"]);
+        let file4 = subdir.joins(&["file4.txt"]);
 
         dir1.create_dir()?;
         dir2.create_dir()?;
@@ -166,11 +166,11 @@ mod tests {
             ModuleEntry::new(RelPath::from("dir1//"), ModulePolicy::Track),
             ModuleEntry::new(RelPath::from("dir1"), ModulePolicy::NotDiff),
             ModuleEntry::new(
-                RelPath::from("dir1").join(&RelPath::from("file3.txt")),
+                RelPath::from("dir1").joins(&["file3.txt"]),
                 ModulePolicy::Track,
             ),
             ModuleEntry::new(
-                RelPath::from("dir1").join(&RelPath::from("subdir")),
+                RelPath::from("dir1").joins(&["subdir"]),
                 ModulePolicy::Track,
             ),
             ModuleEntry::new(RelPath::from("file1.txt"), ModulePolicy::Ignore),

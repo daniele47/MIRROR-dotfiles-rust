@@ -78,6 +78,13 @@ impl AbsPath {
         self.path.join(&suffix.path).into()
     }
 
+    /// Appent multiple times to path at once.
+    pub fn joins(&self, suffixes: &[&str]) -> Self {
+        suffixes
+            .iter()
+            .fold(self.clone(), |p, s| p.join(&RelPath::from(*s)))
+    }
+
     /// Get File Metadata.
     ///
     /// Note: it follows symlinks! Use `symlink_metadata` to not follow symlinks.
@@ -253,6 +260,13 @@ impl RelPath {
     pub fn join(&self, suffix: &RelPath) -> Self {
         self.path.join(&suffix.path).into()
     }
+
+    /// Appent multiple times to path at once.
+    pub fn joins(&self, suffixes: &[&str]) -> Self {
+        suffixes
+            .iter()
+            .fold(self.clone(), |p, s| p.join(&RelPath::from(*s)))
+    }
 }
 
 impl From<PathBuf> for AbsPath {
@@ -326,27 +340,27 @@ mod tests {
         tmp_dir.purge_path(true).unwrap();
         tmp_dir.create_dir().unwrap();
 
-        let file1 = tmp_dir.join(&RelPath::from("file1.txt"));
-        let file2 = tmp_dir.join(&RelPath::from("file2.txt"));
-        let subdir1 = tmp_dir.join(&RelPath::from("subdir1"));
-        let file3 = subdir1.join(&RelPath::from("file3.txt"));
-        let file4 = subdir1.join(&RelPath::from("file4.txt"));
-        let subsubdir1 = subdir1.join(&RelPath::from("subsubdir1"));
-        let file5 = subsubdir1.join(&RelPath::from("file5.txt"));
-        let subdir2 = tmp_dir.join(&RelPath::from("subdir2"));
-        let file6 = subdir2.join(&RelPath::from("file6.txt"));
-        let empty_dir = tmp_dir.join(&RelPath::from("empty_dir"));
+        let file1 = tmp_dir.joins(&["file1.txt"]);
+        let file2 = tmp_dir.joins(&["file2.txt"]);
+        let subdir1 = tmp_dir.joins(&["subdir1"]);
+        let file3 = subdir1.joins(&["file3.txt"]);
+        let file4 = subdir1.joins(&["file4.txt"]);
+        let subsubdir1 = subdir1.joins(&["subsubdir1"]);
+        let file5 = subsubdir1.joins(&["file5.txt"]);
+        let subdir2 = tmp_dir.joins(&["subdir2"]);
+        let file6 = subdir2.joins(&["file6.txt"]);
+        let empty_dir = tmp_dir.joins(&["empty_dir"]);
 
+        subdir1.create_dir().unwrap();
+        subsubdir1.create_dir().unwrap();
+        subdir2.create_dir().unwrap();
+        empty_dir.create_dir().unwrap();
+        file6.create_file(false).unwrap();
         file1.create_file(false).unwrap();
         file2.create_file(false).unwrap();
-        subdir1.create_dir().unwrap();
         file3.create_file(false).unwrap();
         file4.create_file(false).unwrap();
-        subsubdir1.create_dir().unwrap();
         file5.create_file(false).unwrap();
-        subdir2.create_dir().unwrap();
-        file6.create_file(false).unwrap();
-        empty_dir.create_dir().unwrap();
 
         tmp_dir
     }
@@ -372,7 +386,7 @@ mod tests {
         root.purge_path(true).unwrap();
 
         // Create nested directory
-        let nested = root.join(&RelPath::from("a")).join(&RelPath::from("b"));
+        let nested = root.joins(&["a", "b"]);
         assert!(!nested.exists());
         nested.create_dir().unwrap();
         assert!(nested.exists());
@@ -388,17 +402,14 @@ mod tests {
         root.create_dir().unwrap();
 
         // Create file in existing directory
-        let file = root.join(&RelPath::from("test.txt"));
+        let file = root.joins(&["test.txt"]);
         assert!(!file.exists());
         file.create_file(false).unwrap();
         assert!(file.exists());
         assert!(file.metadata().unwrap().is_file());
 
         // Create file with nested directories
-        let nested = root
-            .join(&RelPath::from("nested"))
-            .join(&RelPath::from("dir"))
-            .join(&RelPath::from("file.txt"));
+        let nested = root.joins(&["nested", "dir", "file.txt"]);
         assert!(!nested.exists());
         nested.create_file(false).unwrap();
         assert!(nested.exists());
@@ -469,10 +480,7 @@ mod tests {
     #[test]
     fn test_delete_dirs() {
         let root = AbsPath::new_tmp("test_delete_dirs");
-        let nested = root
-            .join(&RelPath::from("a"))
-            .join(&RelPath::from("b"))
-            .join(&RelPath::from("c"));
+        let nested = root.joins(&["a", "b", "c"]);
         nested.create_dir().unwrap();
 
         // The nested directory should be gone
@@ -486,7 +494,7 @@ mod tests {
     #[test]
     fn test_purge_path() {
         let root = setup_test_directory();
-        let file = root.join(&RelPath::from("file1.txt"));
+        let file = root.joins(&["file1.txt"]);
 
         // Try purging simple file
         assert!(file.exists());
