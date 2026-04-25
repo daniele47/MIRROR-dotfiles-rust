@@ -86,13 +86,6 @@ impl AbsPath {
             .map_err(|e| Error::IoError(e, self.path.clone()))
     }
 
-    /// Get Symlink metadata.
-    pub fn symlink_metadata(&self) -> Result<Metadata> {
-        self.path
-            .symlink_metadata()
-            .map_err(|e| Error::IoError(e, self.path.clone()))
-    }
-
     /// Check if path exists.
     pub fn exists(&self) -> bool {
         self.path.exists()
@@ -160,10 +153,7 @@ impl AbsPath {
         }
 
         // delete whatever is in the path
-        let path = self.path.canonicalize();
-        let path = path.map_err(|e| Error::IoError(e, self.path.clone()))?;
-        let metadata = path.symlink_metadata();
-        let metadata = metadata.map_err(|e| Error::IoError(e, self.path.clone()))?;
+        let metadata = self.metadata()?;
         if metadata.is_dir() {
             if allow_recursive_deletion {
                 fs::remove_dir_all(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))?;

@@ -1,5 +1,7 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
+use std::collections::{HashMap, hash_map::Entry};
+
 use crate::core::{
     errors::Result,
     fs::{AbsPath, RelPath},
@@ -71,15 +73,35 @@ impl Module {
         &self.entries
     }
 
-    // TODO: add DOCS!!!
-    pub fn cleanup() -> Result<Self> {
-        todo!()
+    // Remove duplicates taking only the one with highest policy priority.
+    fn cleanup(&self) -> Result<Self> {
+        let mut paths: HashMap<String, ModulePolicy> = Default::default();
+        for entry in &self.entries {
+            let path_str = String::try_from(entry.path.clone())?;
+            match paths.entry(path_str) {
+                Entry::Vacant(vacant) => {
+                    vacant.insert(entry.policy);
+                }
+                Entry::Occupied(mut occupied) => {
+                    if occupied.get().priority() < entry.policy.priority() {
+                        occupied.insert(entry.policy);
+                    }
+                }
+            }
+        }
+        let entries: Vec<_> = paths
+            .iter()
+            .map(|f| ModuleEntry::new(RelPath::from(f.0.as_str()), f.1.clone()))
+            .collect();
+        Ok(Module::new(entries))
     }
 
-    /// Merge 2 Modules into one, via union, and when there conflicts, the entry with most
-    /// policy priority wins.
+    /// Merge two modules into one, and properly cleans duplicates.
     pub fn merge(&self, other: &Self) -> Result<Self> {
-        todo!()
+        let mut entries = vec![];
+        entries.extend(self.entries.clone());
+        entries.extend(other.entries.clone());
+        Self::new(entries).cleanup()
     }
 
     /// Cleanup and resolves all entries to actual normal files.
@@ -88,7 +110,27 @@ impl Module {
     /// priority, it gets all files from directories and so on.
     ///
     /// Note: base specifies the prefix to use for all entries
-    pub fn find_all_files(&self, base: &AbsPath) -> Result<Self> {
-        todo!()
+    pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
+        let mut entries = vec![];
+        for raw_entry in &self.entries {
+            let raw_abs_path = raw_entry.path.to_absolute(base);
+            if raw_abs_path.exists() {
+                let metadata = raw_abs_path.metadata().unwrap();
+                let mut files = vec![];
+                if metadata.is_dir() {
+                    files.extend(raw_abs_path.all_files()?);
+                } else if metadata.is_file() {
+                    files.push(raw_abs_path);
+                }
+                entries.extend(
+                    files
+                        .iter()
+                        .filter(|f| f.metadata().unwrap().is_file())
+                        .map(|f| f.to_relative(base).unwrap())
+                        .map(|f| ModuleEntry::new(f, raw_entry.policy)),
+                );
+            }
+        }
+        Self::new(entries).cleanup()
     }
 }

@@ -73,7 +73,7 @@ only have neovim and tmux, for example
 - [x] resolve seems to work, BUT error result is broken (return entire cycle)
 - [x] implement tests for `resolve` method in profile.rs
 - [ ] implement modules and profiles `parsers`
-- [ ] implement `resolve` and `extend` functions in module.rs
+- [x] implement `resolve` and `extend` functions in module.rs
 - [ ] for `resolve` and `extend` functions in module.rs implement tests
 - [ ] add function in `fs` module to do buffered reads (`BufReader` seems to implement a `.lines()` method!!!)
 - [x] required way to convert `AbsPath` and `RelPath` to String (best idea: use TryFrom and an error variant!)
