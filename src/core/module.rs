@@ -111,11 +111,22 @@ mod tests {
     use super::*;
     use crate::core::fs::{AbsPath, RelPath};
 
+    fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
+        struct Guard(AbsPath);
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                let _ = self.0.purge_path(true);
+            }
+        }
+        Guard(tmpdir.clone())
+    }
+
     #[test]
     fn test_resolve() -> Result<()> {
         // Create temp directory
         let tmp = AbsPath::new_tmp("test_resolve");
         tmp.create_dir()?;
+        let _guard = purge_path_even_on_panic(&tmp);
 
         // Create test structure
         let dir1 = tmp.joins(&["dir1"]);

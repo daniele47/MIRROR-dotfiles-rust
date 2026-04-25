@@ -87,7 +87,6 @@ only have neovim and tmux, for example
 - [ ] `resolve_and_merge` function or smt, to allow resolving multiple Modules, and to merge results into a single module
 - [ ] `resolve_and_merge` add test
 - [ ] make sure to remove all print from all tests and code! just brutally grep to find them all!
-- [ ] make sure tests properly clean up temporary resour
 
 ### long term todos
 

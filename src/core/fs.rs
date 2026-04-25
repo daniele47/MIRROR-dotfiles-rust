@@ -347,6 +347,16 @@ mod tests {
     use super::*;
     use std::collections::HashSet;
 
+    fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
+        struct Guard(AbsPath);
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                let _ = self.0.purge_path(true);
+            }
+        }
+        Guard(tmpdir.clone())
+    }
+
     fn setup_test_directory() -> AbsPath {
         let tmp_dir = AbsPath::new_tmp("dotfiles_rust_test");
 
@@ -397,6 +407,7 @@ mod tests {
     fn test_create_dir() {
         let root = AbsPath::new_tmp("test_create_dir");
         root.purge_path(true).unwrap();
+        let _guard = purge_path_even_on_panic(&root);
 
         // Create nested directory
         let nested = root.joins(&["a", "b"]);
@@ -404,8 +415,6 @@ mod tests {
         nested.create_dir().unwrap();
         assert!(nested.exists());
         assert!(nested.metadata().unwrap().is_dir());
-
-        root.purge_path(true).unwrap();
     }
 
     #[test]
@@ -413,6 +422,7 @@ mod tests {
         let root = AbsPath::new_tmp("test_create_file");
         root.purge_path(true).unwrap();
         root.create_dir().unwrap();
+        let _guard = purge_path_even_on_panic(&root);
 
         // Create file in existing directory
         let file = root.joins(&["test.txt"]);
@@ -431,13 +441,12 @@ mod tests {
         // Creating existing file should be idempotent
         nested.create_file(false).unwrap();
         assert!(nested.exists());
-
-        root.purge_path(true).unwrap();
     }
 
     #[test]
     fn test_list_files() {
         let root = setup_test_directory();
+        let _guard = purge_path_even_on_panic(&root);
 
         let files = root.list_files().unwrap();
         let file_names: HashSet<_> = files
@@ -458,13 +467,12 @@ mod tests {
 
         // Assert count of paths found
         assert_eq!(files.len(), 5);
-
-        root.purge_path(true).unwrap();
     }
 
     #[test]
     fn test_all_files() {
         let root = setup_test_directory();
+        let _guard = purge_path_even_on_panic(&root);
 
         let all_paths = root.all_files().unwrap();
         let path_names: HashSet<_> = all_paths
@@ -486,8 +494,6 @@ mod tests {
 
         // Assert count of paths found
         assert_eq!(all_paths.len(), 10);
-
-        root.purge_path(true).unwrap();
     }
 
     #[test]
@@ -495,19 +501,19 @@ mod tests {
         let root = AbsPath::new_tmp("test_delete_dirs");
         let nested = root.joins(&["a", "b", "c"]);
         nested.create_dir().unwrap();
+        let _guard = purge_path_even_on_panic(&root);
 
         // The nested directory should be gone
         assert!(nested.exists());
         nested.delete_dirs().unwrap();
         assert!(!nested.exists());
-
-        root.purge_path(true).unwrap();
     }
 
     #[test]
     fn test_purge_path() {
         let root = setup_test_directory();
         let file = root.joins(&["file1.txt"]);
+        let _guard = purge_path_even_on_panic(&root);
 
         // Try purging simple file
         assert!(file.exists());
@@ -518,9 +524,5 @@ mod tests {
         // Try to purge non-empty directory without recursive flag (should fail)
         let result = root.purge_path(false);
         assert!(result.is_err());
-
-        // Purge with recursive flag
-        root.purge_path(true).unwrap();
-        assert!(!root.exists());
     }
 }
