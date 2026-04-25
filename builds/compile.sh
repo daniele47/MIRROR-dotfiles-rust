@@ -11,7 +11,7 @@ fi
 
 SCRIPT_PATH="$(realpath "${BASH_SOURCE[0]}")"
 SCRIPT_DIR="$(dirname "$SCRIPT_PATH")"
-BUILD_DIR="$SCRIPT_DIR/builds"
+BUILD_DIR="$SCRIPT_DIR/targets"
 
 TARGETS=(
     x86_64-unknown-linux-musl
@@ -26,7 +26,7 @@ for target in "${TARGETS[@]}"; do
     echo -e "\e[1;37mCOPYING COMPILED FILE INTO 'build' directory...\e[m"
     mkdir -p "$BUILD_DIR"
     cp "$SCRIPT_DIR/.target/$target/release/dotfiles-rust" "$BUILD_DIR/dotfiles-rust-$target"
-    for i in $(seq 1 $(tput cols)); do
+    for _i in $(seq 1 "$(tput cols)"); do
         printf '-'
     done
     echo

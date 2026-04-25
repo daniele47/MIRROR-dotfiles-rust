@@ -77,6 +77,7 @@ only have neovim and tmux, for example
     - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
     - Or they might just be for dangerous operations, aka probably only for all fs operations
     - I could even log crashes potentially?
+- in build directory, add a readme file to document entirely all the steps to release a new version
 
 ## todo
 
@@ -99,7 +100,7 @@ only have neovim and tmux, for example
 - [ ] profile resolver might actually need to be a DFS instead of BFS!
 - [ ] make cycle detection more powerful and detect 1 full cycle, for way better error msg!
 - [ ] make errors actually be a struct variant (aka {io: ..., path: ...} instead of (ioError,AbsPath)
-- [ ] move `compile.sh` file into `builds/` itself (tweak logic to make it still work + .gitignore fix)
+- [x] ~move `compile.sh` file into `builds/` itself (tweak logic to make it still work + .gitignore fix)~
 
 ### long term todos
 
@@ -110,4 +111,4 @@ only have neovim and tmux, for example
       symlinks in the dotfiles repo, ...
 - [ ] add `help` action to get direct help on possible args and flags to the cli
 - [ ] add `doc` action to print an entire manual with all things to know about the script
-- [ ] do i need `version` action? i doubt i should. No backward compatibility, KISS!
+- [ ] add `version`, but no versioning system. NO backward compatibility! version will just be useful for checks on the binary!
