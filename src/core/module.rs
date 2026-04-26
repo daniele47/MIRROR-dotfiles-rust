@@ -139,6 +139,8 @@ impl Module {
     }
 
     /// Resolves raw module into a list of all actual files, relative to `base` as the base directory.
+    ///
+    /// This guarantees the result will be sorted based on lossy path string!
     pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
         let mut res = Self::cleanup_paths(self.resolve_module(base)?, base)?;
         res.sort();
