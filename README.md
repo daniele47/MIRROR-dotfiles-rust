@@ -119,3 +119,8 @@ kde-plasma
 - [ ] add `help` action to get direct help on possible args and flags to the cli
 - [ ] add `doc` action to print an entire manual with all things to know about the script
 - [ ] add `version`, but no versioning system. NO backward compatibility! version will just be useful for checks on the binary!
+
+#### various
+
+- [ ] have an `--all` flag to specify ALL profiles
+- [ ] allow customizing the `HOME` directory to apply backup to
