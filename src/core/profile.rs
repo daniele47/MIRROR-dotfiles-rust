@@ -102,7 +102,8 @@ impl Profile {
                 });
             }
 
-            // avoid revisiting already explored items
+            // avoid revisiting already explored items, if graphs are complex and the same node is
+            // reached multiple times from different nodes
             if visited.contains(&item_name) {
                 continue;
             }
