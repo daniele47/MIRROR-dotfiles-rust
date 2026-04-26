@@ -98,7 +98,7 @@ impl Profile {
                 // TODO: finish proper cycle detection!!!
                 return Err(Error::ProfileCycle {
                     name: self.name.clone(),
-                    child: "".into(),
+                    cycle: vec![],
                 });
             }
 
@@ -229,9 +229,9 @@ mod tests {
         match actual {
             Ok(_) => {}
             Err(err) => match err {
-                Error::ProfileCycle { name, child } => {
+                Error::ProfileCycle { name, cycle } => {
                     assert_eq!(name.as_str(), "root");
-                    assert_eq!(child.as_str(), "composite1");
+                    assert_eq!(cycle.join(" "), "composite1");
                 }
                 _ => unreachable!(),
             },
