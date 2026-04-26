@@ -36,6 +36,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] ~add filter to `list_files`~
 - [x] ~add more filters (symlinks only and dirs only?)~
 - [x] ~rename crate to `autosaver`~
+- [ ] rename repo name to `autosaver` (both on github and codeberg!)
 
 ## long term items
 
