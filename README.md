@@ -2,71 +2,6 @@
 
 Copy-based dotfiles tracking cli, written in rust
 
-## ideas
-
-- dir structure:
-
-```
-dotfiles/
-├── autosaver
-├── .defaults
-├── configs/
-│   ├── module1.conf
-│   ├── module2.conf
-│   ├── profile1.conf
-│   └── profile2.conf
-└── backups/
-    ├── module1/
-    └── module2/
-```
-
-- module format:
-
-```
-/! type module
-
-// policies have always as default
-.config/nvim
-
-// after the following line, policy becomes ignore, aka the files reported next will be not tracked,
-// even if previous line would have added them, either directly (as files) or indirectly (as part of dirs)
-
-/! policy ignore
-.config/nvim/lazy-lock.json 
-```
-
-- profile format:
-
-```
-/! type profile
-
-neovim
-tmux
-kde-plasma
-```
-
-- autosaver: bash wrapper script to get rust binary (downloaded/compiled) and run it
-- .defaults: NOT TRACKED file to store default configurations, things like what module/profile to use by default
-- configs: all modules and profile configurations, one config x file
-- modules: simple list of files to track
-- profiles: groups of modules to apply sequentially
-- backups: each module has exactly one backup dir where to save its files, and named like the module
-
-- modules and profiles example formats are reported above
-    - // for comments
-    - /! for special instruction lines
-    - /<char> is extendable in the future, for now ignored!
-    - also: spaces should be trimmed, since hopefully no app 
-      is insane to use name with starting/ending whitespace
-
-- For example: if `neovim`, `tmux`, `plasma-desktop` are possible modules, `minimal-cli` or `kde-linux` are possible 
-  profiles and minimal-cli would only have neovim and tmux, for example
-
-- logs for every operation?
-    - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
-    - Or they might just be for dangerous operations, aka probably only for all fs operations
-    - I could even log crashes potentially?
-
 ## universal rules
 
 1. No `unwraps` in the code, use explicit `assertions to validate invariants`
@@ -76,7 +11,7 @@ kde-plasma
 5. Add `more comments` to complex functions, just to give general ideas on what is going on
 6. Document everything of relevance in `docs/` directory, each within its own markdown file
 
-## todo
+## current items
 
 - [x] ~in fs module, add `list_files` and `all_files` functions~
 - [x] ~add proper and comprehensive tests for fs module~
@@ -101,10 +36,9 @@ kde-plasma
 - [x] ~add filter to `list_files`~
 - [x] ~add more filters (symlinks only and dirs only?)~
 
+## long term items
 
-### long term todos
-
-#### cli ideas
+### cli items
 
 - [ ] add `cleanup` action which acts like untracked FOR ALL MODULES + all possible cleanups,
       such as allow deleting backup dirs without a respective config file, check there are NO
@@ -113,7 +47,15 @@ kde-plasma
 - [ ] add `doc` action to print an entire manual with all things to know about the script
 - [ ] add `version`, but no versioning system. NO backward compatibility! version will just be useful for checks on the binary!
 
-#### various
+### various items
 
 - [ ] have an `--all` flag to specify ALL profiles (or even better: assume it's all, when no specific profile is passed!)
 - [ ] allow customizing the `HOME` directory to apply backup to
+
+### ideas
+
+- logs for every operation?
+    - I could have them shoved into .logs dir, and one file x command run with timestamp so can be easily ordered
+    - Or they might just be for dangerous operations, aka probably only for all fs operations
+    - I could even log crashes potentially?
+
