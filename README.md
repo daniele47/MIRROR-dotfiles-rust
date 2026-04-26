@@ -122,5 +122,5 @@ kde-plasma
 
 #### various
 
-- [ ] have an `--all` flag to specify ALL profiles
+- [ ] have an `--all` flag to specify ALL profiles (or even better: assume it's all, when no specific profile is passed!)
 - [ ] allow customizing the `HOME` directory to apply backup to
