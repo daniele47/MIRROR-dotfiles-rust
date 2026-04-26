@@ -2,10 +2,7 @@
 
 use std::collections::{HashMap, hash_map::Entry};
 
-use crate::core::{
-    errors::Result,
-    fs::{AbsPath, RelPath},
-};
+use crate::core::{errors::Result, fs::{AbsPath, RelPath}};
 
 /// Policy to use for module entries.
 #[derive(Debug, Default, PartialEq, Eq, Clone, Copy)]
@@ -71,22 +68,22 @@ impl Module {
         &self.entries
     }
 
-    fn cleanup_paths(&self, paths: &[(AbsPath, ModulePolicy)], base: &AbsPath) -> Result<Self> {
+    fn cleanup_paths(paths: Vec<(AbsPath, ModulePolicy)>, base: &AbsPath) -> Result<Self> {
         let mut values = HashMap::<String, (AbsPath, ModulePolicy)>::new();
         let mut entries = vec![];
 
         // make sure files are unique BASED on canonicalized path
         for path in paths {
-            let path_str = String::try_from(path.0.canonicalize()?.clone())?;
+            let path_str = String::try_from(path.0.canonicalize()?)?;
             match values.entry(path_str) {
                 Entry::Occupied(mut entry) => {
                     let old = entry.get();
                     if path.1.priority() < old.1.priority() {
-                        entry.insert((path.0.clone(), path.1));
+                        entry.insert((path.0, path.1));
                     }
                 }
                 Entry::Vacant(entry) => {
-                    entry.insert((path.0.clone(), path.1));
+                    entry.insert((path.0, path.1));
                 }
             }
         }
@@ -100,7 +97,7 @@ impl Module {
         Ok(Self::new(entries))
     }
 
-    fn resolve_module(&self, base: &AbsPath) -> Result<Self> {
+    fn resolve_module(&self, base: &AbsPath) -> Result<Vec<(AbsPath, ModulePolicy)>> {
         let mut paths = vec![];
         for raw_entry in &self.entries {
             let raw_abs_path = raw_entry.path.to_absolute(base);
@@ -124,12 +121,12 @@ impl Module {
                 paths.extend(files);
             }
         }
-        self.cleanup_paths(&paths, base)
+        Ok(paths)
     }
 
     /// Resolves raw module into a list of all actual files, relative to `base` as the base directory.
     pub fn resolve(&self, base: &AbsPath) -> Result<Self> {
-        self.resolve_module(base)
+        Self::cleanup_paths(self.resolve_module(base)?, base)
     }
 
     /// Sort by path.
