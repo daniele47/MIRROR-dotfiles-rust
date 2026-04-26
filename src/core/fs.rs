@@ -238,7 +238,10 @@ impl AbsPath {
     /// List all files in a directory.
     ///
     /// Notes: this will get ALL files, even directories, symlinks, all rust can get.
-    pub fn list_files(&self) -> Result<BTreeSet<AbsPath>> {
+    pub fn list_files<F>(&self, filter: F) -> Result<BTreeSet<AbsPath>>
+    where
+        F: Fn(&AbsPath) -> bool,
+    {
         Ok(fs::read_dir(&self.path)
             .map_err(|e| Error::IoError {
                 io: e,
@@ -246,6 +249,7 @@ impl AbsPath {
             })?
             .filter_map(|entry| entry.ok())
             .map(|entry| AbsPath::new(entry.path()))
+            .filter(filter)
             .collect())
     }
 
@@ -277,8 +281,7 @@ impl AbsPath {
         // Depth first search of all files, using a hashset of already found canonicalized paths, to
         // avoid endless recursion if there are symlinks creating endless loops
         while let Some(item) = stack.pop() {
-            let dir_files = item.list_files()?;
-            for dir_file in dir_files.iter().filter(|f| filter(f)) {
+            for dir_file in item.list_files(|f| filter(f))? {
                 let canon = dir_file.canonicalize()?;
                 if norm_files.contains(&canon) {
                     continue;
@@ -517,7 +520,7 @@ mod tests {
         let root = setup_test_directory()?;
         let _guard = purge_path_even_on_panic(&root);
 
-        let files = root.list_files()?;
+        let files = root.list_files(AbsPath::FILTER_ALL)?;
         let file_names: HashSet<_> = files
             .iter()
             .filter_map(|f| f.path.file_name().and_then(|name| name.to_str()))
