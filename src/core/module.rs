@@ -152,10 +152,14 @@ impl Module {
     /// Takes two modules, resolves them and merges them by removing duplicated canonicalized paths.
     ///
     /// This guarantees the result will be sorted based on lossy path string!
-    pub fn resolve_merge(&self, base: &AbsPath, oth: &Self, oth_base: &AbsPath) -> Result<Self> {
-        let res1 = self.resolve(base)?;
-        let res2 = oth.resolve(oth_base)?;
-        todo!()
+    pub fn merge(&self, base: &AbsPath, oth: &Self, oth_base: &AbsPath) -> Result<Self> {
+        let mut tmp = self.resolve_module(base)?;
+        tmp.extend(self.resolve_module(oth_base)?);
+        tmp.extend(oth.resolve_module(base)?);
+        tmp.extend(oth.resolve_module(oth_base)?);
+        let mut res = Self::cleanup_paths(tmp)?;
+        res.sort();
+        Ok(res)
     }
 
     fn sort(&mut self) {

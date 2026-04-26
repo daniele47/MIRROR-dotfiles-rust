@@ -410,7 +410,7 @@ mod tests {
     }
 
     fn setup_test_directory() -> Result<AbsPath> {
-        let tmp_dir = AbsPath::new_tmp("dotfiles_rust_test");
+        let tmp_dir = AbsPath::new_tmp("setup_test_directory");
 
         tmp_dir.purge_path(true)?;
         tmp_dir.create_dir()?;
@@ -442,8 +442,8 @@ mod tests {
 
     #[test]
     fn test_new_tmp() {
-        let tmp1 = AbsPath::new_tmp("test");
-        let tmp2 = AbsPath::new_tmp("test");
+        let tmp1 = AbsPath::new_tmp("test_new_tmp1");
+        let tmp2 = AbsPath::new_tmp("test_new_tmp2");
 
         // Should be different paths
         assert_ne!(tmp1, tmp2);
