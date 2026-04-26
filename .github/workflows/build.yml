@@ -43,6 +43,7 @@ jobs:
             extension: ""
             use-cross: true
 
+    # --- Checkout code and then compile (handles also cross compilation) --- #
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
@@ -70,3 +71,35 @@ jobs:
           name: ${{ matrix.artifact_name }}
           path: .target/${{ matrix.target }}/release/dotfiles-rust${{ matrix.extension }}
           if-no-files-found: error
+
+  # --- Create GitHub Release and attach all binaries --- #
+  release:
+    name: Create GitHub Release
+    needs: build  # Wait for all builds to finish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Required to create releases
+      actions: write   # Required to delete artifacts
+
+    steps:
+      - name: Download all built binaries
+        uses: actions/download-artifact@v7
+        with:
+          path: artifacts  # Downloads all artifacts into a single folder
+
+      - name: Create Release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**/*  # Uploads EVERY file in the artifacts folder
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete all artifacts from this run
+        uses: geekyeggo/delete-artifact@v6
+        with:
+          name: '*'  # Delete all artifacts from this workflow run
+          failOnError: false  # Don't fail the release if cleanup has issues
