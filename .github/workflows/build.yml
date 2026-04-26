@@ -1,105 +1,76 @@
 name: Build Binaries
 
+# on:
+#   push:
+#     tags:
+#       - "v[0-9]+.[0-9]+.[0-9]+"
+
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
+
+permissions:
+  contents: write
 
 jobs:
-  build:
-    name: Build for ${{ matrix.target }}
+  build-and-upload:
+    name: Build and upload
     runs-on: ${{ matrix.os }}
+
     strategy:
       matrix:
         include:
-          # Linux x86-64
-          - target: x86_64-unknown-linux-musl
+          - build: linux
             os: ubuntu-latest
-            artifact_name: dotfiles-rust-linux-x86_64
-            extension: ""
-            use-cross: false
-          # Windows x86-64
-          - target: x86_64-pc-windows-msvc
+            target: x86_64-unknown-linux-musl
+          - build: windows
             os: windows-latest
-            artifact_name: dotfiles-rust-windows-x86_64
-            extension: .exe
-            use-cross: false
-          # macOS x86-64 (Intel)
-          - target: x86_64-apple-darwin
+            target: x86_64-pc-windows-msvc
+          - build: macos
             os: macos-latest
-            artifact_name: dotfiles-rust-macos-x86_64
-            extension: ""
-            use-cross: false
-          # macOS ARM64 (Apple Silicon)
-          - target: aarch64-apple-darwin
-            os: macos-latest
-            artifact_name: dotfiles-rust-macos-arm64
-            extension: ""
-            use-cross: false
-          # Linux ARMv7 (Raspberry Pi 2/3/4)
-          - target: armv7-unknown-linux-musleabihf
-            os: ubuntu-latest
-            artifact_name: dotfiles-rust-armv7-musleabihf
-            extension: ""
-            use-cross: true
+            target: x86_64-apple-darwin
 
-    # --- Checkout code and then compile (handles also cross compilation) --- #
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
+      - name: Checkout
+        uses: actions/checkout@v3
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
 
-      - name: Install cross for ARM targets
-        if: matrix.use-cross == true
-        run: cargo install cross
-
-      - name: Build release binary
-        if: matrix.use-cross == false
-        run: cargo build --release --locked --target ${{ matrix.target }}
-
-      - name: Build release binary with cross
-        if: matrix.use-cross == true
-        run: cross build --release --locked --target ${{ matrix.target }}
-
-      - name: Upload binary as artifact
-        uses: actions/upload-artifact@v6
+      - name: Build
+        uses: actions-rs/cargo@v1
         with:
-          name: ${{ matrix.artifact_name }}
-          path: .target/${{ matrix.target }}/release/dotfiles-rust${{ matrix.extension }}
-          if-no-files-found: error
+          use-cross: true
+          command: build
+          args: --verbose --release --target ${{ matrix.target }}
 
-  # --- Create GitHub Release and attach all binaries --- #
-  release:
-    name: Create GitHub Release
-    needs: build  # Wait for all builds to finish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write  # Required to create releases
-      actions: write   # Required to delete artifacts
+      - name: Build archive
+        shell: bash
+        run: |
+          # Replace with the name of your binary
+          binary_name="<BINARY_NAME>"
 
-    steps:
-      - name: Download all built binaries
-        uses: actions/download-artifact@v7
+          dirname="$binary_name-${{ matrix.target }}"
+          mkdir "$dirname"
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            mv "target/${{ matrix.target }}/release/$binary_name.exe" "$dirname"
+          else
+            mv "target/${{ matrix.target }}/release/$binary_name" "$dirname"
+          fi
+
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            7z a "$dirname.zip" "$dirname"
+            echo "ASSET=$dirname.zip" >> $GITHUB_ENV
+          else
+            tar -czf "$dirname.tar.gz" "$dirname"
+            echo "ASSET=$dirname.tar.gz" >> $GITHUB_ENV
+          fi
+
+      - name: Release
+        uses: softprops/action-gh-release@v1
         with:
-          path: artifacts  # Downloads all artifacts into a single folder
-
-      - name: Create Release and upload assets
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/**/*  # Uploads EVERY file in the artifacts folder
-          tag_name: ${{ github.ref_name }}
-          name: ${{ github.ref_name }}
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Delete all artifacts from this run
-        uses: geekyeggo/delete-artifact@v6
-        with:
-          name: '*'  # Delete all artifacts from this workflow run
-          failOnError: false  # Don't fail the release if cleanup has issues
+          files: |
+            ${{ env.ASSET }}
