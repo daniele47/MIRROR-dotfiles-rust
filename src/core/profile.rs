@@ -79,32 +79,47 @@ impl Profile {
     /// This function serves that role, in trasforming a raw profile into a resolved one.
     pub fn resolve(&mut self, loader: &mut impl ProfileLoader) -> Result<Self> {
         let mut entries = Vec::<String>::new();
-        let mut found = HashSet::<String>::new(); // elem -> parent
-        let mut stack = Vec::<String>::new();
-        stack.push(self.name.clone());
+        let mut visited = HashSet::<String>::new();
+        let mut path = Vec::<String>::new();
+        let mut stack = Vec::<(String, bool)>::new();
+        stack.push((self.name.clone(), false));
 
-        // Depth first search to resolve the profile dependencies, which also finds loops
-        while let Some(item) = stack.pop() {
-            let item_profile = loader.load(&item)?;
-
-            // add item to entries, if it is a module
-            if item_profile.ptype == ProfileType::Module {
-                entries.push(item.clone());
+        // 3 colors DFS to resolve the profile dependencies and also detect a loops
+        while let Some((item_name, item_visited)) = stack.pop() {
+            // grey -> black: item already visited, aka we explored all from here, and backtracked
+            if item_visited {
+                path.pop();
+                visited.insert(item_name);
                 continue;
             }
 
-            // loop detected, return error
-            if !found.insert(item.clone()) {
-                // TODO: finish proper cycle detection!!!
+            // check if current item is already in path, aka if this is a cycle
+            if let Some(pos) = path.iter().position(|x| x == &item_name) {
+                let cycle = path[pos..].to_vec();
                 return Err(Error::ProfileCycle {
                     name: self.name.clone(),
-                    cycle: vec![],
+                    cycle,
                 });
             }
 
-            // add children to stack in reverse to preserve order
+            // avoid revisiting already explored items
+            if visited.contains(&item_name) {
+                continue;
+            }
+
+            // check if leaf profile
+            let item_profile = loader.load(&item_name)?;
+            if item_profile.ptype == ProfileType::Module {
+                entries.push(item_name.clone());
+                visited.insert(item_name);
+                continue;
+            }
+
+            // add item and children to stack + add item to path
+            path.push(item_name.clone());
+            stack.push((item_name.clone(), true));
             for child in item_profile.entries.iter().rev() {
-                stack.push(child.clone());
+                stack.push((child.clone(), false));
             }
         }
 
@@ -231,7 +246,7 @@ mod tests {
             Err(err) => match err {
                 Error::ProfileCycle { name, cycle } => {
                     assert_eq!(name.as_str(), "root");
-                    assert_eq!(cycle.join(" "), "composite1");
+                    assert_eq!(cycle.join(" "), "composite1 composite2");
                 }
                 _ => unreachable!(),
             },
