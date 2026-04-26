@@ -1,6 +1,6 @@
 //! This module implements structs and methods to handle dotfiles modules.
 
-use std::collections::{HashMap, hash_map::Entry};
+use std::collections::{HashMap, HashSet, hash_map::Entry};
 
 use crate::core::{
     errors::Result,
@@ -66,17 +66,6 @@ impl Module {
         Self { entries }
     }
 
-    /// Create module filling all files inside a directory, relative path to that directory
-    pub fn new_from_dir(dir: &AbsPath, policy: ModulePolicy) -> Result<Self> {
-        let mut entries = vec![];
-        for file in dir.all_files()? {
-            if file.metadata()?.is_file() {
-                entries.push(ModuleEntry::new(file.to_relative(dir)?, policy));
-            }
-        }
-        Ok(Self::new(entries))
-    }
-
     /// Get all entries.
     pub fn entries(&self) -> &[ModuleEntry] {
         &self.entries
@@ -84,9 +73,9 @@ impl Module {
 
     fn cleanup_paths(paths: Vec<(AbsPath, AbsPath, ModulePolicy)>) -> Result<Self> {
         // Note: first abspath is the full path, second is the path prefix!
-
         let mut values = HashMap::<String, (AbsPath, AbsPath, ModulePolicy)>::new();
         let mut entries = vec![];
+        let mut entries_unique = HashSet::<String>::new();
 
         // make sure files are unique BASED on canonicalized path
         for path in paths {
@@ -104,10 +93,12 @@ impl Module {
             }
         }
 
-        // collect into proper result type
+        // collect into proper result type, removing pure entry duplicates
         for (_, (path, base, policy)) in values {
             let entry = ModuleEntry::new(path.to_relative(&base)?, policy);
-            entries.push(entry);
+            if entries_unique.insert(String::try_from(entry.path().clone())?) {
+                entries.push(entry);
+            }
         }
 
         Ok(Self::new(entries))
@@ -149,14 +140,12 @@ impl Module {
         Ok(res)
     }
 
-    /// Takes two modules, resolves them and merges them by removing duplicated canonicalized paths.
+    /// Takes a module, and resolve it based on if at least one base has the file present.
     ///
     /// This guarantees the result will be sorted based on lossy path string!
-    pub fn merge(&self, base: &AbsPath, oth: &Self, oth_base: &AbsPath) -> Result<Self> {
+    pub fn merge_bases(&self, base: &AbsPath, oth_base: &AbsPath) -> Result<Self> {
         let mut tmp = self.resolve_module(base)?;
         tmp.extend(self.resolve_module(oth_base)?);
-        tmp.extend(oth.resolve_module(base)?);
-        tmp.extend(oth.resolve_module(oth_base)?);
         let mut res = Self::cleanup_paths(tmp)?;
         res.sort();
         Ok(res)
@@ -241,55 +230,6 @@ mod tests {
 
         // Cleanup
         tmp.purge_path(true)?;
-        Ok(())
-    }
-
-    #[test]
-    fn test_new_from_dir() -> Result<()> {
-        // Create temp directory
-        let tmp = AbsPath::new_tmp("test_new_from_dir");
-        tmp.create_dir()?;
-        let _guard = purge_path_even_on_panic(&tmp);
-
-        // Create test files
-        let file1 = tmp.joins(&["file1.txt"]);
-        let file2 = tmp.joins(&["file2.txt"]);
-        let subdir = tmp.joins(&["subdir"]);
-        let file3 = subdir.joins(&["file3.txt"]);
-        let file4 = subdir.joins(&["file4.txt"]);
-        let empty_dir = tmp.joins(&["empty_dir"]);
-
-        file1.create_file(false)?;
-        file2.create_file(false)?;
-        subdir.create_dir()?;
-        file3.create_file(false)?;
-        file4.create_file(false)?;
-        empty_dir.create_dir()?;
-
-        // Create module from directory
-        let module = Module::new_from_dir(&tmp, ModulePolicy::NotDiff)?;
-
-        // Should contain all files (including nested), but NOT directories
-        assert_eq!(module.entries().len(), 4);
-
-        // Collect paths for verification
-        let paths: Vec<String> = module
-            .entries()
-            .iter()
-            .map(|e| e.path().to_str_lossy())
-            .collect();
-
-        // Verify all files are present with correct policy
-        assert!(paths.contains(&"file1.txt".to_string()));
-        assert!(paths.contains(&"file2.txt".to_string()));
-        assert!(paths.contains(&RelPath::from("subdir").joins(&["file3.txt"]).to_str_lossy()));
-        assert!(paths.contains(&RelPath::from("subdir").joins(&["file4.txt"]).to_str_lossy()));
-
-        // Verify all entries have Track policy
-        for entry in module.entries() {
-            assert_eq!(entry.policy(), ModulePolicy::NotDiff);
-        }
-
         Ok(())
     }
 }
