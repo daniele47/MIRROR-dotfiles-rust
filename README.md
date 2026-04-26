@@ -74,10 +74,6 @@ kde-plasma
     - in build directory, add a readme file to document entirely all the steps to release a new version
     - find out how to do codeberg releases properly, which will then be used to download binaries from my bash script
 
-- github automation:
-    - make this repo sync automatically with github, to have github test and compile my code
-    - if github action can compile, i can safely remove build binary
-
 ## universal rules
 
 1. No `unwraps` in the code, use explicit `assertions to validate invariants`
@@ -85,6 +81,7 @@ kde-plasma
 3. Make sure tests `always cleanup resources` even on panic
 4. Make sure there are `no weird debug print` ever left in code, except if meant as part of the cli
 5. Add `more comments` to complex functions, just to give general ideas on what is going on
+6. Document everything of relevance in `docs/` directory, each within its own markdown file
 
 ## todo
 
