@@ -23,8 +23,9 @@ pub struct RelPath {
 }
 
 impl AbsPath {
-    pub const FILTER_FILES: fn(&AbsPath) -> bool = Self::filter_files;
     pub const FILTER_ALL: fn(&AbsPath) -> bool = Self::filter_all;
+    pub const FILTER_FILES: fn(&AbsPath) -> bool = Self::filter_files;
+    pub const FILTER_DIRS: fn(&AbsPath) -> bool = Self::filter_directories;
 
     /// Creates new AbsPath from an absolute path.
     pub fn new(path: PathBuf) -> Self {
@@ -253,11 +254,14 @@ impl AbsPath {
             .collect())
     }
 
+    fn filter_all(_: &AbsPath) -> bool {
+        true
+    }
     fn filter_files(path: &AbsPath) -> bool {
         path.metadata().map_or(false, |m| m.is_file())
     }
-    fn filter_all(_: &AbsPath) -> bool {
-        true
+    fn filter_directories(path: &AbsPath) -> bool {
+        path.metadata().map_or(false, |m| m.is_dir())
     }
 
     /// List all files recursively inside a directory.

@@ -104,8 +104,8 @@ kde-plasma
 - [x] ~make errors actually be a struct variant (aka {io: ..., path: ...} instead of (ioError,AbsPath)~
 - [x] ~move `compile.sh` file into `builds/` itself (tweak logic to make it still work + .gitignore fix)~
 - [x] ~modules require only two ops: `resolve` (to turn raw into proper) and `merge_bases` (to sync same module with different bases)~
-- [x] add filter to `list_files`
-- [ ] add more filters (symlinks only and dirs only?)
+- [x] ~add filter to `list_files`~
+- [x] ~add more filters (symlinks only and dirs only?)~
 
 
 ### long term todos
