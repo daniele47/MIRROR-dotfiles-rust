@@ -103,11 +103,9 @@ kde-plasma
 - [x] ~make cycle detection more powerful and detect 1 full cycle, for way better error msg! (use `Three-colors DFS`)~
 - [x] ~make errors actually be a struct variant (aka {io: ..., path: ...} instead of (ioError,AbsPath)~
 - [x] ~move `compile.sh` file into `builds/` itself (tweak logic to make it still work + .gitignore fix)~
-- [ ] think of proper operations for modules:
-    - [ ] merge 2 modules (aka resolve 2 modules, and then make sure there are no duplicated paths once all normalized)
-    - [x] easy way to create module from a directory (aka use that dir as base, and get all relative paths within it)
-    - [ ] interesect 2 modules
-    - [ ] NOTE: consider them all need to get the result istantly, since Modules lose abspath information, required to canonicalize!
+- [ ] modules require only two ops: `resolve` (to turn raw into proper) and `merge_bases` (to sync same module with different bases)
+- [ ] add a filter closure on `all_files` operation in `fs` module
+
 
 ### long term todos
 
