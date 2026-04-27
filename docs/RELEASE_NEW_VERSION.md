@@ -9,6 +9,7 @@ This will be done mostly manually. There are 2 relevant processes involved in up
 - Trigger github `.github/workflows/release.yml` action to actually have binaries compiled and a release made:
     - Create a `v1.5.6` for a stable release
     - Create a `v1.3.4-anything` for a prelease version
+- NOTE: for prelease tag, it is ok to git tag -f, whilst release tags MUST NEVER be changed!
 
 There is no other system involved! Versions will be manually updated manually, making sure the 2 different
 versioning system use the same versions
