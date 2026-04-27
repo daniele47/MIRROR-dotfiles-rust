@@ -22,14 +22,6 @@ pub struct RelPath {
     path: PathBuf,
 }
 
-/// Trait to get a simple way to read line by line from a file.
-pub trait LineReader: Iterator<Item = Result<String>> {
-    /// Simple wrapper around `iterator.next()` for simmetry with `LineWriter`.
-    fn read_line(&mut self) -> Option<Result<String>> {
-        self.next()
-    }
-}
-
 /// Trait to get a simple way to write line by line into a buffered file.
 pub trait LineWriter {
     /// Write a single line to file.
@@ -342,13 +334,12 @@ impl AbsPath {
     ///
     /// Note: since this uses a buffered reader, read could costantly fail. It is thus necessary
     /// to handle the potential error on every each line read! The error is of type std::io::Error!
-    pub fn read_lines(&self) -> Result<impl LineReader> {
+    pub fn read_lines(&self) -> Result<impl Iterator<Item = Result<String>>> {
         // implement line reader
         struct LineReaderImpl {
             path: AbsPath,
             inner: Lines<BufReader<File>>,
         }
-        impl LineReader for LineReaderImpl {}
         impl Iterator for LineReaderImpl {
             type Item = Result<String>;
 
