@@ -11,6 +11,7 @@ This will be done mostly manually. There are 2 relevant processes involved in up
         - Create release tags once and never modify later!
     - Create a `v1.3.4-anything` for a prelease version
         - Have ALWAYS a single prelease tag anywhere. To create a new prerelease, make sure to delete old prelease tags!
+- Edit the release on github to list all features and bug fixed in a simple list
 
 There is no other system involved! Versions will be manually updated manually, making sure the 2 different
 versioning system use the same versions
