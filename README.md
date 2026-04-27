@@ -11,6 +11,21 @@ Copy-based dotfiles tracking cli, written in rust
 5. Add `more comments` to complex functions, just to give general ideas on what is going on
 6. Document everything of relevance in `docs/` directory, each within its own markdown file
 
+## features and bug tracker
+
+```
+NOTE: THIS IS JUST AN EXAMPLE, TO DELETE AFTER FIRST STABLE RELEASE, AND REPLACE WITH PROPER THING
+
+### 1.0.0-dev
+
+- [FEATURE] added adoijawod
+- [BUG] fixed oadoi
+
+NOTE: - ignore for now, start tracking higher level features added and bugs solved ONLY after the first stable release
+      - THIS IS NOT THE TODO LIST. that's just a reminder of what i need to do, on a lower level. and potentially imcomplete.
+        This will track ALL features added / removed and bugs fixed. THUS WILL NEED TO BE COMPLETE ALWAYS!
+```
+
 ## current items
 
 ### 0.1.0-dev
