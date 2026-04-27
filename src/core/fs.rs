@@ -698,4 +698,27 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_read_write_lines() -> Result<()> {
+        let tmp = AbsPath::new_tmp("test_read_write_lines");
+        tmp.create_dir()?;
+        let _guard = purge_path_even_on_panic(&tmp);
+
+        let test_file = tmp.joins(&["test.txt"]);
+        let lines_in = vec!["first line", "second line", "third line"];
+
+        // Write lines
+        let mut writer = test_file.write_lines()?;
+        writer.write_all_lines(lines_in.iter())?;
+        writer.flush()?;
+
+        // Read lines back
+        let reader = test_file.read_lines()?;
+        let lines_out: Vec<String> = reader.map(|line| line.unwrap()).collect();
+
+        assert_eq!(lines_in, lines_out);
+
+        Ok(())
+    }
 }
