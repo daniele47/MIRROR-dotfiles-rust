@@ -13,18 +13,23 @@ Copy-based dotfiles tracking cli, written in rust
 
 ## features and bug tracker
 
-```
 NOTE: THIS IS JUST AN EXAMPLE, TO DELETE AFTER FIRST STABLE RELEASE, AND REPLACE WITH PROPER THING
 
 ### 1.0.0-dev
 
-- [FEATURE] added adoijawod
-- [BUG] fixed oadoi
+- FEATURE:
+    - added feature 1
+
+- REMOVED:
+    - removed feature 2
+
+- BUG:
+    - fixed bug 1
+    - fixed bug 2
 
 NOTE: - ignore for now, start tracking higher level features added and bugs solved ONLY after the first stable release
       - THIS IS NOT THE TODO LIST. that's just a reminder of what i need to do, on a lower level. and potentially imcomplete.
         This will track ALL features added / removed and bugs fixed. THUS WILL NEED TO BE COMPLETE ALWAYS!
-```
 
 ## current items
 
