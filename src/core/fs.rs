@@ -343,6 +343,7 @@ impl AbsPath {
     /// Note: since this uses a buffered reader, read could costantly fail. It is thus necessary
     /// to handle the potential error on every each line read! The error is of type std::io::Error!
     pub fn read_lines(&self) -> Result<impl LineReader> {
+        // implement line reader
         struct LineReaderImpl {
             path: AbsPath,
             inner: Lines<BufReader<File>>,
@@ -360,6 +361,8 @@ impl AbsPath {
                 })
             }
         }
+
+        // open file are get a line reader from such file
         let file = File::open(&self.path).map_err(|e| Error::IoError {
             io: e,
             path: self.path.clone(),
@@ -375,6 +378,7 @@ impl AbsPath {
     /// Returns a writer that implements `Write` and `BufWrite`, allowing efficient
     /// line-by-line writing. The writer will be automatically flushed when dropped.
     pub fn write_lines(&self) -> Result<impl LineWriter> {
+        // implement line writer
         struct LineWriterImpl<W: Write> {
             inner: BufWriter<W>,
             path: AbsPath,
@@ -398,6 +402,8 @@ impl AbsPath {
                 Ok(())
             }
         }
+
+        // open file and get a line writer for such file
         let file = File::create(&self.path).map_err(|e| Error::IoError {
             io: e,
             path: self.path.clone(),
