@@ -10,11 +10,13 @@ pub enum ParsedConfig {
 }
 
 // represent intermidiate parsing step
+#[derive(Debug)]
 enum RawKind {
     Option,
     Data,
 }
 
+#[derive(Debug)]
 struct RawItem {
     line: usize,
     content: String,
@@ -33,13 +35,18 @@ fn parse_line(line: (usize, Result<String>)) -> Result<Option<RawItem>> {
         content = str[2..].trim().to_string();
     }
     // comment line
-    else if str.is_empty() || str.starts_with("/") {
+    else if str.starts_with("/") {
         return Ok(None);
     }
     // data line
     else {
         kind = RawKind::Data;
         content = str[2..].trim().to_string();
+    }
+
+    // remove empty lines, or lines that had only empty lines
+    if content.is_empty() {
+        return Ok(None);
     }
 
     Ok(Some(RawItem {
