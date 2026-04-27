@@ -41,7 +41,7 @@ fn parse_line(line: (usize, Result<String>)) -> Result<Option<RawItem>> {
     // data line
     else {
         kind = RawKind::Data;
-        content = str[2..].trim().to_string();
+        content = str.trim().to_string();
     }
 
     // remove empty lines, or lines that had only empty lines
