@@ -78,7 +78,7 @@ NOTE: - ignore for now, start tracking higher level features added and bugs solv
     - [ ] that way `Profile` now a struct that stores name + profileType (enum with variants contained within)
 - [ ] move `profile.rs`, `composite.rs` (new module to create), `modules.rs` into `profile/` dir
 - [ ] move profile name validity checker to inside `Profile` instead of hardcoded in parser
-- [ ] go back to using tuple variants in error type
+- [x] go back to using tuple variants in error type
 
 ## long term items
 

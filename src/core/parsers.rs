@@ -50,10 +50,7 @@ impl ConfigParser {
 
             // profile line MUST be the very first
             if first.line != 1 {
-                return Err(Error::InvalidOptionLine {
-                    name: profile,
-                    line: (1, content),
-                });
+                return Err(Error::InvalidOptionLine(profile, 1, content));
             }
 
             // pick correct parser based on the profile type parsed from the first line
@@ -61,14 +58,11 @@ impl ConfigParser {
                 "type profile" => ProfileParser::parse(profile, raw).map(ConfigParser::Profile),
                 "type module" => ModuleParser::parse(profile, raw).map(ConfigParser::Module),
                 _ => {
-                    return Err(Error::InvalidOptionLine {
-                        name: profile,
-                        line: (1, content),
-                    });
+                    return Err(Error::InvalidOptionLine(profile, 1, content));
                 }
             }
         } else {
-            return Err(Error::MissingProfileType { name: profile });
+            return Err(Error::MissingProfileType(profile));
         }
     }
 }
@@ -130,10 +124,7 @@ impl ProfileParser {
             match line.kind {
                 // composite profile has NO options lines
                 RawKind::Option => {
-                    return Err(Error::InvalidOptionLine {
-                        name: profile,
-                        line: (line.line, line.content),
-                    });
+                    return Err(Error::InvalidOptionLine(profile, line.line, line.content));
                 }
 
                 // normal data lines, aka profile names here
@@ -144,10 +135,7 @@ impl ProfileParser {
                         .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
                     {
                         // limit valid profile names!
-                        return Err(Error::InvalidDataLine {
-                            name: profile,
-                            line: (line.line, line.content),
-                        });
+                        return Err(Error::InvalidDataLine(profile, line.line, line.content));
                     }
                     entries.push(line.content);
                 }

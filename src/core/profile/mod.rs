@@ -101,10 +101,7 @@ impl Profile {
             // check if current item is already in path, aka if this is a cycle
             if let Some(pos) = path.iter().position(|x| x == &item_name) {
                 let cycle = path[pos..].to_vec();
-                return Err(Error::ProfileCycle {
-                    name: self.name.clone(),
-                    cycle,
-                });
+                return Err(Error::ProfileCycle(self.name.clone(), cycle));
             }
 
             // avoid revisiting already explored items, if graphs are complex and the same node is
@@ -212,10 +209,10 @@ mod tests {
             self.profiles
                 .get(name)
                 .cloned()
-                .ok_or(Error::ProfileLoadingFailure {
-                    name: name.into(),
-                    reason: "Test code failure".into(),
-                })
+                .ok_or(Error::ProfileLoadingFailure(
+                    name.into(),
+                    "Test code failure".into(),
+                ))
         }
     }
 
@@ -267,7 +264,7 @@ mod tests {
         match actual {
             Ok(_) => {}
             Err(err) => match err {
-                Error::ProfileCycle { name, cycle } => {
+                Error::ProfileCycle(name, cycle) => {
                     assert_eq!(name.as_str(), "root");
                     assert_eq!(cycle.join(" "), "composite1 composite2");
                 }
