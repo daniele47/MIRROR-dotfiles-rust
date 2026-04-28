@@ -45,3 +45,52 @@ impl ModuleParser {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::parsers::{RawItem, RawKind};
+    use crate::core::profile::module::ModulePolicy;
+
+    #[test]
+    fn test_parse_module() -> Result<()> {
+        let raw = vec![
+            RawItem {
+                line: 1,
+                content: "policy track".into(),
+                kind: RawKind::Option,
+            },
+            RawItem {
+                line: 2,
+                content: "src/lib.rs".into(),
+                kind: RawKind::Data,
+            },
+            RawItem {
+                line: 3,
+                content: "policy ignore".into(),
+                kind: RawKind::Option,
+            },
+            RawItem {
+                line: 4,
+                content: "target/".into(),
+                kind: RawKind::Data,
+            },
+        ];
+
+        let profile = ModuleParser::parse("test".into(), raw.into_iter().map(Ok))?;
+
+        match profile.ptype() {
+            ProfileType::Module(module) => {
+                let entries = module.entries();
+                assert_eq!(entries.len(), 2);
+                assert_eq!(entries[0].path().to_str_lossy(), "src/lib.rs");
+                assert_eq!(entries[0].policy(), ModulePolicy::default());
+                assert_eq!(entries[1].path().to_str_lossy(), "target/");
+                assert_eq!(entries[1].policy(), ModulePolicy::Ignore);
+            }
+            _ => panic!("Expected Module profile type"),
+        }
+
+        Ok(())
+    }
+}

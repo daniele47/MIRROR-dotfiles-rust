@@ -44,3 +44,39 @@ impl CompositeParser {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::parsers::{RawItem, RawKind};
+
+    #[test]
+    fn test_parse_composite() -> Result<()> {
+        let raw = vec![
+            RawItem {
+                line: 1,
+                content: "profile1".into(),
+                kind: RawKind::Data,
+            },
+            RawItem {
+                line: 2,
+                content: "profile2".into(),
+                kind: RawKind::Data,
+            },
+        ];
+
+        let profile = CompositeParser::parse("test".into(), raw.into_iter().map(Ok))?;
+
+        match profile.ptype() {
+            ProfileType::Composite(composite) => {
+                let entries = composite.entries();
+                assert_eq!(entries.len(), 2);
+                assert_eq!(entries[0], "profile1");
+                assert_eq!(entries[1], "profile2");
+            }
+            _ => panic!("Expected Module profile type"),
+        }
+
+        Ok(())
+    }
+}
