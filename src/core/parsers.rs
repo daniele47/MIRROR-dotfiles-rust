@@ -25,14 +25,17 @@ struct RawItem {
 
 impl ParsedConfig {
     pub fn parse(reader: impl LineReader) -> Result<Self> {
-        let raw_reader = parse(reader);
+        let mut raw_reader = parse(reader);
+        if let Some(first) = raw_reader.next() {
+            let first = first?;
+        }
         todo!()
     }
 }
 
 fn parse_line(line: (usize, Result<String>)) -> Result<Option<RawItem>> {
     let str = line.1?;
-    let line = line.0;
+    let line = line.0 + 1;
     let content;
     let kind;
 

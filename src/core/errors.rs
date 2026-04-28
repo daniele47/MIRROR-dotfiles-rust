@@ -17,7 +17,7 @@ pub enum Error {
     /// Profile definition includes cycles.
     ProfileCycle { name: String, cycle: Vec<String> },
 
-    /// Failure to load a profile
+    /// Failure to load a profile.
     ProfileNotLoaded { name: String, reason: String },
 }
 
