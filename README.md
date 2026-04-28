@@ -76,7 +76,6 @@ NOTE: - ignore for now, start tracking higher level features added and bugs solv
 - [x] move list of entries into new struct `Composite`, into its own `composite.rs` module in `profile/` dir
 - [x] that way `Profile` now a struct that stores name + profileType (enum with variants contained within)
 - [x] move `profile.rs`, `composite.rs` (new module to create), `modules.rs` into `profile/` dir
-- [ ] move profile name validity checker to inside `Profile` instead of hardcoded in parser
 - [x] go back to using tuple variants in error type
 - [ ] properly split parsers, such that they are all submodules of parsers module, BUT ALL HIDDEN!
 
