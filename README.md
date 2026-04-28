@@ -49,7 +49,6 @@ NOTE: - ignore for now, start tracking higher level features added and bugs solv
 - [x] finish implementing `resolve` method in profile.rs
 - [x] resolve seems to work, BUT error result is broken (return entire cycle)
 - [x] implement tests for `resolve` method in profile.rs
-- [ ] implement modules and profiles `parsers`
 - [x] implement `resolve` and `extend` functions in module.rs
 - [x] for `resolve` and `extend` functions in module.rs implement tests
 - [x] add function in `fs` module to do buffered reads (`BufReader` seems to implement a `.lines()` method!!!)
@@ -71,12 +70,12 @@ NOTE: - ignore for now, start tracking higher level features added and bugs solv
 - [x] add a test for `read_lines()` and `write_lines()`
 - [x] NOTE: `write_lines()` is not symmetrical with `read_lines()`. consider if you want write_lines to take in an iterator of lines instead!
 - [x] yup, i indeed do not like the current `write_line()`, which does not have my own return type. think of way to integrate this nicely.
+- [ ] implement modules and profiles `parsers`
 - [ ] add tests for `parsers` (one x each parser type)
 - [ ] should avoid splitting profile types, and just have them all in Profile somehow!
-- [ ] rework profile:
-    - [ ] move list of entries into new struct `Composite`
-    - [ ] that way `Profile` now a struct that stores name + profileType (enum with variants contained within)
-- [ ] move `profile.rs`, `composite.rs` (new module to create), `modules.rs` into `profile/` dir
+- [ ] move list of entries into new struct `Composite`, into its own `composite.rs` module in `profile/` dir
+- [ ] that way `Profile` now a struct that stores name + profileType (enum with variants contained within)
+- [x] move `profile.rs`, `composite.rs` (new module to create), `modules.rs` into `profile/` dir
 - [ ] move profile name validity checker to inside `Profile` instead of hardcoded in parser
 - [x] go back to using tuple variants in error type
 
