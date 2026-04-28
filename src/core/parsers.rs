@@ -7,8 +7,7 @@
 use crate::core::{
     errors::{Error, Result},
     fs::LineReader,
-    module::Module,
-    profile::{Profile, ProfileType},
+    profile::{Profile, ProfileType, module::Module},
 };
 
 /// All possible kind of parsed configs.

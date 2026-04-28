@@ -4,8 +4,10 @@ use std::collections::HashSet;
 
 use crate::core::{
     errors::{Error, Result},
-    module::Module,
+    profile::module::Module,
 };
+
+pub mod module;
 
 /// Represents the profile type.
 #[derive(Debug, PartialEq, Eq, Clone)]
