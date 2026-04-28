@@ -23,10 +23,13 @@ struct RawItem {
     kind: RawKind,
 }
 
+#[derive(Debug)]
+struct RawParser {}
+
 impl ConfigParser {
     /// Parse config file line by line into proper struct.
     pub fn parse(reader: impl LineReader) -> Result<Self> {
-        let mut raw_reader = parse(reader);
+        let mut raw_reader = RawParser::parse(reader);
         if let Some(first) = raw_reader.next() {
             let first = first?;
         }
@@ -34,44 +37,46 @@ impl ConfigParser {
     }
 }
 
-fn parse_line(line: (usize, Result<String>)) -> Result<Option<RawItem>> {
-    let str = line.1?;
-    let line = line.0 + 1;
-    let content;
-    let kind;
+impl RawParser {
+    fn parse_line(line: (usize, Result<String>)) -> Result<Option<RawItem>> {
+        let str = line.1?;
+        let line = line.0 + 1;
+        let content;
+        let kind;
 
-    // option line
-    if str.starts_with("/!") {
-        kind = RawKind::Option;
-        content = str[2..].trim().to_string();
-    }
-    // comment line
-    else if str.starts_with("/") {
-        return Ok(None);
-    }
-    // data line
-    else {
-        kind = RawKind::Data;
-        content = str.trim().to_string();
+        // option line
+        if str.starts_with("/!") {
+            kind = RawKind::Option;
+            content = str[2..].trim().to_string();
+        }
+        // comment line
+        else if str.starts_with("/") {
+            return Ok(None);
+        }
+        // data line
+        else {
+            kind = RawKind::Data;
+            content = str.trim().to_string();
+        }
+
+        // remove empty lines, or lines that had only empty lines
+        if content.is_empty() {
+            return Ok(None);
+        }
+
+        Ok(Some(RawItem {
+            line,
+            content,
+            kind,
+        }))
     }
 
-    // remove empty lines, or lines that had only empty lines
-    if content.is_empty() {
-        return Ok(None);
+    fn parse(reader: impl LineReader) -> impl Iterator<Item = Result<RawItem>> {
+        reader
+            .into_iter()
+            .enumerate()
+            .filter_map(|i| Self::parse_line(i).transpose())
     }
-
-    Ok(Some(RawItem {
-        line,
-        content,
-        kind,
-    }))
-}
-
-fn parse(reader: impl LineReader) -> impl Iterator<Item = Result<RawItem>> {
-    reader
-        .into_iter()
-        .enumerate()
-        .filter_map(|i| parse_line(i).transpose())
 }
 
 // TO BE REMOVED ONCE ALL IS IMPLEMENTED:
