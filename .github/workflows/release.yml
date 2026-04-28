@@ -43,13 +43,13 @@ jobs:
             binary_ext: ""
             use_cross: true
 
-          # Windows
-          # x86
-          - name: Windows x86_64
-            os: windows-latest
-            target: x86_64-pc-windows-msvc
-            binary_ext: ".exe"
-            use_cross: false
+          # # Windows
+          # # x86
+          # - name: Windows x86_64
+          #   os: windows-latest
+          #   target: x86_64-pc-windows-msvc
+          #   binary_ext: ".exe"
+          #   use_cross: false
           # # Arm
           # - name: Windows ARM64
           #   os: windows-latest
@@ -57,19 +57,19 @@ jobs:
           #   binary_ext: ".exe"
           #   use_cross: false
 
-          # MacOS
-          # x86
-          - name: macOS x86_64
-            os: macos-latest
-            target: x86_64-apple-darwin
-            binary_ext: ""
-            use_cross: false
-          # Arm
-          - name: macOS ARM64
-            os: macos-latest
-            target: aarch64-apple-darwin
-            binary_ext: ""
-            use_cross: false
+          # # MacOS
+          # # x86
+          # - name: macOS x86_64
+          #   os: macos-latest
+          #   target: x86_64-apple-darwin
+          #   binary_ext: ""
+          #   use_cross: false
+          # # Arm
+          # - name: macOS ARM64
+          #   os: macos-latest
+          #   target: aarch64-apple-darwin
+          #   binary_ext: ""
+          #   use_cross: false
 
     steps:
       - name: Checkout code
