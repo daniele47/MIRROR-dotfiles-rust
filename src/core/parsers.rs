@@ -1,4 +1,8 @@
 //! This module has utilities to parse all kind of profile configuration files.
+//!
+//! Parsing happens in 2 stages:
+//! - parsing into raw state (basic intermidiate state, shared between all config parsers)
+//! - parsing into the actual config
 
 use crate::core::{
     errors::{Error, Result},
@@ -114,7 +118,11 @@ impl RawParser {
 
 impl ModuleParser {
     fn parse(profile: String, raw: impl Iterator<Item = Result<RawItem>>) -> Result<Module> {
-        todo!()
+        let entries = vec![];
+
+        for line in raw {}
+
+        Ok(Module::new(entries))
     }
 }
 
