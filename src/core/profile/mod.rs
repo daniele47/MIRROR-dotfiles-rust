@@ -24,9 +24,6 @@ pub struct Profile {
 impl Profile {
     /// Create new profile.
     pub fn new(name: String, ptype: ProfileType) -> Self {
-        match ptype {
-            _ => {}
-        }
         Self { name, ptype }
     }
 

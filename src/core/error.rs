@@ -17,7 +17,7 @@ pub enum Error {
     /// Profile definition includes cycles.
     ProfileCycle(String, Vec<String>),
 
-    /// Profile does not exist.
+    /// Profile could not be loaded.
     ProfileLoadingFailure(String, String),
 
     /// Config file doesn't specify the profile type.
