@@ -1,6 +1,11 @@
 //! This module has utilities to parse all kind of profile configuration files.
 
-use crate::core::{errors::Result, fs::LineReader, module::Module, profile::Profile};
+use crate::core::{
+    errors::{Error, Result},
+    fs::LineReader,
+    module::Module,
+    profile::Profile,
+};
 
 /// All possible kind of parsed configs.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -26,14 +31,42 @@ struct RawItem {
 #[derive(Debug)]
 struct RawParser {}
 
+#[derive(Debug)]
+struct ModuleParser {}
+
+#[derive(Debug)]
+struct ProfileParser {}
+
 impl ConfigParser {
     /// Parse config file line by line into proper struct.
-    pub fn parse(reader: impl LineReader) -> Result<Self> {
-        let mut raw_reader = RawParser::parse(reader);
-        if let Some(first) = raw_reader.next() {
+    pub fn parse(profile: String, reader: impl LineReader) -> Result<Self> {
+        let mut raw = RawParser::parse(reader);
+        if let Some(first) = raw.next() {
             let first = first?;
+            let content = first.content;
+
+            // profile line MUST be the very first
+            if first.line != 1 {
+                return Err(Error::InvalidOptionLine {
+                    name: profile,
+                    line: (1, content),
+                });
+            }
+
+            // pick correct parser based on the profile type parsed from the first line
+            match content.as_str() {
+                "type profile" => ProfileParser::parse(profile, raw).map(ConfigParser::Profile),
+                "type module" => ModuleParser::parse(profile, raw).map(ConfigParser::Module),
+                _ => {
+                    return Err(Error::InvalidOptionLine {
+                        name: profile,
+                        line: (1, content),
+                    });
+                }
+            }
+        } else {
+            return Err(Error::MissingProfileType { name: profile });
         }
-        todo!()
     }
 }
 
@@ -79,13 +112,14 @@ impl RawParser {
     }
 }
 
-// TO BE REMOVED ONCE ALL IS IMPLEMENTED:
-//
-// Have 3 types of parsers:
-// - raw parser (takes iterator of lines and map them to an intermidiate config struct)
-// - a parser x each config type (that actually takes the raw parser and correctly creates its proper config type)
-// - wrapper parser (handles EVERYTHING. from raw config iterator returns a `ParsedConfig`)
-//
-// NOTE: THIS ENTIRE PARSING SYSTEM WILL NEVER FULLY ALLOCATE EVERYTHING INTO MEMORY. Just have
-// iterator everywhere, until a final ParsedConfig is achieved:
-// Iterator<file_lines> -> Iterator<raw_config> -> Fully loaded `ParsedConfig`
+impl ModuleParser {
+    fn parse(profile: String, raw: impl Iterator<Item = Result<RawItem>>) -> Result<Module> {
+        todo!()
+    }
+}
+
+impl ProfileParser {
+    fn parse(profile: String, raw: impl Iterator<Item = Result<RawItem>>) -> Result<Profile> {
+        todo!()
+    }
+}
