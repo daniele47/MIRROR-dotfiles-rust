@@ -27,28 +27,28 @@ pub type Result<T> = std::result::Result<T, Error>;
 impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Error::IoError { io: e, path: p } => {
-                write!(f, "IO error on path '{}' : {e}", p.display())
+            Error::IoError { io, path } => {
+                write!(f, "IO error on path '{}' : {io}", path.display())
             }
-            Error::InvalidPathPrefix { path: p, prefix: r } => {
-                let p = p.display();
-                let r = r.display();
-                write!(f, "Invalid prefix '{p}' for path '{r}'")
+            Error::InvalidPathPrefix { path, prefix } => {
+                let path = path.display();
+                let prefix = prefix.display();
+                write!(f, "Invalid prefix '{path}' for path '{prefix}'")
             }
-            Error::InvalidPathString { path: p } => {
-                write!(f, "Invalid path string: {}", p.display())
+            Error::InvalidPathString { path } => {
+                write!(f, "Invalid path string: {}", path.display())
             }
-            Error::ProfileCycle { name: n, cycle: c } => {
-                let cstr = c
+            Error::ProfileCycle { name, cycle } => {
+                let cstr = cycle
                     .iter()
-                    .chain(c.first())
+                    .chain(cycle.first())
                     .map(|s| s.as_str())
                     .collect::<Vec<_>>()
                     .join(" → ");
-                write!(f, "Profile '{n}' reaches a cycle: {cstr}")
+                write!(f, "Profile '{name}' reaches a cycle: {cstr}")
             }
-            Error::ProfileNotLoaded { name: n, reason: r } => {
-                write!(f, "Profile '{n}' could not be loaded: {r}")
+            Error::ProfileNotLoaded { name, reason } => {
+                write!(f, "Profile '{name}' could not be loaded: {reason}")
             }
         }
     }
