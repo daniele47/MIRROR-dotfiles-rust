@@ -1,3 +1,5 @@
+use std::env;
+
 use autosaver::core::{
     error::Result,
     fs::{AbsPath, LineWriter},
@@ -40,7 +42,9 @@ fn main() -> Result<()> {
     match profile.ptype() {
         autosaver::core::profile::ProfileType::Composite(_composite) => todo!(),
         autosaver::core::profile::ProfileType::Module(module) => {
-            let resolved_profile = module.resolve(&AbsPath::from(env!("HOME")))?;
+            let resolved_profile = module.resolve(&AbsPath::from(
+                env::var("HOME").expect("HOME not set!").as_str(),
+            ))?;
             println!("\nRESOLVED:\n{resolved_profile:#?}");
         }
     }
