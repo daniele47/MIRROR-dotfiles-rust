@@ -8,6 +8,7 @@ use crate::core::{
 };
 
 pub mod module;
+pub mod composite;
 
 /// Represents the profile type.
 #[derive(Debug, PartialEq, Eq, Clone)]
