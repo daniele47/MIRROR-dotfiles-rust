@@ -9,6 +9,10 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+-*'     # v1.2.3-beta, v1.2.3-rc.1
     branches:
       - main
+    paths:
+      - 'src/**'
+      - 'Cargo.toml'
+      - '.github/workflows/*.yml'
 
 env:
   CARGO_TERM_COLOR: always
