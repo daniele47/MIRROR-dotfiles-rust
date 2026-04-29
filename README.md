@@ -61,6 +61,7 @@ Copy-based dotfiles tracking cli, written in rust
         - `restore` to apply restore action on specified profile
     - `--help` to show help relative to the subcommand
     - `--version` to simply print the binary current version
+    - `--nocolor` flag to fully disable all coloring in the output
     - NOTE: flags priority comes from order! `./command --help --version` shows the help msg, `./command --version --help` shows the version!
 - [ ] bash wrapper script to take care of downloading the rust binary and all        
     - (?) keep a timestamp of latest update check? so that i can actually propose to update if current binary is old once in a while
