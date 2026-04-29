@@ -48,7 +48,6 @@ pub trait Style {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TermStyle {
     text: String,
-    is_color_set: bool,
     term_color: &'static str,
     term_decor: &'static str,
     text_type: TextType,
@@ -70,13 +69,13 @@ const BLUE: &'static str = "\x1b[34m";
 const PURPLE: &'static str = "\x1b[35m";
 const BOLD: &'static str = "\x1b[1m";
 const UNDERLINE: &'static str = "\x1b[4m";
+const RESET: &'static str = "\x1b[m";
 
 impl TermStyle {
     /// Create new TermStyle
     pub fn new(text: String) -> Self {
         Self {
             text,
-            is_color_set: false,
             term_color: "",
             term_decor: "",
             text_type: TextType::Normal,
@@ -86,43 +85,36 @@ impl TermStyle {
 
 impl Style for TermStyle {
     fn white(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = WHITE;
         self
     }
 
     fn red(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = RED;
         self
     }
 
     fn lgreen(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = LGREEN;
         self
     }
 
     fn green(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = GREEN;
         self
     }
 
     fn yellow(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = YELLOW;
         self
     }
 
     fn blue(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = BLUE;
         self
     }
 
     fn purple(&mut self) -> &mut Self {
-        self.is_color_set = true;
         self.term_color = PURPLE;
         self
     }
@@ -148,7 +140,21 @@ impl Style for TermStyle {
     }
 
     fn visualize(&mut self) -> Result<()> {
-        todo!()
+        match self.text_type {
+            TextType::Normal => {
+                let col = self.term_color;
+                let dec = self.term_decor;
+                let text = self.text.as_str();
+                println!("{col}{dec}{text}{RESET}",);
+            }
+            TextType::Error => {
+                eprintln!("{RED}{BOLD}ERROR: {}{RESET}", self.text);
+            }
+            TextType::Warning => {
+                eprintln!("{YELLOW}{BOLD}WARNING: {}{RESET}", self.text);
+            }
+        }
+        Ok(())
     }
 }
 

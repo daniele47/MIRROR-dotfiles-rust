@@ -49,6 +49,8 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] add `cargo clippy` check before release. If any warning, kill the release!
 - [ ] `Color` trait, with blue, red, ..., bold, underlined, ..., set_error, visualize, ... methods, so that this can be implement with stdout OR ANYTHING
 - [ ] let all pub trait that return errors allow customizing the error with a `type Error: std::error::Error`
+- [ ] small test for TermStyle
+- [ ] test style!() macro and add styleln!() macro
 
 ## blockers
 
