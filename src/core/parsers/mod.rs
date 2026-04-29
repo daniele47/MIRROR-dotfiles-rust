@@ -45,7 +45,7 @@ impl Profile {
 
             // pick correct parser based on the profile type parsed from the first line
             match content.as_str() {
-                "type profile" => CompositeParser::parse(profile, raw),
+                "type composite" => CompositeParser::parse(profile, raw),
                 "type module" => ModuleParser::parse(profile, raw),
                 _ => {
                     return Err(Error::InvalidOptionLine(profile, 1, content));
