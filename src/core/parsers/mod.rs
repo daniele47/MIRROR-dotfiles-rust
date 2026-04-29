@@ -47,9 +47,7 @@ impl Profile {
             match content.as_str() {
                 "type composite" => CompositeParser::parse(profile, raw),
                 "type module" => ModuleParser::parse(profile, raw),
-                _ => {
-                    Err(Error::InvalidOptionLine(profile, 1, content))
-                }
+                _ => Err(Error::InvalidOptionLine(profile, 1, content)),
             }
         } else {
             Err(Error::MissingProfileType(profile))

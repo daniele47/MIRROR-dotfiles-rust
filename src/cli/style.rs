@@ -2,24 +2,6 @@
 
 use crate::core::error::Result;
 
-#[macro_export]
-macro_rules! render {
-    ($($arg:expr),+ $(,)?) => {{
-        $(
-            let _styled: &mut dyn $crate::style::Styler = &mut $arg;
-            _styled.render()?;
-        )+
-        Ok(())
-    }};
-}
-
-#[macro_export]
-macro_rules! renderln {
-    ($($arg:expr),+ $(,)?) => {{
-        $crate::render!($($arg),+, $crate::styler::Styler::new("\n"))?;
-    }}
-}
-
 /// Trait providing all functionalities
 pub trait Styler {
     /// Apply white color on text.
