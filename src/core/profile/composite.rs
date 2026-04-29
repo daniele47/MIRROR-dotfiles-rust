@@ -88,7 +88,7 @@ impl Composite {
     /// - resolved: cleanup of duplicates, and with all leaf children resolved
     ///
     /// This function serves that role, in trasforming a raw profile into a resolved one.
-    pub fn resolve(&mut self, profile: &str, loader: &mut impl ProfileLoader) -> Result<Self> {
+    pub fn resolve(&self, profile: &str, loader: &mut impl ProfileLoader) -> Result<Self> {
         let mut entries = Vec::<String>::new();
         let mut visited = HashSet::<String>::new();
         let mut path = Vec::<String>::new();

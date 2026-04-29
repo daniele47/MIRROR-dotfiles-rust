@@ -3,7 +3,10 @@ use std::env;
 use autosaver::core::{
     error::Result,
     fs::{AbsPath, LineWriter},
-    profile::{Profile, composite::HashMapProfileLoader},
+    profile::{
+        Profile, ProfileType,
+        composite::{Composite, HashMapProfileLoader},
+    },
 };
 
 fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
@@ -51,6 +54,11 @@ fn main() -> Result<()> {
     let mut writer = tmpfile3.line_writer()?;
     writer.write_all_lines(["/! type composite", "", "neovim", "tmux"])?;
 
+    // create profile with both
+    let tmpfile4 = tmpdir.joins(&["all.conf"]);
+    let mut writer = tmpfile4.line_writer()?;
+    writer.write_all_lines(["/! type composite", "", "neovim", "tmux", "tools"])?;
+
     // load all profiles
     let mut profile_loader = HashMapProfileLoader::new();
     let profiles = profile_loader.profiles();
@@ -58,28 +66,24 @@ fn main() -> Result<()> {
         ("neovim", &tmpfile1),
         ("tmux", &tmpfile2),
         ("tools", &tmpfile3),
+        ("all", &tmpfile4),
     ] {
         profiles.insert(p.into(), Profile::parse(p.into(), f.line_reader()?)?);
     }
+    let profiles = profile_loader.profiles().clone();
 
     for profile in profiles {
-        println!("{profile:#?}\n\n");
+        match profile.1.ptype() {
+            ProfileType::Composite(composite) => {
+                let composite = composite.resolve(profile.0.as_str(), &mut profile_loader)?;
+                println!("RESOLVED COMPOSITE: {composite:#?}\n\n");
+            }
+            ProfileType::Module(module) => {
+                let module = module.resolve(&AbsPath::from(env::var("HOME").unwrap().as_str()));
+                println!("RESOLVED MODULE: {module:#?}\n\n");
+            }
+        }
     }
-
-    // let reader = tmpfile.line_reader()?;
-    // let profile = Profile::parse("neovim".to_string(), reader)?;
-    //
-    // println!("\nPARSED:\n{profile:#?}");
-    //
-    // match profile.ptype() {
-    //     autosaver::core::profile::ProfileType::Composite(_composite) => todo!(),
-    //     autosaver::core::profile::ProfileType::Module(module) => {
-    //         let resolved_profile = module.resolve(&AbsPath::from(
-    //             env::var("HOME").expect("HOME not set!").as_str(),
-    //         ))?;
-    //         println!("\nRESOLVED:\n{resolved_profile:#?}");
-    //     }
-    // }
 
     Ok(())
 }
