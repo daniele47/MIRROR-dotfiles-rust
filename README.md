@@ -57,7 +57,6 @@ Copy-based dotfiles tracking cli, written in rust
     - `list` to just list changed files
     - `save` to apply save action on specified profile
     - `restore` to apply restore action on specified profile
-    - `cleanup` action which acts like untracked FOR ALL MODULES + all possible cleanups,
     - `--help` to show help relative to the subcommand
     - `--version` to simply print the binary current version
     - NOTE: flags priority comes from order! `./command --help --version` shows the help msg, `./command --version --help` shows the version!
@@ -66,8 +65,12 @@ Copy-based dotfiles tracking cli, written in rust
         
 ## potential future features
 
+- more flags and commands:
+    - `cleanup` action which acts like untracked FOR ALL MODULES + all possible cleanups,
+    - `--verbose` flag (related to logs)
+    - some sort of commands to automatically create/delete/rename profiles?
+
 - logs for every operation?
     - I could have them shoved into `.cache/autosaver/logs` dir, and one file x command run with timestamp 
         so can be easily ordered + automatic log rotation to keep old latest X log files
     - Idea is that it would be potentially useful to log EVERYTHING!
-    - `--verbose` flag
