@@ -471,7 +471,7 @@ impl TryFrom<AbsPath> for String {
         value
             .path
             .to_str()
-            .ok_or(Error::InvalidPathString(value.path.clone()))
+            .ok_or_else(|| Error::InvalidPathString(value.path.clone()))
             .map(String::from)
     }
 }
@@ -483,7 +483,7 @@ impl TryFrom<RelPath> for String {
         value
             .path
             .to_str()
-            .ok_or(Error::InvalidPathString(value.path.clone()))
+            .ok_or_else(|| Error::InvalidPathString(value.path.clone()))
             .map(String::from)
     }
 }
