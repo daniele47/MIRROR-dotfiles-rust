@@ -47,6 +47,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] use `ok_or_else` always, to avoid useless clone operations
 - [x] implement a simple flag parser just parsing flags, nothing else!
 - [x] add `cargo clippy` check before release. If any warning, kill the release!
+- [ ] `Color` trait, with blue, red, ..., bold, underlined, ..., set_error, visualize, ... methods, so that this can be implement with stdout OR ANYTHING
 
 ## blockers
 
@@ -54,9 +55,10 @@ Copy-based dotfiles tracking cli, written in rust
 
 - [ ] full integration tests, not just individual module tests, to test some scenarios
 - [ ] complete set of working cli functionality, including `help` command
-    - `list` to just list changed files
-    - `save` to apply save action on specified profile
-    - `restore` to apply restore action on specified profile
+    - backup action:
+        - `list` to just list changed files
+        - `save` to apply save action on specified profile
+        - `restore` to apply restore action on specified profile
     - `--help` to show help relative to the subcommand
     - `--version` to simply print the binary current version
     - NOTE: flags priority comes from order! `./command --help --version` shows the help msg, `./command --version --help` shows the version!
