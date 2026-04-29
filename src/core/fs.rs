@@ -52,6 +52,7 @@ pub trait LineWriter {
 }
 
 /// Simple generic implementation of LineReader that preserves the lazy evaluation capabilities.
+#[derive(Debug)]
 pub struct AnyLineReader<I>
 where
     I: Iterator<Item = Result<String>>,
@@ -60,6 +61,7 @@ where
 }
 
 /// Simple generic implementation of LineWrite that writes to a vector of strings.
+#[derive(Debug)]
 pub struct AnyLineWriter {
     lines: Vec<String>,
 }
