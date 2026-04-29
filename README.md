@@ -46,6 +46,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] add a default implementation for all my traits
 - [x] use `ok_or_else` always, to avoid useless clone operations
 - [x] implement a simple flag parser just parsing flags, nothing else!
+- [ ] implement a function that from a `Composite` returns a totally resolved `Module`
 
 ## blockers
 
