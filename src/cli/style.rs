@@ -3,18 +3,25 @@
 use crate::core::error::Result;
 
 #[macro_export]
-macro_rules! style {
+macro_rules! render {
     ($($arg:expr),+ $(,)?) => {{
         $(
-            let _styled: &mut dyn $crate::style::Style = &mut $arg;
-            _styled.visualize()?;
+            let _styled: &mut dyn $crate::style::Styler = &mut $arg;
+            _styled.render()?;
         )+
         Ok(())
     }};
 }
 
+#[macro_export]
+macro_rules! renderln {
+    ($($arg:expr),+ $(,)?) => {{
+        $crate::render!($($arg),+, $crate::styler::Styler::new("\n"))?;
+    }}
+}
+
 /// Trait providing all functionalities
-pub trait Style {
+pub trait Styler {
     /// Apply white color on text.
     fn white(&mut self) -> &mut Self;
     /// Apply red color on text.
@@ -40,11 +47,11 @@ pub trait Style {
     /// Treat the text as a warning (ignores styling).
     fn warning(&mut self) -> &mut Self;
 
-    /// Visualize the styled output on the frontend.
-    fn visualize(&mut self) -> Result<()>;
+    /// Render the styled output on the frontend.
+    fn render(&mut self) -> Result<()>;
 }
 
-/// Implementation of Style to visualize the text on the terminal.
+/// Implementation of Style to render the text on the terminal.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TermStyle {
     text: String,
@@ -83,7 +90,7 @@ impl TermStyle {
     }
 }
 
-impl Style for TermStyle {
+impl Styler for TermStyle {
     fn white(&mut self) -> &mut Self {
         self.term_color = WHITE;
         self
@@ -139,7 +146,7 @@ impl Style for TermStyle {
         self
     }
 
-    fn visualize(&mut self) -> Result<()> {
+    fn render(&mut self) -> Result<()> {
         match self.text_type {
             TextType::Normal => {
                 let col = self.term_color;
