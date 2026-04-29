@@ -184,8 +184,6 @@ impl AbsPath {
     }
 
     /// Get File Metadata.
-    ///
-    /// Note: it follows symlinks! Use `symlink_metadata` to not follow symlinks.
     pub fn metadata(&self) -> Result<Metadata> {
         self.path
             .metadata()
