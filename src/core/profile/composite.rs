@@ -203,7 +203,7 @@ mod tests {
 
     #[test]
     fn test_resolve_success() -> Result<()> {
-        let mut profile = Composite::new(vec!["composite1".to_string(), "module1".to_string()]);
+        let profile = Composite::new(vec!["composite1".to_string(), "module1".to_string()]);
         let profile_name = "root";
         let mut loader = new_loader(vec![]);
 
@@ -226,7 +226,7 @@ mod tests {
 
     #[test]
     fn test_resolve_failure() -> Result<()> {
-        let mut profile = Composite::new(vec!["composite1".to_string(), "module1".to_string()]);
+        let profile = Composite::new(vec!["composite1".to_string(), "module1".to_string()]);
         let mut loader = new_loader(vec![Profile::new(
             "composite2".to_string(),
             ProfileType::Composite(Composite::new(vec!["composite1".to_string()])),

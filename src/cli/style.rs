@@ -53,7 +53,7 @@ pub trait Styler {
 
 /// Implementation of Style to render the text on the terminal.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TermStyle {
+pub struct TermStyler {
     text: String,
     term_color: &'static str,
     term_decor: &'static str,
@@ -78,7 +78,7 @@ const BOLD: &str = "\x1b[1m";
 const UNDERLINE: &str = "\x1b[4m";
 const RESET: &str = "\x1b[m";
 
-impl TermStyle {
+impl TermStyler {
     /// Create new TermStyle
     pub fn new(text: String) -> Self {
         Self {
@@ -90,7 +90,7 @@ impl TermStyle {
     }
 }
 
-impl Styler for TermStyle {
+impl Styler for TermStyler {
     fn white(&mut self) -> &mut Self {
         self.term_color = WHITE;
         self
@@ -165,13 +165,13 @@ impl Styler for TermStyle {
     }
 }
 
-impl From<String> for TermStyle {
+impl From<String> for TermStyler {
     fn from(value: String) -> Self {
         Self::new(value)
     }
 }
 
-impl From<&str> for TermStyle {
+impl From<&str> for TermStyler {
     fn from(value: &str) -> Self {
         Self::new(value.into())
     }
