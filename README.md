@@ -54,6 +54,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] `find_all` file filter does not work (aka it gets applied istantly, and dirs are never even traversed!)
 - [x] add a default implementation for all my traits
 - [x] use `ok_or_else` always, to avoid useless clone operations
+- [ ] implement a simple flag parser just parsing flags, nothing else!
 
 ## blockers
 
