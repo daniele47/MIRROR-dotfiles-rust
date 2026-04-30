@@ -22,10 +22,7 @@ mod help;
 mod version;
 
 /// Struct with data and methods to run cli.
-pub struct Runner<I>
-where
-    I: Renderer,
-{
+pub struct Runner<I: Renderer> {
     args: ParsedArgs,
     renderer: I,
 }

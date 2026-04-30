@@ -37,9 +37,7 @@ pub trait LineWriter {
     ///
     /// Note: It doesn't make guarantees about it being instantly on file.
     /// Call `flush` to make sure the written line is actually on file.
-    fn write_line<S>(&mut self, line: S) -> Result<()>
-    where
-        S: AsRef<str>;
+    fn write_line<S: AsRef<str>>(&mut self, line: S) -> Result<()>;
 
     /// Make sure what was written is actually on file.
     fn flush(&mut self) -> Result<()>;
@@ -59,10 +57,7 @@ pub trait LineWriter {
 
 /// Simple generic implementation of LineReader that preserves the lazy evaluation capabilities.
 #[derive(Debug)]
-pub struct AnyLineReader<I>
-where
-    I: Iterator<Item = Result<String>>,
-{
+pub struct AnyLineReader<I: Iterator<Item = Result<String>>> {
     lines: I,
 }
 
@@ -72,20 +67,14 @@ pub struct AnyLineWriter {
     lines: Vec<String>,
 }
 
-impl<I> AnyLineReader<I>
-where
-    I: Iterator<Item = Result<String>>,
-{
+impl<I: Iterator<Item = Result<String>>> AnyLineReader<I> {
     /// Create new AnyLineReader that stores an iterator.
     pub fn new(iter: I) -> Self {
         Self { lines: iter }
     }
 }
 
-impl<I> Iterator for AnyLineReader<I>
-where
-    I: Iterator<Item = Result<String>>,
-{
+impl<I: Iterator<Item = Result<String>>> Iterator for AnyLineReader<I> {
     type Item = Result<String>;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -93,10 +82,7 @@ where
     }
 }
 
-impl<I> LineReader for AnyLineReader<I>
-where
-    I: Iterator<Item = Result<String>>,
-{
+impl<I: Iterator<Item = Result<String>>> LineReader for AnyLineReader<I> {
     type Error = Error;
 }
 
@@ -110,10 +96,7 @@ impl AnyLineWriter {
 impl LineWriter for AnyLineWriter {
     type Error = Error;
 
-    fn write_line<S>(&mut self, line: S) -> Result<()>
-    where
-        S: AsRef<str>,
-    {
+    fn write_line<S: AsRef<str>>(&mut self, line: S) -> Result<()> {
         self.lines.push(line.as_ref().to_string());
         Ok(())
     }
@@ -322,10 +305,7 @@ impl AbsPath {
     /// List all files in a directory.
     ///
     /// Notes: this will get ALL files, even directories, symlinks, all rust can get.
-    pub fn list_files<F>(&self, filter: F) -> Result<BTreeSet<AbsPath>>
-    where
-        F: Fn(&AbsPath) -> bool,
-    {
+    pub fn list_files<F: Fn(&AbsPath) -> bool>(&self, filter: F) -> Result<BTreeSet<AbsPath>> {
         Ok(fs::read_dir(&self.path)
             .map_err(|e| Error::IoError(e, self.path.clone()))?
             .filter_map(|entry| entry.ok())
@@ -353,10 +333,7 @@ impl AbsPath {
     /// found but yet to be explored, and a hashset of all paths explored until now, canonicalized.
     /// The hash set allows to easily check if a new directory was already explored, and if so,
     /// avoid exploring it again. This easily resolves all symlink loops that could be created.
-    pub fn all_files<F>(&self, filter: F) -> Result<BTreeSet<AbsPath>>
-    where
-        F: Fn(&AbsPath) -> bool,
-    {
+    pub fn all_files<F: Fn(&AbsPath) -> bool>(&self, filter: F) -> Result<BTreeSet<AbsPath>> {
         let mut files = BTreeSet::new();
         let mut norm_files = HashSet::new();
         let mut stack = Vec::new();
@@ -425,10 +402,7 @@ impl AbsPath {
         impl<W: Write> LineWriter for LineWriterImpl<W> {
             type Error = Error;
 
-            fn write_line<S>(&mut self, line: S) -> Result<()>
-            where
-                S: AsRef<str>,
-            {
+            fn write_line<S: AsRef<str>>(&mut self, line: S) -> Result<()> {
                 writeln!(self.inner, "{}", line.as_ref())
                     .map_err(|e| Error::IoError(e, self.path.clone().into()))?;
                 Ok(())
