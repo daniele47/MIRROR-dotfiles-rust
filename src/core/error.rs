@@ -8,6 +8,9 @@ pub enum Error {
     /// All kind of filesystem related errors.
     IoError(std::io::Error, PathBuf),
 
+    /// Path was required to be a file, but it was not.
+    NotAFile(PathBuf),
+
     /// Could not remove a prefix from a path string.
     InvalidPathPrefix(PathBuf, PathBuf),
 
@@ -39,6 +42,7 @@ impl Display for Error {
             Error::IoError(io, path) => {
                 write!(f, "IO error on path '{}' : {io}", path.display())
             }
+            Error::NotAFile(path) => write!(f, "Not a file: {}", path.display()),
             Error::InvalidPathPrefix(path, prefix) => {
                 let path = path.display();
                 let prefix = prefix.display();

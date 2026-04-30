@@ -207,6 +207,18 @@ impl AbsPath {
         self.path.exists()
     }
 
+    /// Get parent directory. Note: this is safe ONLY if the path is a file.
+    pub fn file_parent(&self) -> Result<AbsPath> {
+        if !self.metadata()?.is_file() {
+            return Err(Error::NotAFile(self.path.clone()));
+        }
+        Ok(self
+            .path
+            .parent()
+            .map(|p| AbsPath::from(p.to_owned()))
+            .expect("files MUST have a parent directory!"))
+    }
+
     /// Create directory with all missing parents.
     ///
     /// Notes: there could be some directory left created on failure!
@@ -500,6 +512,18 @@ impl From<&str> for AbsPath {
 
 impl From<&str> for RelPath {
     fn from(s: &str) -> Self {
+        Self::new(PathBuf::from(s))
+    }
+}
+
+impl From<String> for AbsPath {
+    fn from(s: String) -> Self {
+        Self::new(PathBuf::from(s))
+    }
+}
+
+impl From<String> for RelPath {
+    fn from(s: String) -> Self {
         Self::new(PathBuf::from(s))
     }
 }

@@ -1,9 +1,14 @@
 //! Module to run cli.
 
-use crate::cli::{
-    error::{Error, Result},
-    flags::{Flag, ParsedArgs},
-    output::Renderer,
+use std::env;
+
+use crate::{
+    cli::{
+        error::{Error, Result},
+        flags::{Flag, ParsedArgs},
+        output::Renderer,
+    },
+    core::fs::AbsPath,
 };
 
 mod backup;
@@ -28,6 +33,21 @@ where
         Self { args, renderer }
     }
 
+    fn paths(&self, path: &str) -> Result<AbsPath> {
+        match path {
+            "home" => env::var("HOME")
+                .map_err(|_| Error::FailureLoadingPath(path.to_string()))
+                .map(AbsPath::from),
+            "exe" => env::current_exe()
+                .map(AbsPath::from)
+                .map_err(|_| Error::FailureLoadingPath(path.to_string())),
+            "root" => Ok(self.paths("exe")?.file_parent()?),
+            "backup" => Ok(self.paths("root")?.joins(&["backup"])),
+            "config" => Ok(self.paths("root")?.joins(&["config"])),
+            _ => unreachable!("Invalid path"),
+        }
+    }
+
     /// Run the cli application.
     pub fn run(&mut self) -> Result<()> {
         let flags = self.args.flags();
@@ -46,11 +66,11 @@ where
             return self.help();
         }
 
-        let command = self.args.params().first().map(|s| s.as_str());
+        let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
-            Some("list") | Some("save") | Some("restore") => self.backup(),
+            "list" | "save" | "restore" => self.backup(),
             _ => {
-                let err_msg = format!("Invalid command '{}'", command.unwrap_or(""));
+                let err_msg = format!("Invalid command '{}'", command);
                 Err(Error::EarlyExit(err_msg))
             }
         }

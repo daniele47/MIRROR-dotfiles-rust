@@ -13,6 +13,9 @@ pub enum Error {
 
     /// Error and exit.
     EarlyExit(String),
+
+    /// Failure to get a path.
+    FailureLoadingPath(String),
 }
 
 impl From<crate::core::error::Error> for Error {
@@ -26,6 +29,7 @@ impl Display for Error {
         match self {
             Error::CoreError(error) => write!(f, "{error}"),
             Error::EarlyExit(reason) => write!(f, "{reason}"),
+            Error::FailureLoadingPath(path) => write!(f, "Could not load path '{path}'"),
         }
     }
 }
