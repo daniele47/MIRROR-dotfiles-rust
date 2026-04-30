@@ -38,8 +38,8 @@ pub trait Styler {
 pub struct TermStyler {
     text: String,
     color: bool,
-    term_color: &'static str,
-    term_decor: &'static str,
+    colors: Vec<&'static str>,
+    decorations: Vec<&'static str>,
     text_type: TextType,
 }
 
@@ -75,8 +75,8 @@ impl TermStyler {
         Self {
             text,
             color,
-            term_color: "",
-            term_decor: "",
+            colors: Default::default(),
+            decorations: Default::default(),
             text_type: TextType::Normal,
         }
     }
@@ -89,47 +89,47 @@ impl TermStyler {
 
 impl Styler for TermStyler {
     fn white(&mut self) -> &mut Self {
-        self.term_color = WHITE;
+        self.colors.push(WHITE);
         self
     }
 
     fn red(&mut self) -> &mut Self {
-        self.term_color = RED;
+        self.colors.push(RED);
         self
     }
 
     fn lgreen(&mut self) -> &mut Self {
-        self.term_color = LGREEN;
+        self.colors.push(LGREEN);
         self
     }
 
     fn green(&mut self) -> &mut Self {
-        self.term_color = GREEN;
+        self.colors.push(GREEN);
         self
     }
 
     fn yellow(&mut self) -> &mut Self {
-        self.term_color = YELLOW;
+        self.colors.push(YELLOW);
         self
     }
 
     fn blue(&mut self) -> &mut Self {
-        self.term_color = BLUE;
+        self.colors.push(BLUE);
         self
     }
 
     fn purple(&mut self) -> &mut Self {
-        self.term_color = PURPLE;
+        self.colors.push(PURPLE);
         self
     }
 
     fn bold(&mut self) -> &mut Self {
-        self.term_decor = BOLD;
+        self.decorations.push(BOLD);
         self
     }
 
     fn underline(&mut self) -> &mut Self {
-        self.term_decor = UNDERLINE;
+        self.decorations.push(UNDERLINE);
         self
     }
 
@@ -146,16 +146,21 @@ impl Styler for TermStyler {
     fn render(&mut self) -> Result<()> {
         match self.text_type {
             TextType::Normal => {
-                let col = self.term_color;
-                let dec = self.term_decor;
-                let text = self.text.as_str();
+                assert!(!self.colors.is_empty(), "No colors set!");
+                let colors = self.colors.join("");
+                let decorations = self.decorations.join("");
                 if self.color {
-                    println!("{col}{dec}{text}{RESET}",);
+                    println!("{colors}{decorations}{}{RESET}", self.text);
                 } else {
-                    println!("{text}");
+                    println!("{}", self.text);
                 }
             }
             TextType::Error => {
+                assert!(self.colors.is_empty(), "Error can't have colors too!");
+                assert!(
+                    self.decorations.is_empty(),
+                    "Error can't have decorations too!"
+                );
                 if self.color {
                     eprintln!("{RED}{BOLD}ERROR: {}{RESET}", self.text);
                 } else {
@@ -163,6 +168,11 @@ impl Styler for TermStyler {
                 }
             }
             TextType::Warning => {
+                assert!(self.colors.is_empty(), "Warning can't have colors too!");
+                assert!(
+                    self.decorations.is_empty(),
+                    "Warning can't have decorations too!"
+                );
                 if self.color {
                     eprintln!("{YELLOW}{BOLD}WARNING: {}{RESET}", self.text);
                 } else {

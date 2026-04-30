@@ -1,10 +1,10 @@
 use std::env;
 
-use autosaver::core::{
+use autosaver::{cli::style::{Styler, TermStyler}, core::{
     error::Result,
     fs::{AbsPath, LineWriter},
     profile::{Profile, ProfileType, composite::HashMapProfileLoader},
-};
+}};
 
 fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
     struct Guard(AbsPath);
@@ -77,7 +77,8 @@ fn main() -> Result<()> {
             }
             ProfileType::Module(module) => {
                 let module = module.resolve(&AbsPath::from(env::var("HOME").unwrap().as_str()));
-                println!("RESOLVED MODULE {}:\n {module:#?}\n\n", profile.0);
+                let str = format!("RESOLVED MODULE {}:\n {module:#?}\n\n", profile.0);
+                TermStyler::from(str).bold().render()?;
             }
         }
     }
