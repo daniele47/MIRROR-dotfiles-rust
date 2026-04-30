@@ -76,10 +76,4 @@ Copy-based dotfiles tracking cli, written in rust
         - `symlinks` to list and possible delete all 
         - `profiles` to check profile files, and delete the ones with wrong format, or without backup and whatnot
         - `untracked` to check if in one or all profiles there are untracked files that can be removed
-    - `--verbose` flag (related to logs)
-    - `--assumeyes` / `--assumeno` (inspired by dnf) to skip all confermations
-
-- logs for every operation?
-    - I could have them shoved into `.cache/autosaver/logs` dir, and one file x command run with timestamp 
-        so can be easily ordered + automatic log rotation to keep old latest X log files
-    - Idea is that it would be potentially useful to log EVERYTHING!
+    - `--verbose` flag
