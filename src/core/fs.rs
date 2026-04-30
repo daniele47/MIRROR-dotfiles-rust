@@ -23,16 +23,10 @@ pub struct RelPath {
 }
 
 /// Trait to get a simple way to read line by line from a buffered file.
-pub trait LineReader: Iterator<Item = std::result::Result<String, Self::Error>> {
-    /// Generic error type.
-    type Error: std::error::Error;
-}
+pub trait LineReader: Iterator<Item = Result<String>> {}
 
 /// Trait to get a simple way to write line by line into a buffered file.
 pub trait LineWriter {
-    /// Generic error type.
-    type Error: std::error::Error;
-
     /// Write a single line to file.
     ///
     /// Note: It doesn't make guarantees about it being instantly on file.
@@ -82,9 +76,7 @@ impl<I: Iterator<Item = Result<String>>> Iterator for AnyLineReader<I> {
     }
 }
 
-impl<I: Iterator<Item = Result<String>>> LineReader for AnyLineReader<I> {
-    type Error = Error;
-}
+impl<I: Iterator<Item = Result<String>>> LineReader for AnyLineReader<I> {}
 
 impl AnyLineWriter {
     /// Create new AnyLineReader that stores an iterator.
@@ -94,8 +86,6 @@ impl AnyLineWriter {
 }
 
 impl LineWriter for AnyLineWriter {
-    type Error = Error;
-
     fn write_line<S: AsRef<str>>(&mut self, line: S) -> Result<()> {
         self.lines.push(line.as_ref().to_string());
         Ok(())
@@ -362,7 +352,7 @@ impl AbsPath {
     ///
     /// Note: since this uses a buffered reader, read could costantly fail. It is thus necessary
     /// to handle the potential error on every each line read! The error is of type std::io::Error!
-    pub fn line_reader(&self) -> Result<impl LineReader<Error = Error>> {
+    pub fn line_reader(&self) -> Result<impl LineReader> {
         // implement line reader
         struct LineReaderImpl {
             path: AbsPath,
@@ -377,9 +367,7 @@ impl AbsPath {
                     .map(|line| line.map_err(|e| Error::IoError(e, self.path.clone().into())))
             }
         }
-        impl LineReader for LineReaderImpl {
-            type Error = Error;
-        }
+        impl LineReader for LineReaderImpl {}
 
         // open file are get a line reader from such file
         let file = File::open(&self.path).map_err(|e| Error::IoError(e, self.path.clone()))?;
@@ -400,8 +388,6 @@ impl AbsPath {
             path: AbsPath,
         }
         impl<W: Write> LineWriter for LineWriterImpl<W> {
-            type Error = Error;
-
             fn write_line<S: AsRef<str>>(&mut self, line: S) -> Result<()> {
                 writeln!(self.inner, "{}", line.as_ref())
                     .map_err(|e| Error::IoError(e, self.path.clone().into()))?;
