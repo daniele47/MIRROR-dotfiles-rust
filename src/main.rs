@@ -1,9 +1,8 @@
 use std::env;
 
 use autosaver::{
-    cli::style::{Styler, TermStylerBuilder, TermStylerOptions},
+    cli::{error::Result, style::{Styler, TermStylerBuilder, TermStylerOptions}},
     core::{
-        error::Result,
         fs::{AbsPath, LineWriter},
         profile::{Profile, ProfileType, composite::HashMapProfileLoader},
     },

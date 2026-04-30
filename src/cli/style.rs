@@ -1,9 +1,12 @@
 //! Module to provide a backend indipendent way to colorize and output strings.
 
-use crate::core::error::Result;
+use crate::cli::error::{Error, Result};
 
 /// Trait providing all functionalities
 pub trait Styler {
+    /// Render error.
+    type Error: std::error::Error;
+
     /// Apply white color on text.
     fn white(&mut self) -> &mut Self;
     /// Apply red color on text.
@@ -30,7 +33,7 @@ pub trait Styler {
     fn warning(&mut self) -> &mut Self;
 
     /// Render the styled output on the frontend.
-    fn render(&mut self) -> Result<()>;
+    fn render(&mut self) -> std::result::Result<(), Self::Error>;
 }
 
 /// Implementation of Style to render the text on the terminal.
@@ -114,6 +117,8 @@ impl TermStyler {
 }
 
 impl Styler for TermStyler {
+    type Error = Error;
+
     fn white(&mut self) -> &mut Self {
         self.colors.push(WHITE);
         self

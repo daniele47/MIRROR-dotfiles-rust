@@ -15,7 +15,11 @@ pub struct Composite {
 
 /// Allow generic implementation of how profiles are loaded.
 pub trait ProfileLoader {
-    fn load(&mut self, name: &str) -> Result<Profile>;
+    /// Generic error type.
+    type Error: std::error::Error;
+
+    /// Load profile from its name.
+    fn load(&mut self, name: &str) -> std::result::Result<Profile, Self::Error>;
 }
 
 /// Simple implementation of profile loader.
@@ -37,6 +41,8 @@ impl HashMapProfileLoader {
 }
 
 impl ProfileLoader for HashMapProfileLoader {
+    type Error = Error;
+
     fn load(&mut self, name: &str) -> Result<Profile> {
         self.profiles.get(name).cloned().ok_or_else(|| {
             Error::ProfileLoadingFailure(name.into(), "Profile was not in the hashmap".into())
@@ -87,7 +93,11 @@ impl Composite {
     /// - resolved: cleanup of duplicates, and with all leaf children resolved
     ///
     /// This function serves that role, in trasforming a raw profile into a resolved one.
-    pub fn resolve(&self, profile: &str, loader: &mut impl ProfileLoader) -> Result<Self> {
+    pub fn resolve(
+        &self,
+        profile: &str,
+        loader: &mut impl ProfileLoader<Error = Error>,
+    ) -> Result<Self> {
         let mut entries = Vec::<String>::new();
         let mut visited = HashSet::<String>::new();
         let mut path = Vec::<String>::new();
