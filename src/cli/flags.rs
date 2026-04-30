@@ -28,17 +28,22 @@ impl ParsedArgs {
     }
 
     /// Parse cmdline into Flags and parameters.
-    pub fn parse(args: &[&str]) -> Self {
+    pub fn parse(args: Vec<String>) -> Self {
         let mut parsed = ParsedArgs {
             flags: Default::default(),
             params: vec![],
         };
 
-        let mut index = 0;
+        let mut end_flags = false;
+
         for arg in args {
-            index += 1;
-            if *arg == "--" {
-                break;
+            if end_flags {
+                parsed.params.push(arg);
+                continue;
+            }
+            if arg == "--" {
+                end_flags = true;
+                continue;
             }
             if let Some(wflag) = arg.strip_prefix("--") {
                 parsed.flags.push(Flag::Word(wflag.to_string()));
@@ -48,11 +53,6 @@ impl ParsedArgs {
             } else {
                 parsed.params.push(arg.to_string());
             }
-        }
-
-        while let Some(rem) = args.get(index) {
-            parsed.params.push(rem.to_string());
-            index += 1;
         }
 
         parsed
@@ -77,7 +77,7 @@ mod tests {
             "--",
             "--keep",
         ];
-        let parsed = ParsedArgs::parse(&args[1..]);
+        let parsed = ParsedArgs::parse(args[1..].iter().map(|s| String::from(*s)).collect());
 
         // Test specific flags
         assert_eq!(parsed.flags[0], Flag::Word("verbose".to_string()));
