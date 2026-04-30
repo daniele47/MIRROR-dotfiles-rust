@@ -80,8 +80,8 @@ impl TermStylerBuilder {
     }
 
     /// Create new TermStyler.
-    pub fn build(&self, text: String) -> TermStyler {
-        TermStyler::new_with(text, self.options)
+    pub fn styler(&self, text: impl Into<String>) -> TermStyler {
+        TermStyler::new_with(text.into(), self.options)
     }
 }
 
@@ -207,17 +207,5 @@ impl Styler for TermStyler {
             }
         }
         Ok(())
-    }
-}
-
-impl From<String> for TermStyler {
-    fn from(value: String) -> Self {
-        Self::new(value)
-    }
-}
-
-impl From<&str> for TermStyler {
-    fn from(value: &str) -> Self {
-        Self::new(value.into())
     }
 }

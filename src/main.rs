@@ -1,7 +1,7 @@
 use std::env;
 
 use autosaver::{
-    cli::style::{Styler, TermStyler},
+    cli::style::{Styler, TermStylerBuilder, TermStylerOptions},
     core::{
         error::Result,
         fs::{AbsPath, LineWriter},
@@ -20,7 +20,9 @@ fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
 }
 
 fn main() -> Result<()> {
-    println!("Binary version: {}", env!("CARGO_PKG_VERSION"));
+    let version = format!("Binary version: {}", env!("CARGO_PKG_VERSION"));
+    let builder = TermStylerBuilder::new(TermStylerOptions::new(true));
+    builder.styler(version).blue().bold().render()?;
 
     let tmpdir = AbsPath::new_tmp("rust_example");
     tmpdir.create_dir()?;
@@ -80,8 +82,7 @@ fn main() -> Result<()> {
             }
             ProfileType::Module(module) => {
                 let module = module.resolve(&AbsPath::from(env::var("HOME").unwrap().as_str()));
-                let str = format!("RESOLVED MODULE {}:\n {module:#?}\n\n", profile.0);
-                TermStyler::from(str).bold().render()?;
+                println!("RESOLVED MODULE {}:\n {module:#?}\n\n", profile.0);
             }
         }
     }
