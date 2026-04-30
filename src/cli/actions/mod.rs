@@ -8,7 +8,10 @@ use crate::{
         flags::{Flag, ParsedArgs},
         output::Renderer,
     },
-    core::fs::AbsPath,
+    core::{
+        fs::{AbsPath, RelPath},
+        profile::{Profile, composite::ProfileLoader},
+    },
 };
 
 mod backup;
@@ -49,6 +52,33 @@ where
             "config" => Ok(Self::paths("root")?.joins(&["config"])),
             _ => unreachable!("Invalid path"),
         }
+    }
+
+    fn profile_loader() -> Result<impl ProfileLoader<Error = Error>> {
+        struct ProfileLoaderImpl {
+            config_dir: AbsPath,
+        }
+
+        impl ProfileLoaderImpl {
+            fn new(config_dir: AbsPath) -> Self {
+                Self { config_dir }
+            }
+        }
+
+        impl ProfileLoader for ProfileLoaderImpl {
+            type Error = Error;
+
+            fn load(
+                &mut self,
+                name: &str,
+            ) -> std::result::Result<crate::core::profile::Profile, Self::Error> {
+                let profile_filename = format!("{name}.conf");
+                let prof_file = self.config_dir.join(&RelPath::from(profile_filename));
+                Ok(Profile::parse(name.into(), prof_file.line_reader()?)?)
+            }
+        }
+
+        Ok(ProfileLoaderImpl::new(Self::paths("config")?))
     }
 
     /// Run the cli application.
