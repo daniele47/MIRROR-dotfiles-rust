@@ -50,7 +50,15 @@ where
             "exe" => env::current_exe()
                 .map(AbsPath::from)
                 .map_err(|_| Error::FailureLoadingPath(path.to_string())),
-            "root" => Ok(Self::paths("exe")?.file_parent()?),
+            "root" => {
+                let root_dir_var = env::var("AUTOSAVER_ROOT");
+                if let Ok(path) = root_dir_var {
+                    let p = AbsPath::from(path);
+                    assert!(p.metadata().is_ok_and(|m| m.is_dir()));
+                    return Ok(p);
+                }
+                Ok(Self::paths("exe")?.file_parent()?)
+            }
             "backup" => Ok(Self::paths("root")?.joins(&["backup"])),
             "config" => Ok(Self::paths("root")?.joins(&["config"])),
             _ => unreachable!("Invalid path"),
