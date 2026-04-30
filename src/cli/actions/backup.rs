@@ -12,6 +12,7 @@ impl<I> Runner<I>
 where
     I: Renderer<Error = Error>,
 {
+    /// Backup action to list/save/restore files.
     pub fn backup(&mut self) -> Result<()> {
         let mut iter = self.args.params().iter();
         let arg_command = iter.next().map(String::as_str).unwrap_or_default();
@@ -53,6 +54,8 @@ where
                 modules.push(module.clone());
             }
         }
+
+        // apply command on each module
 
         println!("{arg_command} {flag_y} {flag_n} {flag_diff} {flag_all}");
 

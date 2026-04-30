@@ -8,6 +8,7 @@ impl<I> Runner<I>
 where
     I: Renderer<Error = Error>,
 {
+    /// Help action to render help message.
     pub fn help(&mut self) -> Result<()> {
         todo!()
     }
