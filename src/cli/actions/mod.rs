@@ -6,6 +6,8 @@ use crate::cli::{
     output::Renderer,
 };
 
+mod backup;
+mod help;
 mod version;
 
 /// Struct with data and methods to run cli.
@@ -41,16 +43,12 @@ where
             return self.version();
         }
         if lflag_help || wflag_help {
-            todo!()
+            return self.help();
         }
 
-        if let Some(cmd) = self.args.params().first() {
-            match cmd.as_str() {
-                "list" | "save" | "restore" => todo!(),
-                _ => todo!(),
-            }
+        match self.args.params().first().map(|s| s.as_str()) {
+            Some("list") | Some("save") | Some("restore") => self.backup(),
+            _ => todo!(),
         }
-
-        Ok(())
     }
 }
