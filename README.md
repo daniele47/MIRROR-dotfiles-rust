@@ -51,6 +51,8 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] make profile loader for my actions cached (to avoid needing to reparse the file every single time)
 - [x] add `AUTOSAVER_ROOT` env var to allow specifying root dir, different from binary dir
 - [x] add useful err msg in assertions
+- [x] `Renderer` has no need for an error return. either fail silently or panic entirely
+- [ ] remove `where` clausoles where not necessary (aka single simple generic)
 
 ## blockers
 

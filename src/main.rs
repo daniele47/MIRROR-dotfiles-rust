@@ -3,7 +3,7 @@ use std::{env, process::exit};
 use autosaver::cli::{
     actions::Runner,
     flags::ParsedArgs,
-    output::{Renderer, RendererOptions, Style, TermRenderer},
+    render::{Renderer, RendererOptions, TermRenderer},
 };
 
 fn main() {
@@ -18,7 +18,7 @@ fn main() {
 
     // run cli
     if let Err(e) = runner.run() {
-        let _ = renderer.writeln(e.to_string(), &[Style::Error]);
+        renderer.error(e);
         exit(1);
     }
 }

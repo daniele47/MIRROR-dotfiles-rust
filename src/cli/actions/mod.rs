@@ -6,7 +6,7 @@ use crate::{
     cli::{
         error::{Error, Result},
         flags::{Flag, ParsedArgs},
-        output::Renderer,
+        render::Renderer,
     },
     core::{
         fs::{AbsPath, RelPath},
@@ -30,10 +30,7 @@ where
     renderer: I,
 }
 
-impl<I> Runner<I>
-where
-    I: Renderer<Error = Error>,
-{
+impl<I: Renderer> Runner<I> {
     /// Create new runner.
     pub fn new(args: ParsedArgs, renderer: I) -> Self {
         Self { args, renderer }

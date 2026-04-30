@@ -1,13 +1,6 @@
-use crate::cli::{
-    actions::Runner,
-    error::{Error, Result},
-    output::Renderer,
-};
+use crate::cli::{actions::Runner, error::Result, render::Renderer};
 
-impl<I> Runner<I>
-where
-    I: Renderer<Error = Error>,
-{
+impl<I: Renderer> Runner<I> {
     /// Help action to render help message.
     pub fn help(&mut self) -> Result<()> {
         todo!()

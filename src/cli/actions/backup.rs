@@ -1,17 +1,9 @@
 use crate::{
-    cli::{
-        actions::Runner,
-        error::{Error, Result},
-        flags::Flag,
-        output::Renderer,
-    },
+    cli::{actions::Runner, error::Result, flags::Flag, render::Renderer},
     core::profile::{ProfileType, composite::ProfileLoader},
 };
 
-impl<I> Runner<I>
-where
-    I: Renderer<Error = Error>,
-{
+impl<I: Renderer> Runner<I> {
     /// Backup action to list/save/restore files.
     pub fn backup(&mut self) -> Result<()> {
         let mut iter = self.args.params().iter();
