@@ -24,11 +24,15 @@ pub struct RelPath {
 
 /// Trait to get a simple way to read line by line from a buffered file.
 pub trait LineReader: Iterator<Item = std::result::Result<String, Self::Error>> {
+    /// Generic error type.
     type Error: std::error::Error;
 }
 
 /// Trait to get a simple way to write line by line into a buffered file.
 pub trait LineWriter {
+    /// Generic error type.
+    type Error: std::error::Error;
+
     /// Write a single line to file.
     ///
     /// Note: It doesn't make guarantees about it being instantly on file.
@@ -104,6 +108,8 @@ impl AnyLineWriter {
 }
 
 impl LineWriter for AnyLineWriter {
+    type Error = Error;
+
     fn write_line<S>(&mut self, line: S) -> Result<()>
     where
         S: AsRef<str>,
@@ -405,6 +411,8 @@ impl AbsPath {
             path: AbsPath,
         }
         impl<W: Write> LineWriter for LineWriterImpl<W> {
+            type Error = Error;
+
             fn write_line<S>(&mut self, line: S) -> Result<()>
             where
                 S: AsRef<str>,
