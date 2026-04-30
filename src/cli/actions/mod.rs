@@ -62,7 +62,7 @@ impl<I: Renderer> Runner<I> {
         }
     }
 
-    fn profile_loader() -> Result<impl ProfileLoader<Error = crate::core::error::Error>> {
+    fn profile_loader() -> Result<impl ProfileLoader> {
         struct ProfileLoaderImpl {
             cached: HashMapProfileLoader,
             config_dir: AbsPath,
@@ -78,12 +78,7 @@ impl<I: Renderer> Runner<I> {
         }
 
         impl ProfileLoader for ProfileLoaderImpl {
-            type Error = crate::core::error::Error;
-
-            fn load(
-                &mut self,
-                name: &str,
-            ) -> std::result::Result<crate::core::profile::Profile, Self::Error> {
+            fn load(&mut self, name: &str) -> crate::core::error::Result<Profile> {
                 let cached_profiles = self.cached.profiles();
                 let cached = cached_profiles.get(name);
                 if let Some(cached_prof) = cached {
