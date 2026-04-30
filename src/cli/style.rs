@@ -34,13 +34,25 @@ pub trait Styler {
 }
 
 /// Implementation of Style to render the text on the terminal.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone)]
 pub struct TermStyler {
     text: String,
-    color: bool,
     colors: Vec<&'static str>,
     decorations: Vec<&'static str>,
     text_type: TextType,
+    options: TermStylerOptions,
+}
+
+/// Helper struct that just stores `TermStyler` configuration options.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct TermStylerOptions {
+    has_colors: bool,
+}
+
+/// Helper struct that just generates new `TermStyler` with configured options.
+#[derive(Debug, Clone, Copy)]
+pub struct TermStylerBuilder {
+    options: TermStylerOptions,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -61,29 +73,43 @@ const BOLD: &str = "\x1b[1m";
 const UNDERLINE: &str = "\x1b[4m";
 const RESET: &str = "\x1b[m";
 
+impl TermStylerBuilder {
+    /// Create new builder.
+    pub fn new(options: TermStylerOptions) -> Self {
+        Self { options }
+    }
+
+    /// Create new TermStyler.
+    pub fn build(&self, text: String) -> TermStyler {
+        TermStyler::new_with(text, self.options)
+    }
+}
+
+impl TermStylerOptions {
+    /// Create new options.
+    pub fn new(has_colors: bool) -> Self {
+        Self { has_colors }
+    }
+}
+
 impl TermStyler {
     /// Create new TermStyle.
     pub fn new(text: String) -> Self {
-        Self::new_with(text, true)
+        Self::new_with(text, Default::default())
     }
 
     /// Create new TermStyle with options.
     ///
     /// `color` sets if the string should be colored, or even decorated at all.
     /// It is useful on terminal to disable escape code outputs!
-    pub fn new_with(text: String, color: bool) -> Self {
+    pub fn new_with(text: String, options: TermStylerOptions) -> Self {
         Self {
             text,
-            color,
+            options,
             colors: Default::default(),
             decorations: Default::default(),
             text_type: TextType::Normal,
         }
-    }
-
-    /// Toggle colors.
-    pub fn set_colors(&mut self, color: bool) {
-        self.color = color;
     }
 }
 
@@ -149,7 +175,7 @@ impl Styler for TermStyler {
                 assert!(!self.colors.is_empty(), "No colors set!");
                 let colors = self.colors.join("");
                 let decorations = self.decorations.join("");
-                if self.color {
+                if self.options.has_colors {
                     println!("{colors}{decorations}{}{RESET}", self.text);
                 } else {
                     println!("{}", self.text);
@@ -161,7 +187,7 @@ impl Styler for TermStyler {
                     self.decorations.is_empty(),
                     "Error can't have decorations too!"
                 );
-                if self.color {
+                if self.options.has_colors {
                     eprintln!("{RED}{BOLD}ERROR: {}{RESET}", self.text);
                 } else {
                     eprintln!("ERROR: {}", self.text);
@@ -173,7 +199,7 @@ impl Styler for TermStyler {
                     self.decorations.is_empty(),
                     "Warning can't have decorations too!"
                 );
-                if self.color {
+                if self.options.has_colors {
                     eprintln!("{YELLOW}{BOLD}WARNING: {}{RESET}", self.text);
                 } else {
                     eprintln!("WARNING: {}", self.text);
