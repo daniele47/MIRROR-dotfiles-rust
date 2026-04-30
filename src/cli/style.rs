@@ -68,6 +68,9 @@ impl TermStyler {
     }
 
     /// Create new TermStyle with options.
+    ///
+    /// `color` sets if the string should be colored, or even decorated at all.
+    /// It is useful on terminal to disable escape code outputs!
     pub fn new_with(text: String, color: bool) -> Self {
         Self {
             text,
@@ -146,13 +149,25 @@ impl Styler for TermStyler {
                 let col = self.term_color;
                 let dec = self.term_decor;
                 let text = self.text.as_str();
-                println!("{col}{dec}{text}{RESET}",);
+                if self.color {
+                    println!("{col}{dec}{text}{RESET}",);
+                } else {
+                    println!("{text}");
+                }
             }
             TextType::Error => {
-                eprintln!("{RED}{BOLD}ERROR: {}{RESET}", self.text);
+                if self.color {
+                    eprintln!("{RED}{BOLD}ERROR: {}{RESET}", self.text);
+                } else {
+                    eprintln!("ERROR: {}", self.text);
+                }
             }
             TextType::Warning => {
-                eprintln!("{YELLOW}{BOLD}WARNING: {}{RESET}", self.text);
+                if self.color {
+                    eprintln!("{YELLOW}{BOLD}WARNING: {}{RESET}", self.text);
+                } else {
+                    eprintln!("WARNING: {}", self.text);
+                }
             }
         }
         Ok(())
