@@ -67,7 +67,7 @@ impl Display for Error {
                 write!(f, "Profile {name} lacks the profile type option line")
             }
             Error::InvalidOptionLine(name, n, line) => {
-                write!(f, "Invalid option line ({n}) in profile {name} : {line}")
+                write!(f, "Invalid option line {n} in profile {name} : {line}")
             }
             Error::InvalidDataLine(name, n, line) => {
                 write!(f, "Invalid data line ({n}) in profile {name} : {line}")

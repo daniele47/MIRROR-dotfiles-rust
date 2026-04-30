@@ -40,14 +40,14 @@ impl Profile {
 
             // profile line MUST be the very first
             if first.line != 1 {
-                return Err(Error::InvalidOptionLine(profile, 1, content));
+                return Err(Error::InvalidOptionLine(profile, first.line, content));
             }
 
             // pick correct parser based on the profile type parsed from the first line
             match content.as_str() {
                 "type composite" => CompositeParser::parse(profile, raw),
                 "type module" => ModuleParser::parse(profile, raw),
-                _ => Err(Error::InvalidOptionLine(profile, 1, content)),
+                _ => Err(Error::InvalidOptionLine(profile, first.line, content)),
             }
         } else {
             Err(Error::MissingProfileType(profile))
