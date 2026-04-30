@@ -29,10 +29,9 @@ where
     /// Run the cli application.
     pub fn run(&mut self) -> Result<()> {
         let flags = self.args.flags();
-        let flag_help = flags.contains(&Flag::Word("help".into()));
-        let flag_help = flag_help || flags.contains(&Flag::Letter('h'));
+        let wflag_help = flags.contains(&Flag::Word("help".into()));
+        let lflag_help = flags.contains(&Flag::Letter('h'));
         let flag_version = flags.contains(&Flag::Word("version".into()));
-        let flag_version = flag_version || flags.contains(&Flag::Letter('v'));
         let flag_nocolor = flags.contains(&Flag::Word("nocolor".into()));
 
         if flag_nocolor {
@@ -41,7 +40,7 @@ where
         if flag_version {
             return self.version();
         }
-        if flag_help {
+        if lflag_help || wflag_help {
             todo!()
         }
 
