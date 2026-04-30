@@ -33,7 +33,10 @@ where
         Self { args, renderer }
     }
 
-    fn paths(&self, path: &str) -> Result<AbsPath> {
+    const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
+    const BIN_NAME: &str = env!("CARGO_PKG_NAME");
+
+    fn paths(path: &str) -> Result<AbsPath> {
         match path {
             "home" => env::var("HOME")
                 .map_err(|_| Error::FailureLoadingPath(path.to_string()))
@@ -41,9 +44,9 @@ where
             "exe" => env::current_exe()
                 .map(AbsPath::from)
                 .map_err(|_| Error::FailureLoadingPath(path.to_string())),
-            "root" => Ok(self.paths("exe")?.file_parent()?),
-            "backup" => Ok(self.paths("root")?.joins(&["backup"])),
-            "config" => Ok(self.paths("root")?.joins(&["config"])),
+            "root" => Ok(Self::paths("exe")?.file_parent()?),
+            "backup" => Ok(Self::paths("root")?.joins(&["backup"])),
+            "config" => Ok(Self::paths("root")?.joins(&["config"])),
             _ => unreachable!("Invalid path"),
         }
     }
