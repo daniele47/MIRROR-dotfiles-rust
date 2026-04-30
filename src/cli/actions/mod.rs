@@ -46,9 +46,13 @@ where
             return self.help();
         }
 
-        match self.args.params().first().map(|s| s.as_str()) {
+        let command = self.args.params().first().map(|s| s.as_str());
+        match command {
             Some("list") | Some("save") | Some("restore") => self.backup(),
-            _ => todo!(),
+            _ => {
+                let err_msg = format!("Invalid command '{}'", command.unwrap_or(""));
+                Err(Error::EarlyExit(err_msg))
+            }
         }
     }
 }

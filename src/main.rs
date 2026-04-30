@@ -1,15 +1,24 @@
-use std::env;
+use std::{env, process::exit};
 
 use autosaver::cli::{
     actions::Runner,
-    error::Result,
     flags::ParsedArgs,
-    output::{RendererOptions, TermRenderer},
+    output::{Renderer, RendererOptions, Style, TermRenderer},
 };
 
-fn main() -> Result<()> {
-    let parsed_args = ParsedArgs::parse(env::args().collect());
-    let renderer = TermRenderer::new(RendererOptions::new(true));
-    let mut runner = Runner::new(parsed_args, renderer);
-    runner.run()
+fn main() {
+    // parse cmdline args
+    let parsed_args = ParsedArgs::parse(env::args().skip(1).collect());
+
+    // get a frontend renderer
+    let mut renderer = TermRenderer::new(RendererOptions::new(true));
+
+    // get cli runner
+    let mut runner = Runner::new(parsed_args, renderer.clone());
+
+    // run cli
+    if let Err(e) = runner.run() {
+        let _ = renderer.writeln(e.to_string(), &[Style::Error]);
+        exit(1);
+    }
 }
