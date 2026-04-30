@@ -31,7 +31,7 @@ impl Runner {
             return self.version();
         }
 
-        if let Some(cmd) = self.args.params().get(0) {
+        if let Some(cmd) = self.args.params().first() {
             match cmd.as_str() {
                 "list" | "save" | "restore" => todo!(),
                 _ => todo!(),
