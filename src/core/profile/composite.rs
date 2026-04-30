@@ -145,7 +145,7 @@ impl Composite {
 
         // assert resolved profile is indeed resolved
         let res = Self::new(entries);
-        assert!(res.is_resolved(loader));
+        assert!(res.is_resolved(loader), "Composite profile was not resolved");
         Ok(res)
     }
 }

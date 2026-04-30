@@ -114,15 +114,15 @@ impl Renderer for TermRenderer {
 
     fn error(&mut self, str: impl Display) {
         match self.options.has_colors {
-            true => eprint!("{RED}{BOLD}ERROR: {str}{RESET}"),
-            false => eprint!("ERROR: {str}"),
+            true => eprintln!("{RED}{BOLD}ERROR: {str}{RESET}"),
+            false => eprintln!("ERROR: {str}"),
         };
     }
 
     fn warning(&mut self, str: impl Display) {
         match self.options.has_colors {
-            true => eprint!("{YELLOW}{BOLD}WARNING: {str}{RESET}"),
-            false => eprint!("WARNING: {str}"),
+            true => eprintln!("{YELLOW}{BOLD}WARNING: {str}{RESET}"),
+            false => eprintln!("WARNING: {str}"),
         };
     }
 }

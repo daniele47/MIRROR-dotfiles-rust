@@ -1,6 +1,12 @@
 //! This module implements structs and methods to handle autosaver profiles.
 
-use crate::core::profile::{composite::Composite, module::Module};
+use crate::core::{
+    error::{Error, Result},
+    profile::{
+        composite::{Composite, ProfileLoader},
+        module::Module,
+    },
+};
 
 pub mod composite;
 pub mod module;
@@ -35,5 +41,22 @@ impl Profile {
     /// Get profile type.
     pub fn ptype(&self) -> &ProfileType {
         &self.ptype
+    }
+
+    /// Resolve composite profiles and get a list of all included profiles.
+    pub fn resolve(&self, loader: &mut impl ProfileLoader<Error = Error>) -> Result<Vec<Self>> {
+        let mut res = vec![];
+        match self.ptype() {
+            ProfileType::Composite(composite) => {
+                let resolved = composite.resolve(&self.name, loader)?;
+                for entry in resolved.entries() {
+                    res.push(loader.load(entry)?);
+                }
+            }
+            _ => {
+                res.push(self.clone());
+            }
+        }
+        Ok(res)
     }
 }
