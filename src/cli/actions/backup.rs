@@ -3,12 +3,12 @@ use crate::{
         actions::Runner,
         error::Result,
         flags::Flag,
-        render::{Renderer, Style},
+        inout::{InOut, Style},
     },
     core::profile::{ProfileType, composite::ProfileLoader, module::ModulePolicy},
 };
 
-impl<I: Renderer> Runner<I> {
+impl<I: InOut> Runner<I> {
     /// Backup action to list/save/restore files.
     pub fn backup(&mut self) -> Result<()> {
         // get args
@@ -49,7 +49,7 @@ impl<I: Renderer> Runner<I> {
                     let module = module.merge_bases(&home_dir, &backup_dir)?;
 
                     let str = format!("*** {} ***", profile.name());
-                    self.renderer.writeln(str, &[Style::Blue]);
+                    self.inout.writeln(str, &[Style::Blue]);
 
                     // iterate all entries of a module
                     for entry in module.entries() {
@@ -67,24 +67,24 @@ impl<I: Renderer> Runner<I> {
                                 if entry.policy() == ModulePolicy::NotDiff && !flag_all {
                                     continue;
                                 }
-                                self.renderer.write("- ", &[]);
-                                self.renderer.writeln(format!("{path}"), &[Style::Yellow]);
+                                self.inout.write("- ", &[]);
+                                self.inout.writeln(format!("{path}"), &[Style::Yellow]);
                             }
                             // home => backup
                             (true, false) => {
                                 if !act_list && !act_save {
                                     continue;
                                 }
-                                self.renderer.write("- ", &[]);
-                                self.renderer.writeln(format!("{path}"), &[Style::Red]);
+                                self.inout.write("- ", &[]);
+                                self.inout.writeln(format!("{path}"), &[Style::Red]);
                             }
                             // backup => home
                             (false, true) => {
                                 if !act_list && !act_restore {
                                     continue;
                                 }
-                                self.renderer.write("- ", &[]);
-                                self.renderer.writeln(format!("{path}"), &[Style::Red]);
+                                self.inout.write("- ", &[]);
+                                self.inout.writeln(format!("{path}"), &[Style::Red]);
                             }
                             (false, false) => unreachable!("At least one file should exist"),
                             _ => {}

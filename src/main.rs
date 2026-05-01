@@ -3,7 +3,7 @@ use std::{env, process::exit};
 use autosaver::cli::{
     actions::Runner,
     flags::ParsedArgs,
-    render::{Renderer, RendererOptions, TermRenderer},
+    inout::{InOut, IoOutOptions, TermInOut},
 };
 
 fn main() {
@@ -11,14 +11,14 @@ fn main() {
     let parsed_args = ParsedArgs::parse(env::args().skip(1).collect());
 
     // get a frontend renderer
-    let mut renderer = TermRenderer::new(RendererOptions::new(true));
+    let mut inout = TermInOut::new(IoOutOptions::new(true));
 
     // get cli runner
-    let mut runner = Runner::new(parsed_args, renderer.clone());
+    let mut runner = Runner::new(parsed_args, inout.clone());
 
     // run cli
     if let Err(e) = runner.run() {
-        renderer.error(e);
+        inout.error(e);
         exit(1);
     }
 }

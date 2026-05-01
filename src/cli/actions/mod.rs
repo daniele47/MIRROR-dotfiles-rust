@@ -6,7 +6,7 @@ use crate::{
     cli::{
         error::Result,
         flags::{Flag, ParsedArgs},
-        render::Renderer,
+        inout::InOut,
     },
     core::{
         fs::{AbsPath, RelPath},
@@ -22,15 +22,15 @@ mod help;
 mod version;
 
 /// Struct with data and methods to run cli.
-pub struct Runner<I: Renderer> {
+pub struct Runner<I: InOut> {
     args: ParsedArgs,
-    renderer: I,
+    inout: I,
 }
 
-impl<I: Renderer> Runner<I> {
+impl<I: InOut> Runner<I> {
     /// Create new runner.
-    pub fn new(args: ParsedArgs, renderer: I) -> Self {
-        Self { args, renderer }
+    pub fn new(args: ParsedArgs, inout: I) -> Self {
+        Self { args, inout }
     }
 
     const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -115,7 +115,7 @@ impl<I: Renderer> Runner<I> {
 
         // handle global flags
         if flag_nocolor {
-            self.renderer.options().has_colors = false;
+            self.inout.options().has_colors = false;
         }
         if flag_version {
             return self.version();

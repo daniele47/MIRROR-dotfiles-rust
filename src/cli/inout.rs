@@ -1,4 +1,4 @@
-//! This module contains an interface to nicely render to a frontend.
+//! This module contains an interface to nicely interact with a cli frontend.
 
 use std::fmt::Display;
 
@@ -38,22 +38,22 @@ pub enum Style {
     Underline,
 }
 
-/// Options for the `Renderer`.
+/// Options for the `InOut`.
 #[derive(Debug, Clone, Default)]
-pub struct RendererOptions {
+pub struct IoOutOptions {
     pub has_colors: bool,
 }
 
-/// Struct that implements `Renderer` to write to the terminal.
+/// Struct that implements `InOut` to write to the terminal.
 #[derive(Debug, Clone, Default)]
-pub struct TermRenderer {
-    options: RendererOptions,
+pub struct TermInOut {
+    options: IoOutOptions,
 }
 
 /// Render strings nicely to a frontend, be it a terminal or whatever.
-pub trait Renderer {
-    /// Allow setting options for the `Renderer`.
-    fn options(&mut self) -> &mut RendererOptions;
+pub trait InOut {
+    /// Allow setting options for the `InOut`.
+    fn options(&mut self) -> &mut IoOutOptions;
 
     /// Write a nicely formatted string to the frontend.
     fn write(&mut self, str: impl Display, styles: &[Style]);
@@ -71,22 +71,22 @@ pub trait Renderer {
     fn warning(&mut self, str: impl Display);
 }
 
-impl RendererOptions {
+impl IoOutOptions {
     /// Create new option struct.
     pub fn new(has_colors: bool) -> Self {
         Self { has_colors }
     }
 }
 
-impl TermRenderer {
+impl TermInOut {
     /// Create new struct.
-    pub fn new(options: RendererOptions) -> Self {
+    pub fn new(options: IoOutOptions) -> Self {
         Self { options }
     }
 }
 
-impl Renderer for TermRenderer {
-    fn options(&mut self) -> &mut RendererOptions {
+impl InOut for TermInOut {
+    fn options(&mut self) -> &mut IoOutOptions {
         &mut self.options
     }
 
