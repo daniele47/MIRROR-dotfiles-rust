@@ -71,13 +71,19 @@ impl<I: InOut> Runner<I> {
                                 self.inout.writeln(format!("{path}"), &[Style::Yellow]);
                                 if act_save {
                                     self.inout.write("Do you want to update it? [y/n] ", &[]);
-                                    if flag_y || self.inout.read_line() == "y" {
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
                                         home_file.copy_file(&backup_file, false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
                                     }
                                 } else if act_restore {
                                     self.inout.write("Do you want to update it? [y/n] ", &[]);
                                     if flag_y || self.inout.read_line() == "y" {
                                         backup_file.copy_file(&home_file, false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
                                     }
                                 }
                             }
@@ -90,8 +96,11 @@ impl<I: InOut> Runner<I> {
                                 self.inout.writeln(format!("{path}"), &[Style::Red]);
                                 if act_save {
                                     self.inout.write("Do you want to save it? [y/n] ", &[]);
-                                    if flag_y || self.inout.read_line() == "y" {
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
                                         home_file.copy_file(&backup_file, false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
                                     }
                                 }
                             }
@@ -106,6 +115,9 @@ impl<I: InOut> Runner<I> {
                                     self.inout.write("Do you want to restore it? [y/n] ", &[]);
                                     if flag_y || self.inout.read_line() == "y" {
                                         backup_file.copy_file(&home_file, false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
                                     }
                                 }
                             }
