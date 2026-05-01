@@ -40,13 +40,13 @@ impl Display for Error {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             Error::IoError(io, path) => {
-                write!(f, "IO error on path {} : {io}", path.display())
+                write!(f, "IO error on path '{}' : {io}", path.display())
             }
             Error::NotAFile(path) => write!(f, "Not a file: {}", path.display()),
             Error::InvalidPathPrefix(path, prefix) => {
                 let path = path.display();
                 let prefix = prefix.display();
-                write!(f, "Invalid prefix {path} for path: {prefix}")
+                write!(f, "Invalid prefix '{path}' for path: {prefix}")
             }
             Error::InvalidPathString(path) => {
                 write!(f, "Invalid path string: {}", path.display())
@@ -58,19 +58,19 @@ impl Display for Error {
                     .map(|s| s.as_str())
                     .collect::<Vec<_>>()
                     .join(" → ");
-                write!(f, "Profile {name} reaches a cycle: {cstr}")
+                write!(f, "Profile '{name}' reaches a cycle: {cstr}")
             }
             Error::ProfileLoadingFailure(name, reason) => {
-                write!(f, "Profile {name} could not be loaded: {reason}")
+                write!(f, "Profile '{name}' could not be loaded: {reason}")
             }
             Error::MissingProfileType(name) => {
-                write!(f, "Profile {name} lacks the profile type option line")
+                write!(f, "Profile '{name}' lacks the profile type option line")
             }
             Error::InvalidOptionLine(name, n, line) => {
-                write!(f, "Invalid option line {n} in profile {name} : {line}")
+                write!(f, "Invalid option line {n} in profile '{name}' : {line}")
             }
             Error::InvalidDataLine(name, n, line) => {
-                write!(f, "Invalid data line ({n}) in profile {name} : {line}")
+                write!(f, "Invalid data line {n} in profile '{name}' : {line}")
             }
         }
     }

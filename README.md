@@ -58,7 +58,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [ ] add an `Input` interface to prompt for user input or add a method to `Renderer`
 - [x] add test for `content_eq` function in `AbsPath`
 - [ ] consider if to have proper error variants for missing or invalid ENV VARS (HOME, AUTOSAVER_ROOT,...)
-- [ ] go back to having '' in error messages, as those make them easier to read!
+- [x] go back to having '' in error messages, as those make them easier to read!
 - [ ] in `backup` action, disallow MISSING profile arg
 
 ## blockers
