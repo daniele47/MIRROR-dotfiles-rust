@@ -56,6 +56,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] remove generic error types from all pub traits. too much complexity!
 - [x] implement files different checker
 - [ ] add an `Input` interface to prompt for user input or add a method to `Renderer`
+- [ ] add test for `content_eq` function in `AbsPath`
 
 ## blockers
 
