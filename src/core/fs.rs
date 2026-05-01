@@ -760,4 +760,28 @@ mod tests {
 
         Ok(())
     }
+
+    #[test]
+    fn test_content_eq() -> Result<()> {
+        let tmp = AbsPath::new_tmp("test_read_write_lines");
+        tmp.create_dir()?;
+        let _guard = purge_path_even_on_panic(&tmp);
+
+        let tmpfile1 = tmp.joins(&["file1.txt"]);
+        let tmpfile2 = tmp.joins(&["file2.txt"]);
+        tmpfile1.create_file(false)?;
+        tmpfile2.create_file(false)?;
+
+        // check files are equal
+        tmpfile1.line_writer()?.write_all_lines(["Test Ciao"])?;
+        tmpfile2.line_writer()?.write_all_lines(["Test Ciao"])?;
+        assert!(tmpfile1.content_eq(&tmpfile2));
+
+        // check files differ
+        tmpfile1.line_writer()?.write_all_lines(["Test Ciao!!"])?;
+        tmpfile2.line_writer()?.write_all_lines(["diff string"])?;
+        assert!(!tmpfile1.content_eq(&tmpfile2));
+
+        Ok(())
+    }
 }
