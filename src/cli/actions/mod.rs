@@ -128,9 +128,7 @@ impl<I: InOut> Runner<I> {
         let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
             "list" | "save" | "restore" => self.backup(),
-            _ => {
-                return self.help();
-            }
+            _ => self.help(),
         }
     }
 }

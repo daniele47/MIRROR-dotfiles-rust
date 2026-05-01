@@ -43,7 +43,7 @@ impl<I: InOut> Runner<I> {
                 ProfileType::Composite(_) => unreachable!("Composite profile impossible here"),
                 ProfileType::Module(module) => {
                     let backup_dir = &backup_dir.joins(&[profile.name()]);
-                    let module = module.merge_bases(&home_dir, &backup_dir)?;
+                    let module = module.merge_bases(&home_dir, backup_dir)?;
 
                     let str = format!("*** {} ***", profile.name());
                     self.inout.writeln(str, &[Style::Blue]);
@@ -65,7 +65,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(format!("{path}"), &[Style::Yellow]);
+                                self.inout.writeln(path.to_string(), &[Style::Yellow]);
                                 if act_save {
                                     self.inout.write("Do you want to update it? [y/n] ", &[]);
                                     if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -90,7 +90,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(format!("{path}"), &[Style::Red]);
+                                self.inout.writeln(path.to_string(), &[Style::Red]);
                                 if act_save {
                                     self.inout.write("Do you want to save it? [y/n] ", &[]);
                                     if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -107,7 +107,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(format!("{path}"), &[Style::Red]);
+                                self.inout.writeln(path.to_string(), &[Style::Red]);
                                 if act_restore {
                                     self.inout.write("Do you want to restore it? [y/n] ", &[]);
                                     if flag_y || self.inout.read_line() == "y" {
