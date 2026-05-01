@@ -24,9 +24,6 @@ impl<I: InOut> Runner<I> {
         let wflag_n = self.args.flags().contains(&Flag::Word("assumeno".into()));
         let lflag_n = self.args.flags().contains(&Flag::Letter('n'));
         let flag_n = wflag_n || lflag_n;
-        let wflag_diff = self.args.flags().contains(&Flag::Word("diff".into()));
-        let lflag_diff = self.args.flags().contains(&Flag::Letter('d'));
-        let flag_diff = wflag_diff || lflag_diff;
         let wflag_all = self.args.flags().contains(&Flag::Word("all".into()));
         let lflag_all = self.args.flags().contains(&Flag::Letter('a'));
         let flag_all = wflag_all || lflag_all;
