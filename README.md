@@ -55,7 +55,7 @@ Copy-based dotfiles tracking cli, written in rust
 - [x] remove `where` clausoles where not necessary (aka single simple generic)
 - [x] remove generic error types from all pub traits. too much complexity!
 - [x] implement files different checker
-- [ ] add an `Input` interface to prompt for user input or add a method to `Renderer`
+- [x] add `read_line` method on `InOut` trait
 - [x] add test for `content_eq` function in `AbsPath`
 - [ ] consider if to have proper error variants for missing or invalid ENV VARS (HOME, AUTOSAVER_ROOT,...)
 - [x] go back to having '' in error messages, as those make them easier to read!

@@ -1,6 +1,11 @@
 //! This module contains an interface to nicely interact with a cli frontend.
 
-use std::fmt::Display;
+use std::{
+    fmt::Display,
+    io::{Write, stdout},
+};
+
+use crate::cli::error::Result;
 
 // colors
 const RESET: &str = "\x1b[0m";
@@ -69,6 +74,9 @@ pub trait InOut {
 
     /// Write a warning to the frontend.
     fn warning(&mut self, str: impl Display);
+
+    /// Read a line from the frontend.
+    fn read_line(&mut self) -> String;
 }
 
 impl IoOutOptions {
@@ -124,5 +132,20 @@ impl InOut for TermInOut {
             true => eprintln!("{YELLOW}{BOLD}WARNING: {str}{RESET}"),
             false => eprintln!("WARNING: {str}"),
         };
+    }
+
+    fn read_line(&mut self) -> String {
+        let mut input = String::new();
+
+        // flush stdout
+        stdout().flush().expect("flush failed");
+
+        // read from stdin
+        std::io::stdin()
+            .read_line(&mut input)
+            .expect("failed to read input");
+
+        // trims
+        input.lines().next().map(String::from).unwrap_or_default()
     }
 }
