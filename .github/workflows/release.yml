@@ -1,5 +1,16 @@
 # yoinked from: https://ahmedjama.com/blog/2025/12/cross-platform-rust-pipeline-github-actions
 
+# This automagically tests, compiles and publishes releases on github.
+#
+# Steps to update:
+# - fix all cargo clippy warnings, as those will block a new release
+# - update Cargo.toml version
+# - create a new git tag starting with v and then EXACTLY the same version as specified in Cargo.toml
+# - potentially edit the github release to add docs and all
+#
+# Note:
+# - dev tags are allowed, and all tags specified as vX.Y.Z-[whatever], will be compiled by github as a prelease version
+
 name: Release Build
 
 on:
