@@ -24,11 +24,10 @@ impl<I: Renderer> Runner<I> {
 
         let mut profile_loader = Self::profile_loader()?;
         let root_profile = profile_loader.load("test")?;
+        let modules = root_profile.resolve(&mut profile_loader)?;
 
-        println!("{:?}", root_profile.resolve(&mut profile_loader));
-        println!(
-            "{arg_command} {flag_y} {flag_n} {flag_diff} {flag_all} {root_profile:?} {arg_profile}"
-        );
+        println!("{modules:?} {arg_command} {flag_y} {flag_n}");
+        println!("{flag_diff} {flag_all} {root_profile:?} {arg_profile}");
 
         todo!("Do operations on 1 module at a time")
     }

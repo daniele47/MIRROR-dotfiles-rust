@@ -4,7 +4,7 @@ use std::env;
 
 use crate::{
     cli::{
-        error::{Error, Result},
+        error::Result,
         flags::{Flag, ParsedArgs},
         render::Renderer,
     },
@@ -129,8 +129,7 @@ impl<I: Renderer> Runner<I> {
         match command {
             "list" | "save" | "restore" => self.backup(),
             _ => {
-                let err_msg = format!("Invalid command '{}'", command);
-                Err(Error::EarlyExit(err_msg))
+                return self.help();
             }
         }
     }
