@@ -35,13 +35,14 @@ impl<I: InOut> Runner<I> {
 
     const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
     const BIN_NAME: &str = env!("CARGO_PKG_NAME");
-    const HELP_COLOR : &[Style] = &[Style::Blue, Style::Bold];
+    const HELP_COLOR: &[Style] = &[Style::Blue, Style::Bold];
 
     fn paths(path: &str) -> Result<AbsPath> {
         match path {
             "home" => {
-                let var = env::var("AUTOSAVER_HOME")
-                    .map_err(|_| Error::GenericError("Missing AUTOSAVER_HOME environment variable".into()))?;
+                let var = env::var("AUTOSAVER_HOME").map_err(|_| {
+                    Error::GenericError("Missing AUTOSAVER_HOME environment variable".into())
+                })?;
                 if PathType::from(var.as_str()) != PathType::Absolute {
                     return Err(Error::GenericError(
                         "AUTOSAVER_HOME variable is not an absolute path".into(),
@@ -76,6 +77,19 @@ impl<I: InOut> Runner<I> {
             "config" => Self::paths("root").map(|p| p.joins(&["config"])),
             _ => unreachable!("Invalid path"),
         }
+    }
+
+    fn check_flags(&self, flag_set: &[&str]) -> Result<()> {
+        for flag in self.args.flags() {
+            let flag_str = match flag {
+                Flag::Letter(lflag) => format!("-{lflag}"),
+                Flag::Word(wflag) => format!("--{wflag}"),
+            };
+            if !flag_set.contains(&flag_str.as_str()) {
+                return Err(Error::GenericError(format!("Invalid flag: {flag_str}")));
+            }
+        }
+        Ok(())
     }
 
     fn profile_loader() -> Result<impl ProfileLoader> {
