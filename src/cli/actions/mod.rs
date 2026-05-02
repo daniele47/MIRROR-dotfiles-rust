@@ -6,7 +6,7 @@ use crate::{
     cli::{
         error::{Error, Result},
         flags::{Flag, ParsedArgs},
-        inout::InOut,
+        inout::{InOut, Style},
     },
     core::{
         fs::{AbsPath, PathType, RelPath},
@@ -35,6 +35,7 @@ impl<I: InOut> Runner<I> {
 
     const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
     const BIN_NAME: &str = env!("CARGO_PKG_NAME");
+    const HELP_COLOR : &[Style] = &[Style::Blue, Style::Bold];
 
     fn paths(path: &str) -> Result<AbsPath> {
         match path {
