@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented here
 
+## WIP
+
+- [ ] remove autocompletions, and self-updating bash script
+
 ## v0.3.4
 
 ### Patches
