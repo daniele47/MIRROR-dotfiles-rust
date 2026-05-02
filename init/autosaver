@@ -67,6 +67,11 @@ if [[ ! -f "$LOCAL_BIN_PATH" && ! -v UNINSTALL || -v INSTALL ]]; then
     echo -n "Autosaver installed/updated: "
     "$LOCAL_BIN_PATH" --version
 
+    echo "To add completions, just add the following to shell init files:"
+    echo 'Bash: source "${XDG_CACHE_HOME:-$HOME/.cache}/autosaver/completions/autosaver.bash"'
+    echo 'Zsh : source "${XDG_CACHE_HOME:-$HOME/.cache}/autosaver/completions/_autosaver"'
+    echo 'Fish: source "${XDG_CACHE_HOME:-$HOME/.cache}/autosaver/completions/autosaver.fish"'
+
     echo -e "--------------------------------------------------------------------------------\n"
 elif [[ -v UNINSTALL ]]; then
     if [[ ! -d "$LOCAL_BIN_PATH_DIR" ]]; then
