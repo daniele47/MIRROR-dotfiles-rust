@@ -1,7 +1,7 @@
 use crate::{
     cli::{
         actions::Runner,
-        error::Result,
+        error::{Error, Result},
         flags::Flag,
         inout::{InOut, Style},
     },
@@ -27,7 +27,8 @@ impl<I: InOut> Runner<I> {
         let act_save = arg_command == "save";
         let act_restore = arg_command == "restore";
         let act_delete = arg_command == "delete";
-        let arg_profile = iter.next().map(String::as_str).unwrap_or_default();
+        let env_profile = Self::env("profile").unwrap_or_default();
+        let mut arg_profile = iter.next().map(String::as_str).unwrap_or_default();
         let wflag_y = self.args.flags().contains(&Flag::Word("assumeyes".into()));
         let lflag_y = self.args.flags().contains(&Flag::Letter('y'));
         let flag_y = wflag_y || lflag_y;
@@ -37,6 +38,13 @@ impl<I: InOut> Runner<I> {
         let wflag_all = self.args.flags().contains(&Flag::Word("all".into()));
         let lflag_all = self.args.flags().contains(&Flag::Letter('a'));
         let flag_all = wflag_all || lflag_all;
+
+        if arg_profile.is_empty() {
+            if env_profile.is_empty() {
+                return Err(Error::GenericError("No profile specified".into()));
+            }
+            arg_profile = &env_profile;
+        }
 
         // paths
         let home_dir = Self::paths("home")?;

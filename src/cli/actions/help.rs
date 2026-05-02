@@ -10,6 +10,9 @@ impl<I: InOut> Runner<I> {
         let col = Self::HELP_COLOR;
         let io = &mut self.inout;
         match first {
+            "list" => {}
+            "save" => {}
+            "restore" => {}
             _ => {
                 io.writeln("Commands:", col);
                 io.write("  list        ", col);
