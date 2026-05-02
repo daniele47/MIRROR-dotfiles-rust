@@ -35,7 +35,7 @@ if [[ -v UNINSTALL ]]; then
     rm "$TMP_FILE"
     echo -e "--------------------------------------------------------------------------------\n"
 fi
-if [[ ! -f "$BIN_PATH" || -v INSTALL ]]; then
+if [[ ! -f "$BIN_PATH" && ! -v UNINSTALL || -v INSTALL ]]; then
     echo "Downloading and running install script..."
     TMP_FILE="$(mktemp)"
     download_url "$SCRIPTS_URL/install.sh" "$TMP_FILE"
