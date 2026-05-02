@@ -57,7 +57,7 @@ impl<I: InOut> Runner<I> {
                         let backup_file = backup_dir.join(entry.path());
                         let is_home_file = home_file.metadata().is_ok_and(|m| m.is_file());
                         let is_backup_file = backup_file.metadata().is_ok_and(|m| m.is_file());
-                        let path = home_file.to_str_lossy();
+                        let path = entry.path().to_str_lossy();
                         match (is_home_file, is_backup_file) {
                             // files differ
                             (true, true) if !home_file.content_eq(&backup_file) => {
