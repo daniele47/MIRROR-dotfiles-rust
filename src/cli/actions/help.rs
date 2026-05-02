@@ -13,6 +13,8 @@ impl<I: InOut> Runner<I> {
             "list" => {}
             "save" => {}
             "restore" => {}
+            "rmhome" => {}
+            "rmbackup" => {}
             _ => {
                 io.writeln("Commands:", col);
                 io.write("  list        ", col);

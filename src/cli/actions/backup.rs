@@ -39,6 +39,8 @@ impl<I: InOut> Runner<I> {
         let act_list = arg_command == "list";
         let act_save = arg_command == "save";
         let act_restore = arg_command == "restore";
+        let act_rmhome = arg_command == "rmhome";
+        let act_rmbackup = arg_command == "rmbackup";
         let env_profile = Self::env("profile").unwrap_or_default();
         let mut arg_profile = iter.next().map(String::as_str).unwrap_or_default();
         let wflag_y = self.args.flags().contains(&Flag::Word("assumeyes".into()));
@@ -88,6 +90,32 @@ impl<I: InOut> Runner<I> {
                         let is_home_file = home_file.metadata().is_ok_and(|m| m.is_file());
                         let is_backup_file = backup_file.metadata().is_ok_and(|m| m.is_file());
                         let path = entry.path().to_str_lossy();
+
+                        // rmhome
+                        if act_rmhome && is_home_file {
+                            self.inout
+                                .write("Do you want to delete the home file? [y/n] ", &[]);
+                            if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                home_file.purge_path(false)?;
+                            }
+                            if flag_n || flag_y {
+                                self.inout.writeln("", &[]);
+                            }
+                        }
+
+                        // rmbackup
+                        if act_rmbackup && is_backup_file {
+                            self.inout
+                                .write("Do you want to delete the backup file? [y/n] ", &[]);
+                            if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                backup_file.purge_path(false)?;
+                            }
+                            if flag_n || flag_y {
+                                self.inout.writeln("", &[]);
+                            }
+                        }
+
+                        // list|save|restore
                         match (is_home_file, is_backup_file) {
                             // files differ
                             (true, true) if !home_file.content_eq(&backup_file) => {
