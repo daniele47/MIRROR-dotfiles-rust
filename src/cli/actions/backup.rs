@@ -11,15 +11,28 @@ use crate::{
 impl<I: InOut> Runner<I> {
     /// Backup action to list/save/restore files.
     pub fn backup(&mut self) -> Result<()> {
-        self.check_flags(&[
-            "--assumeyes",
-            "-y",
-            "--assumeno",
-            "-n",
-            "--all",
-            "-a",
-            "--nocolor",
-        ])?;
+        // check flags
+        match self.args.params().first().map(String::as_str).unwrap_or("") {
+            "list" => {
+                self.check_flags(&["--nocolor"])?;
+            }
+            "save" | "restore" => {
+                self.check_flags(&[
+                    "--assumeyes",
+                    "-y",
+                    "--assumeno",
+                    "-n",
+                    "--all",
+                    "-a",
+                    "--nocolor",
+                ])?;
+            }
+            "delete" => {
+                self.check_flags(&["--assumeyes", "-y", "--assumeno", "-n", "--nocolor"])?;
+            }
+            _ => unreachable!("Invalid command"),
+        }
+
         // get args
         let mut iter = self.args.params().iter();
         let arg_command = iter.next().map(String::as_str).unwrap_or_default();
