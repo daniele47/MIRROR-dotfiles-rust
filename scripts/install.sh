@@ -6,7 +6,7 @@ set -e
 LOCAL_BIN_PATH_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/autosaver"
 LOCAL_TMP_DIR="$(mktemp -d)"
 # remote url
-REMOTE_RELEASE_URL="https://github.com/daniele47/autosaver/releases/download/v0.4.0-dev"
+REMOTE_RELEASE_URL="https://github.com/daniele47/autosaver/releases/latest/download"
 REMOTE_BIN_NAME=""
 REMOTE_RELEASE_URL_BIN=""
 # platform
