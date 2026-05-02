@@ -6,7 +6,7 @@ set -e
 LOCAL_BIN_PATH_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/autosaver"
 LOCAL_TMP_DIR="$(mktemp -d)"
 # remote url
-REMOTE_RELEASE_URL="https://github.com/daniele47/autosaver/releases/latest/download"
+REMOTE_RELEASE_URL="https://github.com/daniele47/autosaver/releases/download/v0.4.0-dev"
 REMOTE_BIN_NAME=""
 REMOTE_RELEASE_URL_BIN=""
 # platform
@@ -50,9 +50,11 @@ REMOTE_RELEASE_URL_BIN="$REMOTE_RELEASE_URL/$REMOTE_BIN_NAME"
 download_url "$REMOTE_RELEASE_URL_BIN" "$LOCAL_TMP_DIR/archive.tar.gz"
 
 echo "(2/$TASKS) Decompossing downloaded archive..."
-tar -xzf "$LOCAL_TMP_DIR/archive.tar.gz" -C "$LOCAL_BIN_PATH_DIR"
+mkdir -p "$LOCAL_TMP_DIR/autosaver"
+tar -xzf "$LOCAL_TMP_DIR/archive.tar.gz" -C "$LOCAL_TMP_DIR/autosaver"
+mv "$LOCAL_TMP_DIR/autosaver/"* "$LOCAL_BIN_PATH_DIR"
 
 echo "(3/$TASKS) Cleaning up temporary files..."
 rm -rf "$LOCAL_TMP_DIR"
 
-echo "Autosaver Installed/updated!"
+echo "Autosaver installed/updated!"
