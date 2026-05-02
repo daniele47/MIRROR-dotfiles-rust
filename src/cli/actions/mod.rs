@@ -167,7 +167,7 @@ impl<I: InOut> Runner<I> {
         let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
             "list" | "save" | "restore" | "rmhome" | "rmbackup" => self.backup(),
-            _ => self.help(),
+            _ => Ok(()),
         }
     }
 }

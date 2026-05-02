@@ -28,7 +28,7 @@ function download_url() {
 
 # update/uninstall
 if [[ -v UNINSTALL ]]; then
-    echo "Downloading and running removal script..."
+    echo "Downloading and running uninstall script..."
     TMP_FILE="$(mktemp)"
     download_url "$SCRIPTS_URL/uninstall.sh" "$TMP_FILE"
     bash "$TMP_FILE"
@@ -36,7 +36,7 @@ if [[ -v UNINSTALL ]]; then
     echo -e "--------------------------------------------------------------------------------\n"
 fi
 if [[ ! -f "$BIN_PATH" || -v INSTALL ]]; then
-    echo "Downloading and running update script..."
+    echo "Downloading and running install script..."
     TMP_FILE="$(mktemp)"
     download_url "$SCRIPTS_URL/install.sh" "$TMP_FILE"
     bash "$TMP_FILE"
