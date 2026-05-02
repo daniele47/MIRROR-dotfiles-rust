@@ -80,7 +80,7 @@ This profile will:
 
 ## How to use
 
-- just copy `init/autosaver` bash script in the directory you want to use to save dotfiles in
+- just copy `scripts/autosaver` bash script in the directory you want to use to save dotfiles in
 
 The first time the script is run, it will download the rust autocompiled binary by and hosted on `github`, and it will
 store it in the `cache` directory, properly following `xdg-base` specifications. 
