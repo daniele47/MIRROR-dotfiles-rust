@@ -14,6 +14,10 @@ impl<I: InOut> Runner<I> {
                 io.writeln("Commands:", col);
                 io.write("  list [PROFILE]  ", col);
                 io.writeln("Show differences between home and backup files", &[]);
+                io.writeln("", &[]);
+                io.writeln("Flags:", col);
+                io.write("  --all -a        ", col);
+                io.writeln("Show files which are ignored by default", &[]);
             }
             "save" => {
                 io.writeln("Commands:", col);
