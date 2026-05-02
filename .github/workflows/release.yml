@@ -203,6 +203,7 @@ jobs:
               tar -czf "../${ARCHIVE_NAME}.tar.gz" "${BINARY_NAME}"
           fi
           cd ../..
+          rm -rf ./dist/package
 
       # upload artifacts
       - name: Upload artifacts
