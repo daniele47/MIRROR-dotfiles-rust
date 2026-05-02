@@ -180,7 +180,7 @@ jobs:
           BINARY_NAME=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[0].targets[] | select(.kind[] | contains("bin")) | .name' | head -n 1)
           echo "name=$BINARY_NAME" >> $GITHUB_OUTPUT
 
-      - name: Package binary
+      - name: Package binary with completions
         shell: bash
         run: |
           TARGET_DIRNAME=".target"
@@ -188,13 +188,21 @@ jobs:
           BINARY_PATH="${TARGET_DIRNAME}/${{ matrix.platform.target }}/release/${BINARY_NAME}${{ matrix.platform.binary_ext }}"
           ARCHIVE_NAME="${BINARY_NAME}-${{ matrix.platform.target }}"
           
-          mkdir -p dist
+          # Create package directory structure
+          mkdir -p "dist/package/${BINARY_NAME}/completions"
           
+          # Copy files into place
+          cp "$BINARY_PATH" "dist/package/${BINARY_NAME}/${BINARY_NAME}${{ matrix.platform.binary_ext }}"
+          cp autocompletions/completions/* "dist/package/${BINARY_NAME}/completions/"
+          
+          # Archive the directory
+          cd dist/package
           if [[ "${{ matrix.platform.os }}" == "windows-latest" ]]; then
-            7z a "dist/${ARCHIVE_NAME}.zip" "${BINARY_PATH}"
+              7z a "../${ARCHIVE_NAME}.zip" "${BINARY_NAME}"
           else
-            tar -czf "dist/${ARCHIVE_NAME}.tar.gz" -C "${TARGET_DIRNAME}/${{ matrix.platform.target }}/release" "${BINARY_NAME}${{ matrix.platform.binary_ext }}"
+              tar -czf "../${ARCHIVE_NAME}.tar.gz" "${BINARY_NAME}"
           fi
+          cd ../..
 
       # upload artifacts
       - name: Upload artifacts
