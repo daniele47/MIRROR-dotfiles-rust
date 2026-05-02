@@ -21,8 +21,10 @@ impl<I: InOut> Runner<I> {
                 io.writeln("Save changes from the home directory to the backup", &[]);
                 io.write("  restore     ", col);
                 io.writeln("Restore changes from the backup to the home directory", &[]);
-                io.write("  delete      ", col);
-                io.writeln("Delete files from both home and backup directories", &[]);
+                io.write("  rmhome      ", col);
+                io.writeln("Delete files from home directory [DANGEROUS]", &[]);
+                io.write("  rmbackup    ", col);
+                io.writeln("Delete files from backup directory [DANGEROUS]", &[]);
                 io.writeln("", &[]);
                 io.writeln("Flags:", col);
                 io.write("  --help -h   ", col);
