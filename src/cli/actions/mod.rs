@@ -142,7 +142,7 @@ impl<I: InOut> Runner<I> {
         // handle commands
         let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
-            "list" | "save" | "restore" => self.backup(),
+            "list" | "save" | "restore" | "delete" => self.backup(),
             _ => self.help(),
         }
     }

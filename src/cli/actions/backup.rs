@@ -17,6 +17,7 @@ impl<I: InOut> Runner<I> {
         let act_list = arg_command == "list";
         let act_save = arg_command == "save";
         let act_restore = arg_command == "restore";
+        let act_delete = arg_command == "delete";
         let arg_profile = iter.next().map(String::as_str).unwrap_or_default();
         let wflag_y = self.args.flags().contains(&Flag::Word("assumeyes".into()));
         let lflag_y = self.args.flags().contains(&Flag::Letter('y'));
@@ -82,6 +83,25 @@ impl<I: InOut> Runner<I> {
                                     if flag_n || flag_y {
                                         self.inout.writeln("", &[]);
                                     }
+                                } else if act_delete {
+                                    self.inout
+                                        .write("Do you want to delete the home file? [y/n] ", &[]);
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                        home_file.purge_path(false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
+                                    }
+                                    self.inout.write(
+                                        "Do you want to delete the backup file? [y/n] ",
+                                        &[],
+                                    );
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                        backup_file.purge_path(false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
+                                    }
                                 }
                             }
                             // home => backup
@@ -99,6 +119,15 @@ impl<I: InOut> Runner<I> {
                                     if flag_n || flag_y {
                                         self.inout.writeln("", &[]);
                                     }
+                                } else if act_delete {
+                                    self.inout
+                                        .write("Do you want to delete the home file? [y/n] ", &[]);
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                        home_file.purge_path(false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
+                                    }
                                 }
                             }
                             // backup => home
@@ -112,6 +141,17 @@ impl<I: InOut> Runner<I> {
                                     self.inout.write("Do you want to restore it? [y/n] ", &[]);
                                     if flag_y || self.inout.read_line() == "y" {
                                         backup_file.copy_file(&home_file, false)?;
+                                    }
+                                    if flag_n || flag_y {
+                                        self.inout.writeln("", &[]);
+                                    }
+                                } else if act_delete {
+                                    self.inout.write(
+                                        "Do you want to delete the backup file? [y/n] ",
+                                        &[],
+                                    );
+                                    if !flag_n && (flag_y || self.inout.read_line() == "y") {
+                                        backup_file.purge_path(false)?;
                                     }
                                     if flag_n || flag_y {
                                         self.inout.writeln("", &[]);
