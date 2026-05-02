@@ -71,7 +71,10 @@ impl<I: InOut> Runner<I> {
                         match (is_home_file, is_backup_file) {
                             // files differ
                             (true, true) if !home_file.content_eq(&backup_file) => {
-                                if entry.policy() == ModulePolicy::NotDiff && !flag_all {
+                                if entry.policy() == ModulePolicy::NotDiff
+                                    && !flag_all
+                                    && !act_delete
+                                {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
