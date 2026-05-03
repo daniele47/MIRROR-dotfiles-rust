@@ -36,7 +36,7 @@ impl<I: InOut> Runner<I> {
     const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
     const BIN_NAME: &str = env!("CARGO_PKG_NAME");
     const HELP_COLOR: &[Style] = &[Style::Blue, Style::Bold];
-    const PROFILE_COLOR: &[Style] = &[Style::Purple, Style::Bold];
+    const PROFILE_COLOR: &[Style] = &[Style::Blue, Style::Bold];
     const MISS_COLOR: &[Style] = &[Style::Red, Style::Bold, Style::Underline];
     const DIFF_COLOR: &[Style] = &[Style::Yellow, Style::Bold, Style::Underline];
     const RM_COLOR: &[Style] = &[Style::Red];
@@ -189,7 +189,7 @@ impl<I: InOut> Runner<I> {
         let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
             "list" | "save" | "restore" | "rmhome" | "rmbackup" => self.backup(),
-            _ => Ok(()),
+            _ => self.check_flags(&[]),
         }
     }
 }

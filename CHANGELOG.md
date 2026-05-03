@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented here
 
+## WIP
+
+### Patches
+
+- flags with no commands now are treated as errors too.
+- better profile output color
+
 ## v0.4.0
 
 ### Features
