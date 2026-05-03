@@ -43,3 +43,62 @@ impl RunnerParser {
         ))
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::core::parsers::{RawItem, RawKind};
+    use crate::core::profile::runner::RunnerPolicy;
+
+    #[test]
+    fn test_parse_runner() -> Result<()> {
+        let raw = vec![
+            RawItem {
+                line: 1,
+                content: "policy run".into(),
+                kind: RawKind::Option,
+            },
+            RawItem {
+                line: 2,
+                content: "01_init.sh".into(),
+                kind: RawKind::Data,
+            },
+            RawItem {
+                line: 3,
+                content: "02_flatpak.sh".into(),
+                kind: RawKind::Data,
+            },
+            RawItem {
+                line: 4,
+                content: "policy skip".into(),
+                kind: RawKind::Option,
+            },
+            RawItem {
+                line: 5,
+                content: "other/".into(),
+                kind: RawKind::Data,
+            },
+        ];
+
+        let profile = RunnerParser::parse("test".into(), raw.into_iter().map(Ok))?;
+
+        match profile.ptype() {
+            ProfileType::Runner(runner) => {
+                let entries = runner.entries();
+                assert_eq!(entries.len(), 3);
+
+                assert_eq!(entries[0].path().to_str_lossy(), "01_init.sh");
+                assert_eq!(*entries[0].policy(), RunnerPolicy::Run);
+
+                assert_eq!(entries[1].path().to_str_lossy(), "02_flatpak.sh");
+                assert_eq!(*entries[1].policy(), RunnerPolicy::Run);
+
+                assert_eq!(entries[2].path().to_str_lossy(), "other/");
+                assert_eq!(*entries[2].policy(), RunnerPolicy::Skip);
+            }
+            _ => panic!("Expected Runner profile type"),
+        }
+
+        Ok(())
+    }
+}
