@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented here
 
+## WIP
+
+- [ ] --assumeyes and --assumeno flags (and their letter flag versions) stopped working entirely
+
 ## v0.4.1
 
 ### Patches
