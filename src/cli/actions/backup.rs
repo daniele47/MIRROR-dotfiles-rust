@@ -1,5 +1,3 @@
-use std::process::exit;
-
 use crate::{
     cli::{
         actions::Runner,
@@ -47,12 +45,6 @@ impl<I: InOut> Runner<I> {
         let act_rmbackup = arg_command == "rmbackup";
         let env_profile = Self::env("profile").unwrap_or_default();
         let mut arg_profile = iter.next().map(String::as_str).unwrap_or_default();
-        let wflag_y = self.args.flags().contains(&Flag::Word("assumeyes".into()));
-        let lflag_y = self.args.flags().contains(&Flag::Letter('y'));
-        let flag_y = wflag_y || lflag_y;
-        let wflag_n = self.args.flags().contains(&Flag::Word("assumeno".into()));
-        let lflag_n = self.args.flags().contains(&Flag::Letter('n'));
-        let flag_n = wflag_n || lflag_n;
         let wflag_all = self.args.flags().contains(&Flag::Word("all".into()));
         let lflag_all = self.args.flags().contains(&Flag::Letter('a'));
         let flag_all = wflag_all || lflag_all;
