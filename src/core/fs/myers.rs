@@ -13,6 +13,7 @@ enum Op<'a, T> {
     Delete(&'a T),
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LineDiff {
     Equal(String),
     Insert(String),
@@ -153,4 +154,50 @@ where
 
     ops.reverse();
     ops
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::core::fs::LineWriter;
+
+    use super::*;
+
+    fn purge_path_even_on_panic(tmpdir: &AbsPath) -> impl Drop {
+        struct Guard(AbsPath);
+        impl Drop for Guard {
+            fn drop(&mut self) {
+                let _ = self.0.purge_path(true);
+            }
+        }
+        Guard(tmpdir.clone())
+    }
+
+    #[test]
+    fn test_calc_diff() -> Result<()> {
+        let tmp = AbsPath::new_tmp("test_read_write_lines");
+        tmp.create_dir()?;
+        let _guard = purge_path_even_on_panic(&tmp);
+
+        let test_file1 = tmp.joins(&["test1.txt"]);
+        let lines_in1 = vec!["first line", "second line", "third line"];
+        let test_file2 = tmp.joins(&["test2.txt"]);
+        let lines_in2 = vec!["first line", "diff line", "second line", "added line"];
+
+        // Write lines
+        let mut writer = test_file1.line_writer()?;
+        writer.write_all_lines(lines_in1.iter())?;
+        let mut writer = test_file2.line_writer()?;
+        writer.write_all_lines(lines_in2.iter())?;
+
+        // calculate diff
+        let diff = test_file1.calc_diff(&test_file2)?;
+
+        assert_eq!(diff.len(), 4);
+        assert!(matches!(&diff[0], LineDiff::Insert(x) if x == "diff line"));
+        assert!(matches!(&diff[1], LineDiff::Equal(x) if x == "second line"));
+        assert!(matches!(&diff[2], LineDiff::Delete(x) if x == "third line"));
+        assert!(matches!(&diff[3], LineDiff::Insert(x) if x == "added line"));
+
+        Ok(())
+    }
 }
