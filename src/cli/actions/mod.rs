@@ -36,6 +36,9 @@ impl<I: InOut> Runner<I> {
     const CARGO_VERSION: &str = env!("CARGO_PKG_VERSION");
     const BIN_NAME: &str = env!("CARGO_PKG_NAME");
     const HELP_COLOR: &[Style] = &[Style::Blue, Style::Bold];
+    const PROFILE_COLOR: &[Style] = &[Style::Purple, Style::Bold];
+    const MISS_COLOR: &[Style] = &[Style::Red, Style::Bold];
+    const DIFF_COLOR: &[Style] = &[Style::Yellow, Style::Bold];
 
     fn paths(path: &str) -> Result<AbsPath> {
         match path {

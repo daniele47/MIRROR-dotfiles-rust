@@ -3,7 +3,7 @@ use crate::{
         actions::Runner,
         error::{Error, Result},
         flags::Flag,
-        inout::{InOut, Style},
+        inout::InOut,
     },
     core::profile::{ProfileType, composite::ProfileLoader, module::ModulePolicy},
 };
@@ -78,7 +78,7 @@ impl<I: InOut> Runner<I> {
                     let module = module.merge_bases(&home_dir, backup_dir)?;
 
                     let str = format!("*** {} ***", profile.name());
-                    self.inout.writeln(str, &[Style::Blue]);
+                    self.inout.writeln(str, Self::PROFILE_COLOR);
 
                     // iterate all entries of a module
                     for entry in module.entries() {
@@ -94,7 +94,7 @@ impl<I: InOut> Runner<I> {
                         // rmhome
                         if act_rmhome && is_home_file {
                             self.inout.write("- ", &[]);
-                            self.inout.writeln(path.to_string(), &[Style::Red]);
+                            self.inout.writeln(path.to_string(), Self::MISS_COLOR);
                             self.inout
                                 .write("Do you want to delete the home file? [y/n] ", &[]);
                             if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -108,7 +108,7 @@ impl<I: InOut> Runner<I> {
                         // rmbackup
                         if act_rmbackup && is_backup_file {
                             self.inout.write("- ", &[]);
-                            self.inout.writeln(path.to_string(), &[Style::Red]);
+                            self.inout.writeln(path.to_string(), Self::MISS_COLOR);
                             self.inout
                                 .write("Do you want to delete the backup file? [y/n] ", &[]);
                             if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -130,7 +130,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(path.to_string(), &[Style::Yellow]);
+                                self.inout.writeln(path.to_string(), Self::DIFF_COLOR);
                                 if act_save {
                                     self.inout.write("Do you want to update it? [y/n] ", &[]);
                                     if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -155,7 +155,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(path.to_string(), &[Style::Red]);
+                                self.inout.writeln(path.to_string(), Self::MISS_COLOR);
                                 if act_save {
                                     self.inout.write("Do you want to save it? [y/n] ", &[]);
                                     if !flag_n && (flag_y || self.inout.read_line() == "y") {
@@ -172,7 +172,7 @@ impl<I: InOut> Runner<I> {
                                     continue;
                                 }
                                 self.inout.write("- ", &[]);
-                                self.inout.writeln(path.to_string(), &[Style::Red]);
+                                self.inout.writeln(path.to_string(), Self::MISS_COLOR);
                                 if act_restore {
                                     self.inout.write("Do you want to restore it? [y/n] ", &[]);
                                     if flag_y || self.inout.read_line() == "y" {

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here
 
+## WIP
+
+### Patches
+
+- improved cli colors
+
 ## v0.3.5
 
 ### Removals
