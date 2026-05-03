@@ -4,13 +4,12 @@ All notable changes to this project will be documented here
 
 ## WIP
 
-- [ ] fix content_eq function which is unable to compare binary files atm
-
 ### Patches
 
 - flags with no commands now are treated as errors too.
 - better profile output color
 - binary files are now properly handled by the program when diffing
+- fixed `content_eq` function, and now is able to compare binary files
 
 ## v0.4.0
 

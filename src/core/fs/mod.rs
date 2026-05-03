@@ -4,7 +4,7 @@ use std::{
     collections::{BTreeSet, HashSet},
     env,
     fs::{self, File, Metadata},
-    io::{BufRead, BufReader, BufWriter, Lines, Write},
+    io::{BufRead, BufReader, BufWriter, Lines, Read, Write},
     path::PathBuf,
 };
 
@@ -336,16 +336,34 @@ impl AbsPath {
                 return false;
             }
 
-            // check line by line equality
-            if let Ok(mut sr) = self.line_reader()
-                && let Ok(mut or) = other.line_reader()
-            {
-                loop {
-                    match (sr.next(), or.next()) {
-                        (Some(Ok(a)), Some(Ok(b))) if a == b => continue,
-                        (None, None) => return true,
-                        _ => return false,
-                    }
+            // chunked byte comparison (works for both text and binary)
+            let mut file1 = match std::fs::File::open(&self.path) {
+                Ok(f) => f,
+                Err(_) => return false,
+            };
+            let mut file2 = match std::fs::File::open(&other.path) {
+                Ok(f) => f,
+                Err(_) => return false,
+            };
+
+            let mut buf1 = [0; 8192];
+            let mut buf2 = [0; 8192];
+
+            loop {
+                let n1 = match file1.read(&mut buf1) {
+                    Ok(n) => n,
+                    Err(_) => return false,
+                };
+                let n2 = match file2.read(&mut buf2) {
+                    Ok(n) => n,
+                    Err(_) => return false,
+                };
+
+                if n1 != n2 || buf1[..n1] != buf2[..n2] {
+                    return false;
+                }
+                if n1 == 0 {
+                    return true;
                 }
             }
         }
