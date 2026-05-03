@@ -5,11 +5,13 @@ Copy-based dotfiles tracking cli, written in rust
 ## How it works
 
 ```
-$AUTOSAVER_ROOT
-├── backup
-│   └── profile1
-└── config
-    └── profile1.conf
+$AUTOSAVER_ROOT/
+├── backup/
+│   └── profile1/
+├── config/
+│   └── profile1.conf
+└── run/
+    └── init_script.sh
 ```
 
 It is a rust based cli program to easily handle dotfiles on a system.
@@ -48,20 +50,21 @@ actually run on `profile1` and `profile2`
 
 ### Module
 
-This is a profile to track dotfiles. It can list file paths relative to the $AUTOSAVER_HOME directory,
-and it is used in `list`, `save`, `restore` commands to confront the files on the home and in the 
+This is a profile to track dotfiles. It can list file paths relative to the $AUTOSAVER_HOME directory, and it is 
+used in `list`, `save`, `restore`, `rmhome`, `rhbackup` commands to confront the files on the home and in the 
 backup directory, and if the two differs, they can be updated based on the command specified.
 
 Module entries can have a `policy` with priority matching the following order:
-- `ignore`: force ignore the specified file, overriding all other policies
-- `notdiff`: do not show the file in commands if it differs between the two versions
-- `always` \[DEFAULT\]: always show the file, if the two versions do not match
+- `ignore`: force ignore the specified path, overriding all other policies
+- `notdiff`: do not show the path in commands if it differs between the two versions
+- `always` \[DEFAULT\]: always show the path, if the two versions do not match
 
 A Module profile configuration file looks like this:
 ```
 /! type module
 
 // this is a comment
+// NOTE: directories do not require an ending slash!
 
 .config/nvim
 
@@ -77,6 +80,34 @@ This profile will:
 - track all files found recursively in `$AUTOSAVER_HOME/.config/nvim/` and in `$AUTOSAVER_ROOT/backup/.config/nvim` files with `always` policy
 - track all files found recursively in `$AUTOSAVER_HOME/.config/htop/` and in `$AUTOSAVER_ROOT/backup/.config/htop` files with `notdiff` policy
 - ignore `.config/nvim/lazy-lock.json` file that was included with the first line (`ignore` policy)
+
+### Runner
+
+This is a profile to list scripts from the `run` directory, that will be executed in order with the `run` command.
+
+Runner entries can have a `policy` with priority matching the following order:
+- `skip`: do not run the scripts at the specified path
+- `run`: \[DEFAULT\]: run the scripts at the specified path
+
+A runner profile configuration file looks like this:
+```
+/! type runner
+
+// this is a comment
+// NOTE: directories do not require an ending slash!
+
+init_script.sh
+kde-init/
+
+/! policy skip
+
+kde-init/data
+
+```
+This profile will:
+- run the `init_script.sh` script
+- run all the files found in `kde-init/` path
+- will skip all scripts in `kde-init/data` path
 
 ## How to use
 
