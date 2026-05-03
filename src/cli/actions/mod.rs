@@ -9,7 +9,7 @@ use crate::{
         inout::{InOut, Style},
     },
     core::{
-        fs::{AbsPath, PathType, RelPath},
+        fs::{AbsPath, LineDiff, PathType, RelPath},
         profile::{
             Profile,
             composite::{HashMapProfileLoader, ProfileLoader},
@@ -37,8 +37,10 @@ impl<I: InOut> Runner<I> {
     const BIN_NAME: &str = env!("CARGO_PKG_NAME");
     const HELP_COLOR: &[Style] = &[Style::Blue, Style::Bold];
     const PROFILE_COLOR: &[Style] = &[Style::Purple, Style::Bold];
-    const MISS_COLOR: &[Style] = &[Style::Red, Style::Bold];
-    const DIFF_COLOR: &[Style] = &[Style::Yellow, Style::Bold];
+    const MISS_COLOR: &[Style] = &[Style::Red, Style::Bold, Style::Underline];
+    const DIFF_COLOR: &[Style] = &[Style::Yellow, Style::Bold, Style::Underline];
+    const RM_COLOR: &[Style] = &[Style::Red];
+    const ADD_COLOR: &[Style] = &[Style::Green];
 
     fn paths(path: &str) -> Result<AbsPath> {
         match path {
@@ -103,6 +105,28 @@ impl<I: InOut> Runner<I> {
             "home" => Self::load_env("AUTOSAVER_HOME"),
             _ => unreachable!("Invalid env"),
         }
+    }
+
+    fn render_diff(&mut self, file1: &AbsPath, file2: &AbsPath, lines: usize) -> Result<()> {
+        let mut lcount = 0;
+        // self.inout.writeln("-".repeat(80), &[]);
+        for line in file1.calc_diff(file2)? {
+            if lcount >= lines {
+                break;
+            }
+            match line {
+                LineDiff::Equal(_) => {}
+                LineDiff::Insert(line) => {
+                    self.inout.writeln(line, Self::ADD_COLOR);
+                    lcount += 1;
+                }
+                LineDiff::Delete(line) => {
+                    self.inout.writeln(line, Self::RM_COLOR);
+                    lcount += 1;
+                }
+            }
+        }
+        Ok(())
     }
 
     fn profile_loader() -> Result<impl ProfileLoader> {
