@@ -2,23 +2,54 @@
 
 use std::collections::HashMap;
 
-use crate::core::fs::AbsPath;
+use crate::core::{error::Result, fs::AbsPath};
 
 type Graph = HashMap<isize, isize>;
 type Script = Vec<Graph>;
 
-pub enum Op<'a, T> {
+enum Op<'a, T> {
     Equal(&'a T),
     Insert(&'a T),
     Delete(&'a T),
 }
 
-impl AbsPath {
-    /// Myers algorithm to calculate fill difference
-    pub fn calc_diff(&self) {}
+pub enum LineDiff {
+    Equal(String),
+    Insert(String),
+    Delete(String),
 }
 
-pub fn linear_diff<'a, T>(src: &'a [T], target: &'a [T]) -> Vec<Op<'a, T>>
+impl AbsPath {
+    /// Myers algorithm to calculate fill difference
+    pub fn calc_diff(&self, other: &AbsPath) -> Result<Vec<LineDiff>> {
+        let line_reader1 = self.line_reader()?;
+        let line_reader2 = other.line_reader()?;
+
+        let mut lines1 = vec![];
+        for line in line_reader1.into_iter() {
+            lines1.push(line?);
+        }
+        let mut lines2 = vec![];
+        for line in line_reader2.into_iter() {
+            lines2.push(line?);
+        }
+
+        let res = linear_diff(&lines1, &lines2);
+
+        let mut linediff = vec![];
+        for l in res {
+            let lowned = match l {
+                Op::Equal(l) => LineDiff::Equal(l.clone()),
+                Op::Insert(l) => LineDiff::Insert(l.clone()),
+                Op::Delete(l) => LineDiff::Delete(l.clone()),
+            };
+            linediff.push(lowned);
+        }
+        Ok(linediff)
+    }
+}
+
+fn linear_diff<'a, T>(src: &'a [T], target: &'a [T]) -> Vec<Op<'a, T>>
 where
     T: Eq + PartialEq,
 {
