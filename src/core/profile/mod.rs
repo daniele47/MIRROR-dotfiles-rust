@@ -10,6 +10,7 @@ use crate::core::{
 
 pub mod composite;
 pub mod module;
+pub mod runner;
 
 /// Represents the profile type.
 #[derive(Debug, PartialEq, Eq, Clone)]
