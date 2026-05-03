@@ -2,11 +2,11 @@
 
 All notable changes to this project will be documented here
 
-## WIP
+## v0.4.0
 
 ### Features
 
-- implemented Myers algorithm to diff files, and used in new `-d|--diff` flag in `save|restore`
+- implemented Myers algorithm to diff files, and used in new `-d|--diff` flag in `save|restore|list`
 - added q into prompt to instantly quit
 
 ### Patches
