@@ -8,6 +8,7 @@ All notable changes to this project will be documented here
 
 - flags with no commands now are treated as errors too.
 - better profile output color
+- binary files are now properly handled by the program when diffing
 
 ## v0.4.0
 

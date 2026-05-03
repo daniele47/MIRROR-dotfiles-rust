@@ -1,6 +1,6 @@
 //! Module to run cli.
 
-use std::env;
+use std::{env, io::ErrorKind};
 
 use crate::{
     cli::{
@@ -108,7 +108,19 @@ impl<I: InOut> Runner<I> {
     }
 
     fn render_diff(&mut self, file1: &AbsPath, file2: &AbsPath) -> Result<()> {
-        for line in file1.calc_diff(file2)? {
+        let diff = file1.calc_diff(file2);
+        if let Err(err) = &diff {
+            if let crate::core::error::Error::IoError(err, _) = err {
+                if err.kind() == ErrorKind::InvalidData {
+                    self.inout.writeln(
+                        "* binary files differ but cannot be compared",
+                        &[Style::Yellow],
+                    );
+                    return Ok(());
+                }
+            }
+        }
+        for line in diff? {
             match line {
                 LineDiff::Equal(_) => {}
                 LineDiff::Insert(line) => {
