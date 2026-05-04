@@ -8,7 +8,8 @@ All notable changes to this project will be documented here
 
 - fixed error printing one extra whiteline
 - better err msg for when no profile is specified
-- [WIP] captured scripts output and formatted nicely
+- captured scripts output and formatted nicely
+- very simple multithreaded stdout/stderr
 
 ## v0.5.0
 

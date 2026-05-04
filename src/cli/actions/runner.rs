@@ -1,6 +1,7 @@
 use std::{
     io::{BufRead, BufReader},
     process::{Command, Stdio},
+    thread,
 };
 
 use crate::{
@@ -96,7 +97,7 @@ impl Runner {
                                         Error::ScriptFailure(p, e.to_string())
                                     })?;
 
-                                // take handles to stdin/stdout/stderr as needed
+                                // take handles to stdout/stderr as needed
                                 let stdout = child.stdout.take().ok_or_else(|| {
                                     Error::ScriptFailure(
                                         abs_path.clone().into(),
@@ -111,36 +112,60 @@ impl Runner {
                                 })?;
 
                                 // spawn threads to handle stdout/stderr
-                                let stdout_handle = BufReader::new(stdout);
-                                for line in stdout_handle.lines() {
-                                    match line {
-                                        Ok(line) => {
-                                            s.inout.write("> ", Self::SIGN_STDOUT_COLOR);
-                                            s.inout.writeln(line, &[]);
-                                        }
-                                        Err(e) => {
-                                            return Err(Error::ScriptFailure(
-                                                abs_path.clone().into(),
-                                                format!("Failure in reading stdout line: {e}"),
-                                            ));
-                                        }
-                                    }
-                                }
-                                let stderr_handle = BufReader::new(stderr);
-                                for line in stderr_handle.lines() {
-                                    match line {
-                                        Ok(line) => {
-                                            s.inout.write("> ", Self::SIGN_STDERR_COLOR);
-                                            s.inout.writeln(line, &[]);
-                                        }
-                                        Err(e) => {
-                                            return Err(Error::ScriptFailure(
-                                                abs_path.clone().into(),
-                                                format!("Failure in reading stdout line: {e}"),
-                                            ));
+                                let mut inout = s.inout.clone();
+                                let abs_path_clone = abs_path.clone();
+                                let stdout_handle = thread::spawn(move || -> Result<()> {
+                                    let reader = BufReader::new(stdout);
+                                    for line in reader.lines() {
+                                        match line {
+                                            Ok(line) => {
+                                                inout.write("> ", Self::SIGN_STDOUT_COLOR);
+                                                inout.writeln(line, &[]);
+                                            }
+                                            Err(e) => {
+                                                return Err(Error::ScriptFailure(
+                                                    abs_path_clone.into(),
+                                                    format!("Failure in reading stdout line: {e}"),
+                                                ));
+                                            }
                                         }
                                     }
-                                }
+                                    Ok(())
+                                });
+                                let mut inout = s.inout.clone();
+                                let abs_path_clone = abs_path.clone();
+                                let stderr_handle = thread::spawn(move || -> Result<()> {
+                                    let reader = BufReader::new(stderr);
+                                    for line in reader.lines() {
+                                        match line {
+                                            Ok(line) => {
+                                                inout.write("> ", Self::SIGN_STDERR_COLOR);
+                                                inout.writeln(line, &[]);
+                                            }
+                                            Err(e) => {
+                                                return Err(Error::ScriptFailure(
+                                                    abs_path_clone.into(),
+                                                    format!("Failure in reading stderr line: {e}"),
+                                                ));
+                                            }
+                                        }
+                                    }
+                                    Ok(())
+                                });
+
+                                // close stdout/stderr handles
+                                stdout_handle.join().map_err(|e| {
+                                    Error::ScriptFailure(
+                                        abs_path.clone().into(),
+                                        format!("Failure handling stdout: {e:?}"),
+                                    )
+                                })??;
+                                stderr_handle.join().map_err(|e| {
+                                    Error::ScriptFailure(
+                                        abs_path.clone().into(),
+                                        format!("Failure handling stderr: {e:?}"),
+                                    )
+                                })??;
 
                                 // wait for script to end execution
                                 child
