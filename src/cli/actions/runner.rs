@@ -1,4 +1,4 @@
-use std::process::Command;
+use std::process::{Command, Stdio};
 
 use crate::{
     cli::{
@@ -17,16 +17,19 @@ impl<I: InOut> Runner<I> {
     /// Backup action to list/save/restore files.
     pub fn runner(&mut self) -> Result<()> {
         // check flags
-        self.check_flags("run", &[
-            "--show",
-            "-s",
-            "--dryrun",
-            "--assumeyes",
-            "-y",
-            "--assumeno",
-            "-n",
-            "--nocolor",
-        ])?;
+        self.check_flags(
+            "run",
+            &[
+                "--show",
+                "-s",
+                "--dryrun",
+                "--assumeyes",
+                "-y",
+                "--assumeno",
+                "-n",
+                "--nocolor",
+            ],
+        )?;
 
         // get args
         let wflag_show = self.args.flags().contains(&Flag::Word("show".into()));
@@ -80,19 +83,32 @@ impl<I: InOut> Runner<I> {
                         // run script if no dryrun flag is passed
                         if !flag_dryrun {
                             self.prompt("Do you want to run it?", || {
-                                Command::new(abs_path.to_str_lossy())
-                                    .status()
+                                // execute the script
+                                let mut child = Command::new(abs_path.to_str_lossy())
+                                    .stdin(Stdio::null())
+                                    .stdout(Stdio::piped())
+                                    .stderr(Stdio::piped())
+                                    .spawn()
+                                    .map_err(|e| {
+                                        let p = abs_path.clone().into();
+                                        Error::ScriptFailure(p, e.to_string())
+                                    })?;
+
+                                // wait for script to end execution
+                                child
+                                    .wait()
                                     .map_err(|e| {
                                         let p = abs_path.clone().into();
                                         Error::ScriptFailure(p, e.to_string())
                                     })
-                                    .and_then(|status_code| {
-                                        if status_code.success() {
-                                            Ok(())
-                                        } else {
-                                            let msg = format!("Exited with code {status_code}");
-                                            Err(Error::ScriptFailure(abs_path.clone().into(), msg))
+                                    .and_then(|code| {
+                                        if !code.success() {
+                                            return Err(Error::ScriptFailure(
+                                                abs_path.clone().into(),
+                                                format!("Exited with code {code}"),
+                                            ));
                                         }
+                                        Ok(())
                                     })
                             })?;
                         }
