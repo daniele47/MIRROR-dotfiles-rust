@@ -19,6 +19,7 @@ use crate::{
 
 mod backup;
 mod help;
+mod runner;
 mod version;
 
 /// Struct with data and methods to run cli.
@@ -76,6 +77,7 @@ impl<I: InOut> Runner<I> {
             }
             "backup" => Self::paths("root").map(|p| p.joins(&["backup"])),
             "config" => Self::paths("root").map(|p| p.joins(&["config"])),
+            "run" => Self::paths("root").map(|p| p.joins(&["run"])),
             _ => unreachable!("Invalid path"),
         }
     }
@@ -231,6 +233,7 @@ impl<I: InOut> Runner<I> {
         let command = self.args.params().first().map(|s| s.as_str()).unwrap_or("");
         match command {
             "list" | "save" | "restore" | "rmhome" | "rmbackup" => self.backup(),
+            "run" => self.runner(),
             _ => self.check_flags(&[]),
         }
     }
