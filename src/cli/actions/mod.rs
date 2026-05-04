@@ -154,6 +154,9 @@ impl<I: InOut> Runner<I> {
         let flag_n = wflag_n || lflag_n;
 
         self.inout.write(format!("{msg} [y/n/q] "), &[]);
+        if flag_n {
+            return Ok(());
+        }
         if flag_y {
             run()?;
             return Ok(());

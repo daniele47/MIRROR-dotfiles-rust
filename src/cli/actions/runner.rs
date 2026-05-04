@@ -66,7 +66,8 @@ impl<I: InOut> Runner<I> {
                             for line in abs_path.line_reader()? {
                                 match line {
                                     Ok(l) => {
-                                        self.inout.writeln(l, &[]);
+                                        let msg = format!("* {l}");
+                                        self.inout.writeln(msg, &[]);
                                     }
                                     Err(_) => {
                                         self.inout

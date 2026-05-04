@@ -12,6 +12,7 @@ All notable changes to this project will be documented here
 ### Patches
 
 - removed valid name checker for composite profiles
+- fixed `-n|--assumeno` not actually properly working
 
 ## v0.4.2
 
