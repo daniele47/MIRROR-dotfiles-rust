@@ -45,7 +45,7 @@ impl<I: InOut> Runner<I> {
     const SIGN_RM_COLOR: &[Style] = &[Style::Red];
     const SIGN_ADD_COLOR: &[Style] = &[Style::Green];
     const SIGN_SCRIPT_COLOR: &[Style] = &[Style::White];
-    const SIGN_STDOUT_COLOR: &[Style] = &[Style::Green];
+    const SIGN_STDOUT_COLOR: &[Style] = &[Style::White];
     const SIGN_STDERR_COLOR: &[Style] = &[Style::Red];
 
     fn paths(path: &str) -> Result<AbsPath> {
