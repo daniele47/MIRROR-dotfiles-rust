@@ -127,8 +127,6 @@ impl<I: InOut> Runner<I> {
                                         }
                                     }
                                 }
-
-                                // Then, AFTER stdout finishes, read ALL stderr
                                 let stderr_handle = BufReader::new(stderr);
                                 for line in stderr_handle.lines() {
                                     match line {
