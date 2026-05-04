@@ -94,6 +94,20 @@ impl<I: InOut> Runner<I> {
                                         Error::ScriptFailure(p, e.to_string())
                                     })?;
 
+                                // take handles to stdin/stdout/stderr as needed
+                                let stdout = child.stdout.take().ok_or_else(|| {
+                                    Error::ScriptFailure(
+                                        abs_path.clone().into(),
+                                        "Unable to capture stdout".into(),
+                                    )
+                                });
+                                let stderr = child.stderr.take().ok_or_else(|| {
+                                    Error::ScriptFailure(
+                                        abs_path.clone().into(),
+                                        "Unable to capture stderr".into(),
+                                    )
+                                });
+
                                 // wait for script to end execution
                                 child
                                     .wait()
