@@ -87,6 +87,7 @@ impl Runner {
             "backup" => Self::paths("root").map(|p| p.joins(&["backup"])),
             "config" => Self::paths("root").map(|p| p.joins(&["config"])),
             "run" => Self::paths("root").map(|p| p.joins(&["run"])),
+            "default" => Self::paths("root").map(|p| p.joins(&[".default"])),
             _ => unreachable!("Invalid path"),
         }
     }
@@ -118,10 +119,24 @@ impl Runner {
     }
 
     fn load_profile(&mut self, param_index: usize) -> Result<String> {
-        match self.args.params().get(param_index) {
-            Some(p) => Ok(p.clone()),
-            None => Self::env("profile"),
-        }
+        || -> Result<String> {
+            match self.args.params().get(param_index) {
+                Some(p) => Ok(p.clone()) as Result<String>,
+                None => match Self::env("profile") {
+                    Ok(env_prof) => Ok(env_prof),
+                    Err(_) => {
+                        let prof_file = Self::paths("default")?;
+                        if let Some(first_line) = prof_file.line_reader()?.next() {
+                            let first_line = first_line?;
+                            if !first_line.is_empty() {
+                                return Ok(first_line);
+                            }
+                        }
+                        Err(Error::MissingProfile)
+                    }
+                },
+            }
+        }()
         .map_err(|_| Error::MissingProfile)
     }
 

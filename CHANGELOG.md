@@ -4,6 +4,12 @@ All notable changes to this project will be documented here
 
 ## WIP
 
+### Features
+
+- added `.default` configuration file to specify a default profile
+
+### Patches
+
 - updated help msg to explain global flag better
 - make scripts automatically executable before running them
 
