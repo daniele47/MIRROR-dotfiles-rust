@@ -12,12 +12,14 @@ impl Cli {
             match preset_subcmd {
                 PresetSubCmd::Init => {
                     let mut cli = self.clone();
+                    let actions = &["Executing 'run' command:", "Executing 'restore' command:"];
+                    let mut index = 0;
 
-                    errln!("---> (1/2) Executing 'run' command:");
+                    Self::print_next_action(actions, &mut index);
                     cli.cmd = CliCmd::Run { allow_stdin: true };
                     cli.action_run(ctx)?;
 
-                    errln!("\n---> (2/2) Executing 'restore' command:");
+                    Self::print_next_action(actions, &mut index);
                     cli.cmd = CliCmd::Restore {
                         act_saverestore: CliActSaveRestore {
                             allow_duplicates: false,
@@ -36,8 +38,10 @@ impl Cli {
                 }
                 PresetSubCmd::Purge => {
                     let mut cli = self.clone();
+                    let actions = &["Executing 'delete' command:"];
+                    let mut index = 0;
 
-                    errln!("\n---> (1/1) Executing 'delete' command:");
+                    Self::print_next_action(actions, &mut index);
                     cli.cmd = CliCmd::Delete {
                         only_cleanup: true,
                         only_backup: false,
@@ -51,5 +55,14 @@ impl Cli {
             }
         }
         Ok(())
+    }
+
+    fn print_next_action(actions: &[&str], index: &mut usize) {
+        let curr: usize = *index + 1;
+        if curr > 1 {
+            errln!();
+        }
+        errln!("---> ({}/{}) {}", curr, actions.len(), actions[*index]);
+        *index = curr;
     }
 }
