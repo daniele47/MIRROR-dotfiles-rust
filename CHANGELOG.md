@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here
 
+## v2.16.0
+
+### Features
+
+- added `preset` command that allows running pre-bundled actions at once
+
 ## v2.15.0
 
 ### Features

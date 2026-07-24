@@ -126,6 +126,19 @@ pub enum CliCmd {
         #[command(flatten)]
         act_delsymlinks: CliActDelSymlinks,
     },
+    /// Pre-configured command shortcuts for common workflows
+    Preset {
+        #[command(subcommand)]
+        preset_subcmd: PresetSubCmd,
+    },
+}
+
+#[derive(Subcommand, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum PresetSubCmd {
+    /// Fully initialize a new system
+    Init,
+    /// Fully purge everything out of the home directory
+    Purge,
 }
 
 #[derive(Args, Debug, Clone, Copy, PartialEq, Eq)]

@@ -8,6 +8,7 @@ use crate::{
 
 pub mod backup;
 pub mod clear;
+pub mod preset;
 pub mod run;
 pub mod tree;
 
@@ -42,6 +43,7 @@ impl Cli {
             CliCmd::Run { .. } => self.action_run(&ctx),
             CliCmd::Tree { .. } => self.action_tree(&ctx),
             CliCmd::Clear { .. } => self.action_clear(&ctx),
+            CliCmd::Preset { .. } => self.action_preset(&ctx),
         }
     }
 }
