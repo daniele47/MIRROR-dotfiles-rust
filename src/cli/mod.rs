@@ -136,7 +136,15 @@ pub enum CliCmd {
 #[derive(Subcommand, Debug, Clone, Copy, PartialEq, Eq)]
 pub enum PresetSubCmd {
     /// Fully initialize a new system
-    Init,
+    Init {
+        /// Only execute init scripts
+        #[arg(short = 's', long)]
+        only_scripts: bool,
+
+        /// Only restore dotfiles
+        #[arg(short = 'd', long)]
+        only_dotfiles: bool,
+    },
     /// Fully purge everything out of the home directory
     Purge,
 }

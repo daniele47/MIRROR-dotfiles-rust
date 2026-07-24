@@ -2,15 +2,12 @@
 
 All notable changes to this project will be documented here
 
-IDEAS:
-- add `--skip-scripts` and `skip-dotfiles` to `preset init` command 
-- should i add levels to the prompts? clearly execute profiles prompt and within it could be 2 different lvls?
-
 ## v2.16.0
 
 ### Features
 
 - added `preset` command that allows running pre-bundled actions at once
+- add `--skip-scripts` and `skip-dotfiles` to `preset init` command 
 
 ## v2.15.0
 
