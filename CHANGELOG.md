@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here
 
+## v2.16.1
+
+### Changes
+
+- `--choice` now uses a different prompt, such that it's unaffected by various prompt flags
+
 ## v2.16.0
 
 ### Features

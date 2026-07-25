@@ -71,7 +71,7 @@ impl Cli {
                             execute = true;
                             Ok(())
                         };
-                        ctx.prompt.question(msg, paths, action, &ctx.col)?;
+                        ctx.choice_prompt.question(msg, paths, action, &ctx.col)?;
                         if !execute {
                             return Ok(());
                         }

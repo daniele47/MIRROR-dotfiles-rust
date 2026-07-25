@@ -36,6 +36,7 @@ pub struct CliContext {
     pub col: CliColor,
     pub exclude_all: HashSet<RelPathStr>,
     pub prompt: Prompt,
+    pub choice_prompt: Prompt,
 }
 
 impl CliContext {
@@ -80,6 +81,7 @@ impl CliContext {
                 },
             )?;
         }
+        let choice_prompt = Prompt::new("", false, false, false)?;
         Ok(Self {
             paths,
             root_profile,
@@ -89,6 +91,7 @@ impl CliContext {
             col,
             exclude_all,
             prompt,
+            choice_prompt,
         })
     }
 }
