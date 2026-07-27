@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here
 
+## v2.16.3
+
+### Patches
+
+- removed `--allow-stdin` and `--allow-symlinks` from preset commands
+
 ## v2.16.2
 
 ### Changes

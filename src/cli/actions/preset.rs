@@ -15,16 +15,16 @@ impl Cli {
                 } => {
                     let no_filter = !only_scripts && !only_dotfiles;
                     if no_filter || only_scripts {
-                        let cmd = &["", "run", "-s"];
+                        let cmd = &["", "run"];
                         Self::run_action(self, cmd, |c| c.action_run(ctx))?;
                     }
                     if no_filter || only_dotfiles {
-                        let cmd = &["", "restore", "-pcse"];
+                        let cmd = &["", "restore", "-cep"];
                         Self::run_action(self, cmd, |c| c.action_backup(ctx))?;
                     }
                 }
                 PresetSubCmd::Purge => {
-                    let cmd = &["", "delete", "-cos"];
+                    let cmd = &["", "delete", "-co"];
                     Self::run_action(self, cmd, |c| c.action_backup(ctx))?;
                 }
             }
