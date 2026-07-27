@@ -160,7 +160,6 @@ impl Profile {
     fn parse_runner(raw: RawProfile) -> anyhow::Result<Self> {
         let mut entries = vec![];
         let mut policy = RunnerPolicy::Include;
-        let mut stdin = false;
         let kind = "runner";
         for line in raw.lines {
             match line {
@@ -172,22 +171,11 @@ impl Profile {
                             _ => bail!(Self::err_val(raw.name, &[opt], i, kind)),
                         }
                     }
-                    opt_set if let Some(opt_val) = opt_set.strip_prefix("stdin") => {
-                        match opt_val.trim() {
-                            "on" => stdin = true,
-                            "off" => stdin = false,
-                            _ => bail!(Self::err_val(raw.name, &[opt], i, kind)),
-                        }
-                    }
                     _ => bail!(Self::err_opt(raw.name, opt, i, kind)),
                 },
                 RawProfileLine::Data(data, i) => {
                     let path = Self::data_ctx(raw.name, data, i, kind)?;
-                    let entry = RunnerEntry {
-                        path,
-                        policy,
-                        stdin,
-                    };
+                    let entry = RunnerEntry { path, policy };
                     entries.push(entry);
                 }
             }
@@ -324,22 +312,18 @@ mod tests {
                     RunnerEntry {
                         path: "script1.sh".parse()?,
                         policy: RunnerPolicy::Include,
-                        stdin: false,
                     },
                     RunnerEntry {
                         path: "scripts".parse()?,
                         policy: RunnerPolicy::Include,
-                        stdin: false,
                     },
                     RunnerEntry {
                         path: "data".parse()?,
                         policy: RunnerPolicy::Exclude,
-                        stdin: true,
                     },
                     RunnerEntry {
                         path: "script2.sh".parse()?,
                         policy: RunnerPolicy::Include,
-                        stdin: true,
                     },
                 ],
             }),
@@ -350,7 +334,6 @@ mod tests {
             /! policy include
             script1.sh
             scripts
-            /! stdin on
             /! policy exclude
             data
             /! policy include

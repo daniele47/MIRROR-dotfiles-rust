@@ -1,4 +1,4 @@
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use anyhow::{Context, bail};
 use indexmap::{IndexMap, map::Entry};
@@ -13,7 +13,6 @@ use crate::{
         ProfileKind, TraverseDupPolicy,
         runner::{Runner, RunnerEntry, RunnerPolicy},
     },
-    warning,
 };
 
 fn resolve<'a>(
@@ -41,7 +40,7 @@ fn resolve<'a>(
 impl Cli {
     pub fn action_run(&self, ctx: &CliContext) -> anyhow::Result<()> {
         match self.cmd {
-            CliCmd::Run { allow_stdin: stdin } => {
+            CliCmd::Run {} => {
                 let run_dir = &ctx.paths[&Paths::Run];
 
                 // traverse all runner profiles
@@ -80,24 +79,10 @@ impl Cli {
                                 Self::output_path(&relpath, ctx.col.output_path);
 
                                 // prompt user
-                                let msg = if entry.stdin {
-                                    if stdin {
-                                        "Do you really want to run the script with stdin enabled?"
-                                    } else {
-                                        warning!("Script requires stdin to run");
-                                        continue;
-                                    }
-                                } else {
-                                    "Do you really want to run the script?"
-                                };
+                                let msg = "Do you really want to run the script?";
                                 let paths = &[&path];
                                 let action = || {
                                     if let exit_status = Command::new(path.path())
-                                        .stdin(if stdin {
-                                            Stdio::inherit()
-                                        } else {
-                                            Stdio::null()
-                                        })
                                         .status()
                                         .context("Script failed to run")?
                                         .code()

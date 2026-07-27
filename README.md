@@ -166,7 +166,6 @@ The scripts are search from the `run/<profile_id>` directory
     - `policy` : specify the policy for all the files after it
         - `exclude` : exclude the script from those being run
         - `include` : include the script in those being run
-    - `stdin` `on|off` : hints about enabling stdin
 
 - `data lines`: 
     - each data line is a relative path of the script to track

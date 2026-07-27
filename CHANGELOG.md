@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented here
 
+## v2.16.2
+
+### Changes
+
+- removed `--allow-stdin` in `run` action (not makes sense, when many other ways exist to block a script)
+
 ## v2.16.1
 
 ### Changes

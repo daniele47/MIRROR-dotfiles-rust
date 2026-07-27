@@ -106,11 +106,7 @@ pub enum CliCmd {
         act_delsymlinks: CliActDelSymlinks,
     },
     /// Run init scripts
-    Run {
-        /// Enable stdin in scripts that hint their need for it
-        #[arg(short = 's', long)]
-        allow_stdin: bool,
-    },
+    Run {},
     /// Show dependency tree of profiles
     Tree {
         /// Show duplicated profiles that appear multiple times

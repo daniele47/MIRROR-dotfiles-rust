@@ -10,7 +10,6 @@ pub enum RunnerPolicy {
 pub struct RunnerEntry {
     pub path: RelPathStr,
     pub policy: RunnerPolicy,
-    pub stdin: bool,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
